@@ -8,7 +8,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 #bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
 .app-container{position:relative;z-index:1;display:flex;height:100vh;width:100vw}
 
-.sidebar-left{width:260px;min-width:260px;background:var(--bg-panel);border-right:1px solid var(--border-glow);display:flex;flex-direction:column;position:relative;z-index:10}
+.sidebar-left{width:260px;min-width:260px;background:var(--bg-panel);border-right:1px solid var(--border-glow);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .3s ease,min-width .3s ease}.sidebar-left.collapsed{width:0;min-width:0;overflow:hidden;border-right:none}
 .sidebar-left::after{content:"";position:absolute;right:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,var(--cyan),transparent);opacity:.3}
 .logo-area{padding:28px 24px 20px;border-bottom:1px solid var(--border-glow);text-align:center}
 .logo-icon{width:48px;height:48px;margin:0 auto 10px;background:linear-gradient(135deg,var(--cyan),var(--purple));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 24px rgba(0,229,255,.3);animation:pulse-glow 3s ease-in-out infinite}
@@ -88,7 +88,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .mode-card-features-text{font-size:11px;color:rgba(16,185,129,.8);line-height:1.7;font-weight:500;white-space:pre-line}
 .mode-card{animation:cardIn .45s cubic-bezier(.4,0,.2,1) both;opacity:0}
 @keyframes cardIn{0%{opacity:0;transform:translateY(24px) scale(.97)}100%{opacity:1;transform:translateY(0) scale(1)}}
-.sidebar-right{width:260px;min-width:260px;background:var(--bg-panel);border-left:1px solid var(--border-glow);display:flex;flex-direction:column;position:relative;z-index:10}
+.sidebar-right{width:260px;min-width:260px;background:var(--bg-panel);border-left:1px solid var(--border-glow);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .3s ease,min-width .3s ease}.sidebar-right.collapsed{width:0;min-width:0;overflow:hidden;border-left:none}
 .sidebar-right::after{content:"";position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,var(--purple),transparent);opacity:.3}
 .right-header{padding:28px 20px 16px;border-bottom:1px solid var(--border-glow)}
 .right-header-title{font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px}
@@ -211,9 +211,14 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .chat-typing span:nth-child(2){animation-delay:.15s}
 .chat-typing span:nth-child(3){animation-delay:.3s}
 @keyframes typeBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+.sidebar-toggle{position:absolute;top:16px;right:-14px;width:28px;height:28px;background:var(--bg-panel);border:1px solid var(--border-glow);border-radius:50%;color:var(--cyan);font-size:14px;cursor:pointer;z-index:20;display:flex;align-items:center;justify-content:center;transition:all .3s ease;box-shadow:0 0 10px var(--cyan-dim)}.sidebar-toggle:hover{background:var(--cyan);color:#000;box-shadow:0 0 20px var(--cyan)}
+.sidebar-toggle.right-toggle{left:-14px;right:auto}
+@media(max-width:1024px){.sidebar-left{width:220px;min-width:220px}.sidebar-right{width:220px;min-width:220px}.content-area{padding:24px 16px}}
+@media(max-width:768px){.sidebar-left{width:0;min-width:0;overflow:hidden;border-right:none}.sidebar-left.mobile-open{width:260px;min-width:260px;overflow:visible;border-right:1px solid var(--border-glow);position:absolute;left:0;top:0;bottom:0;z-index:100;box-shadow:4px 0 30px rgba(0,0,0,.5)}.sidebar-right{display:none}.content-area{padding:20px 12px}.sidebar-toggle{right:auto;left:10px;top:10px;position:fixed;z-index:200}.sidebar-toggle.right-toggle{display:none}.mobile-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;display:none}.mobile-overlay.open{display:block}}
 </style></head><body>
 <canvas id="bg-canvas"></canvas>
-<div class="app-container">
+<div class="app-container"><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
 <aside class="sidebar-left">
 <div class="logo-area"><div class="logo-icon">⚡</div><div class="logo-title">头号流量玩家</div><div class="logo-subtitle">TOP TRAFFIC PLAYER</div></div>
 <nav class="nav-list">
@@ -549,4 +554,11 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&chatOpen)cl
 
 renderContent();
 updateApiStatus();
+
+function toggleSidebar(){var s=document.querySelector(".sidebar-left");var b=document.getElementById("sidebar-toggle");s.classList.toggle("collapsed");b.textContent=s.classList.contains("collapsed")?"?":"?";b.title=s.classList.contains("collapsed")?"?????":"?????"}
+function toggleRightSidebar(){var s=document.querySelector(".sidebar-right");var b=document.getElementById("right-toggle");s.classList.toggle("collapsed");b.textContent=s.classList.contains("collapsed")?"?":"?";b.title=s.classList.contains("collapsed")?"????":"????"}
+function openMobileSidebar(){document.querySelector(".sidebar-left").classList.add("mobile-open");document.getElementById("mobile-overlay").classList.add("open")}
+function closeMobileSidebar(){document.querySelector(".sidebar-left").classList.remove("mobile-open");document.getElementById("mobile-overlay").classList.remove("open")}
+function handleResize(){var w=window.innerWidth;var sb=document.getElementById("sidebar-toggle");if(w<=768){sb.style.display="flex";sb.onclick=openMobileSidebar;sb.textContent="?";sb.title="????";document.querySelector(".sidebar-left").classList.remove("collapsed");document.querySelector(".sidebar-right").classList.add("collapsed")}else{sb.onclick=toggleSidebar;sb.textContent=document.querySelector(".sidebar-left").classList.contains("collapsed")?"?":"?";sb.title=document.querySelector(".sidebar-left").classList.contains("collapsed")?"?????":"?????"}}
+window.addEventListener("resize",handleResize);handleResize();
 </script></body></html>

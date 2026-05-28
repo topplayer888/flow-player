@@ -490,7 +490,76 @@ var rwInputType="link";var rwMode="A";
 function switchRewriteInput(el){document.querySelectorAll("#rw-input-type .select-chip").forEach(function(c){c.classList.remove("selected")});el.classList.add("selected");rwInputType=el.dataset.val;document.getElementById("rw-link-field").style.display=rwInputType==="link"?"":"none";document.getElementById("rw-file-field").style.display=rwInputType==="file"?"":"none";document.getElementById("rw-text-field").style.display=rwInputType==="text"?"":"none"}
 function selectRewriteMode(el){document.querySelectorAll("#rw-mode-chips .select-chip").forEach(function(c){c.classList.remove("selected")});el.classList.add("selected");rwMode=el.dataset.val;document.getElementById("rw-custom-group2").style.display=rwMode==="B"?"":"none"}
 function updateRewriteApiStatus(){var s=document.getElementById("form-rw-status");var m=document.getElementById("form-rw-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置"}}
-function submitRewriteStep1(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10){alert("请先在左侧栏 ⚙ API 配置 中设置 API Key");return}var content="";if(rwInputType==="link"){content=document.getElementById("rw-link").value.trim()}else if(rwInputType==="text"){content=document.getElementById("rw-text").value.trim()}else{var f=document.getElementById("rw-file").files[0];content=f?"[用户上传视频文件: "+f.name:"[用户上传视频文件]"}if(!content){alert("请输入内容");return}switchChatMode("qa");addMessage("user","📥 [提交分析]\n方式："+(rwInputType==="link"?"链接":rwInputType==="file"?"文件":"文案")+"\n内容："+content.substring(0,200)+(content.length>200?"...":""));showTyping();var prompt="请分析以下视频内容：\n\n"+content+"\n\n请先输出逐字稿和原视频分析";var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt}];fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return};addMessage("assistant",data.choices[0].message.content);document.getElementById("rw-step1").style.display="none";document.getElementById("rw-step2").style.display=""}).catch(function(e){hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})}
+function submitRewriteStep1(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10){alert("请先在左侧栏 API 配置中设置 API Key");return}
+if(rwInputType==="link"){
+ var url=document.getElementById("rw-link").value.trim();
+ if(!url){alert("请输入视频链接");return}
+ switchChatMode("qa");addMessage("user","[提交链接]\n"+url);showTyping();
+ if(apiConfig.transcribeEndpoint){
+  var tsUrl=apiConfig.transcribeEndpoint.replace(/\/+$/,"")+"/api/transcribe";
+  addMessage("assistant","正在解析视频链接...");
+  fetch(tsUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:url})})
+  .then(function(r){return r.json()})
+  .then(function(data){
+   hideTyping();
+   if(data.success&&data.text){
+    addMessage("assistant","链接解析完成，共 "+data.text.length+" 字符\n正在AI分析...");
+    showTyping();
+    var prompt="请分析以下视频逐字稿：\n\n"+data.text+"\n\n请输出逐字稿和原视频分析，包括行业、IP人设、内容结构、情绪曲线、关键钩子";
+    var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt}];
+    return fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})})
+    .then(function(r2){return r2.json()})
+    .then(function(data2){
+     hideTyping();
+     if(data2.error){addMessage("assistant","AI分析错误："+data2.error.message);return}
+     addMessage("assistant",data2.choices[0].message.content);
+     document.getElementById("rw-step1").style.display="none";document.getElementById("rw-step2").style.display="";
+    });
+   }else{
+    addMessage("assistant","链接解析失败："+(data.error||"未知错误")+"\n\n尝试让AI直接分析链接...");
+    directAIAnalyze(url,agent);
+   }
+  }).catch(function(e){
+   hideTyping();addMessage("assistant","转写服务不可用："+e.message+"\n\n尝试让AI直接分析链接...")
+   directAIAnalyze(url,agent);
+  });
+ }else{
+  addMessage("assistant","提示：配置转写服务地址可获得更准确的逐字稿解析。\n\n尝试让AI分析链接...");
+  directAIAnalyze(url,agent);
+ }
+ return;
+}
+if(rwInputType==="text"){
+ var content=document.getElementById("rw-text").value.trim();
+ if(!content){alert("请输入文案内容");return}
+ switchChatMode("qa");addMessage("user","[提交文案]\n"+content.substring(0,300)+(content.length>300?"...":""));showTyping();
+ var prompt="请分析以下视频文案：\n\n"+content+"\n\n请输出逐字稿和原视频分析，包括行业、IP人设、内容结构、情绪曲线、关键钩子";
+ var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt}];
+ fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})})
+ .then(function(r){return r.json()})
+ .then(function(data){
+  hideTyping();
+  if(data.error){addMessage("assistant","API错误："+data.error.message);return}
+  addMessage("assistant",data.choices[0].message.content);
+  document.getElementById("rw-step1").style.display="none";document.getElementById("rw-step2").style.display="";
+ }).catch(function(e){hideTyping();addMessage("assistant","请求失败："+e.message)});
+ return;
+}
+var f=document.getElementById("rw-file").files[0];
+if(!f){alert("请选择视频文件");return}
+switchChatMode("qa");addMessage("user","[提交文件]\n文件名："+f.name);
+addMessage("assistant","文件上传逐字稿功能即将上线。\n\n当前支持：粘贴视频链接 或 直接粘贴文案。")
+}function directAIAnalyze(url,agent){showTyping();
+ var fallbackPrompt="请分析以下视频链接的内容：\n\n"+url+"\n\n如果你无法访问链接，请告知用户尝试直接粘贴文案。请先尝试理解视频内容，输出逐字稿和原视频分析，包括行业、IP人设、内容结构、情绪曲线、关键钩子";
+ fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:agent.systemPrompt},{role:"user",content:fallbackPrompt}],temperature:.7,max_tokens:4000})})
+ .then(function(r){return r.json()})
+ .then(function(data){
+  hideTyping();
+  if(data.error){addMessage("assistant","API错误："+data.error.message);return}
+  addMessage("assistant",data.choices[0].message.content);
+  document.getElementById("rw-step1").style.display="none";document.getElementById("rw-step2").style.display="";
+ }).catch(function(e){hideTyping();addMessage("assistant","请求失败："+e.message+"\n\n请尝试直接粘贴文案。")});
+ }
 function submitRewriteStep2(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10)return;var custom=document.getElementById("rw-custom2").value.trim();if(rwMode==="B"&&!custom){alert("请填写自定义赛道与人设");return}var prompt="请基于上一轮的逐字稿和分析，按以下模式进行仿写：\n\n仿写模式："+(rwMode==="A"?"模式A 原汁原味仿写":"模式B 自定义定位仿写")+(rwMode==="B"?"\n新赛道/新人设："+custom:"")+"\n\n请直接输出仿写文案和仿写逻辑说明";switchChatMode("qa");addMessage("user","✍️ [仿写提交]\n模式："+(rwMode==="A"?"原汁原味":"自定义")+(rwMode==="B"?"\n赛道/人设："+custom:""));showTyping();var msgs=[{role:"system",content:agent.systemPrompt}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:prompt});fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return};addMessage("assistant",data.choices[0].message.content)}).catch(function(e){hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})}
 function addMessageHTML(role,html){
 chatMessages.push({role:role,content:html});

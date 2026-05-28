@@ -577,10 +577,36 @@ if(rwInputType==="text"){
  return;
 }
 var f=document.getElementById("rw-file").files[0];
-if(!f){alert("请选择视频文件");return}
-switchChatMode("qa");document.getElementById("chat-back-row").style.display="";addMessage("user","[提交文件]\n文件名："+f.name);
-addMessage("assistant","文件上传逐字稿功能即将上线。\n\n当前支持：粘贴视频链接 或 直接粘贴文案。")
-}function directAIAnalyze(url,agent){showTyping();
+  if(!f){alert("请选择视频文件");return}
+  switchChatMode("qa");document.getElementById("chat-back-row").style.display="";addMessage("user","[提交文件]\n文件名："+f.name+" ("+(f.size/1024/1024).toFixed(1)+" MB)");showTyping();
+  if(!apiConfig.transcribeEndpoint){hideTyping();addMessage("assistant","请先配置转写服务地址");return}
+  var fileUrl=apiConfig.transcribeEndpoint.replace(/\/+$/,"")+"/api/transcribe-file";
+  addMessage("assistant","正在上传并转写视频...");
+  var formData=new FormData();
+  formData.append("file",f);
+  formData.append("api_key",apiConfig.apikey);
+  fetch(fileUrl,{method:"POST",body:formData})
+  .then(function(r){return r.json()})
+  .then(function(data){
+    hideTyping();
+    if(data.success&&data.text){
+      addMessage("assistant","转写完成，共 "+data.text.length+" 字符\n正在AI分析...");
+      showTyping();
+      var prompt="请分析以下视频逐字稿：\n\n"+data.text+"\n\n请输出逐字稿和原视频分析，包括行业、IP人设、内容结构、情绪曲线、关键钩子";
+      var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt}];
+      return fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})})
+      .then(function(r2){return r2.json()})
+      .then(function(data2){
+        hideTyping();
+        if(data2.error){addMessage("assistant","AI分析错误："+data2.error.message);return}
+        addMessage("assistant",data2.choices[0].message.content);
+        document.getElementById("rw-step1").style.display="none";document.getElementById("rw-step2").style.display="";
+      });
+    }else{
+      addMessage("assistant","转写失败："+(data.error||"未知错误")+"\n\n请确认上传的是有效视频文件。");
+    }
+  }).catch(function(e){hideTyping();addMessage("assistant","上传失败："+e.message)})
+function directAIAnalyze(url,agent){showTyping();
  var fallbackPrompt="请分析以下视频链接的内容：\n\n"+url+"\n\n如果你无法访问链接，请告知用户尝试直接粘贴文案。请先尝试理解视频内容，输出逐字稿和原视频分析，包括行业、IP人设、内容结构、情绪曲线、关键钩子";
  fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:agent.systemPrompt},{role:"user",content:fallbackPrompt}],temperature:.7,max_tokens:4000})})
  .then(function(r){return r.json()})

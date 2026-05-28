@@ -335,7 +335,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 <button class="chat-form-submit" onclick="xuehuiGenerate()">&#x270d; 生成爆款文案</button>
 </div>
 <div id="xh-results" style="display:none">
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button onclick="xuehuiReset()" style="background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-primary);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px">&#x1f504; 重新开始</button><span style="font-size:12px;color:#10b981;font-weight:600">&#x2705; 文案已生成</span></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button onclick="xuehuiBackTo(4)" style="background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-primary);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px">&#x2190; 返回修改</button><button onclick="xuehuiReset()" style="background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-muted);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px">&#x1f504; 重新开始</button><span style="font-size:12px;color:#10b981;font-weight:600">&#x2705; 文案已生成</span></div>
 <div id="xh-results-content" style="max-height:500px;overflow-y:auto;display:flex;flex-direction:column;gap:12px"></div>
 </div>
 </div>
@@ -701,7 +701,7 @@ xuehuiCallAPI(sysPrompt,userPrompt,function(json){
   html+='<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:8px;padding:6px 12px;background:rgba(168,85,247,.08);border-radius:8px">'+g+'</div>';
   grouped[g].forEach(function(r){
    var durColor=r.duration==="90秒标准"?"var(--cyan)":"var(--gold)";
-   html+='<div style="padding:12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);margin-bottom:8px"><div style="display:flex;gap:8px;margin-bottom:6px"><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(0,229,255,.1);color:'+durColor+'">'+r.duration+'</span><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(168,85,247,.1);color:var(--purple)">'+r.openingType+'</span></div><div style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+r.content+'</div></div>';
+   html+='<div style="padding:12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);margin-bottom:8px"><div style="display:flex;gap:8px;margin-bottom:6px"><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(0,229,255,.1);color:'+durColor+'">'+r.duration+'</span><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(168,85,247,.1);color:var(--purple)">'+r.openingType+'</span><span style="flex:1"></span><button onclick="copyXhResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px" title="复制全文">&#x1f4cb; 复制</button></div><div style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+r.content+'</div></div>';
   });
   html+='</div>';
  }
@@ -721,6 +721,7 @@ document.getElementById("xh-industry").value="";document.getElementById("xh-audi
 document.querySelectorAll("#xh-elements .select-chip.selected,#xh-templates .select-chip.selected,#xh-openings .select-chip.selected").forEach(function(c){c.classList.remove("selected")});
 xhState={industry:"",audience:"",elements:[],topics:[],selectedTopic:null,templates:[],openings:[],selectedOpenings:[],results:[]};
 }
+function copyXhResult(btn){var card=btn.closest("div").parentElement;var text=card.querySelector("div:last-child").textContent;navigator.clipboard.writeText(text).then(function(){btn.textContent="\u2705 已复制";btn.style.color="#10b981";setTimeout(function(){btn.textContent="\uD83D\uDCCB 复制";btn.style.color="var(--text-secondary)"},2000)}).catch(function(){alert("复制失败，请手动选择复制")})}
 function closeChat(){
 document.getElementById("chat-overlay").classList.remove("open");
 chatOpen=false;chatMessages=[];

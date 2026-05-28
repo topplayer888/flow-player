@@ -138,9 +138,9 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 @media(max-width:900px){.sidebar-right{display:none}.sidebar-left{width:200px;min-width:200px}}
 
 /* Chat Modal */
-.chat-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(2px)}
+.chat-overlay{position:absolute;inset:0;z-index:100;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(2px)}
 .chat-overlay.open{opacity:1;pointer-events:all}
-.chat-modal{width:100vw;height:100vh;background:var(--bg-panel);border:none;border-radius:0;display:flex;flex-direction:column;overflow:hidden;animation:modalIn .25s ease-out}
+.chat-modal{width:100%;height:100%;background:var(--bg-panel);border:none;border-radius:0;display:flex;flex-direction:column;overflow:hidden;animation:modalIn .25s ease-out}
 @keyframes modalIn{0%{opacity:0;transform:scale(.95) translateY(10px)}100%{opacity:1;transform:scale(1) translateY(0)}}
 .chat-header{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--border-glow);background:linear-gradient(180deg,rgba(168,85,247,.08),transparent)}
 .chat-header-icon{width:40px;height:40px;border-radius:12px;background:rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--purple)}
@@ -264,8 +264,8 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 </div>
 <div class="right-modes" id="right-modes"></div>
 
-</aside>
-</div>
+
+
 
 <div class="chat-overlay" id="chat-overlay">
 <div class="chat-modal">
@@ -305,6 +305,8 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 <button class="chat-send" id="chat-send-btn" onclick="sendMessage()">↑</button>
 </div>
 </div>
+</div>
+</aside>
 </div>
 
 <script>

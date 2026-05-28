@@ -134,7 +134,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 @media(max-width:900px){.sidebar-right{display:none}.sidebar-left{width:200px;min-width:200px}}
 
 /* Chat Modal */
-.chat-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px)}
+.chat-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(2px)}
 .chat-overlay.open{opacity:1;pointer-events:all}
 .chat-modal{width:720px;max-width:95vw;height:85vh;max-height:800px;background:var(--bg-panel);border:1px solid var(--border-glow);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:modalIn .35s cubic-bezier(.4,0,.2,1)}
 @keyframes modalIn{0%{opacity:0;transform:scale(.95) translateY(10px)}100%{opacity:1;transform:scale(1) translateY(0)}}

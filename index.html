@@ -177,6 +177,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .settings-field label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
 .settings-field input{flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;font-family:monospace;outline:none;transition:border .2s}
 .settings-field input:focus{border-color:rgba(168,85,247,.4)}
+.adjust-hint{font-size:11px;color:var(--text-muted);line-height:1.5;margin-bottom:4px}#cfg-adjust{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;font-family:inherit;outline:none;resize:vertical;min-height:60px;transition:border .2s}#cfg-adjust:focus{border-color:rgba(0,229,255,.4)}
 .settings-row{display:flex;gap:8px}
 .settings-save{flex:1;padding:8px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--purple),rgba(168,85,247,.6));color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
 .settings-save:hover{box-shadow:0 0 16px rgba(168,85,247,.3)}
@@ -266,11 +267,10 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 <button class="chat-mode-tab active" onclick="switchChatMode('qa')">💬 对话式</button>
 <button class="chat-mode-tab" onclick="switchChatMode('form')">📋 表单式</button>
 </div>
-<div class="chat-settings-panel id="chat-settings-panel">
-<div class="settings-field"><label>API 端点</label><input id="cfg-endpoint" placeholder="https://api.openai.com/v1/chat/completions"></div>
-<div class="settings-field"><label>API Key</label><input id="cfg-apikey" placeholder="sk-..." type="password"></div>
-<div class="settings-field"><label>模型名称</label><input id="cfg-model" placeholder="gpt-4o"></div>
-<div class="settings-row"><button class="settings-save" onclick="saveSettings()">保存配置</button><button class="settings-reset" onclick="resetSettings()">重置</button></div>
+<div class="chat-settings-panel" id="chat-settings-panel">
+<div class="adjust-hint">💡 对生成的脚本不满意？在此输入修改建议，AI 将根据你的要求重新优化内容。不会改变原本的创作逻辑和体系方法论。</div>
+<textarea id="cfg-adjust" placeholder="例如：脚本太长了，缩短到30秒；开头不够抓人，加一个痛点钩子..." rows="3"></textarea>
+<div class="settings-row"><button class="settings-save" onclick="applyAdjustment()">✏️ 提交调整</button><button class="settings-reset" onclick="clearAdjustment()">清空</button></div>
 </div>
 <div class="chat-form-panel" id="chat-form-panel">
 <div class="form-api-status missing" id="form-api-status"><span class="fa-dot"></span><span id="form-api-msg">未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置</span></div>
@@ -516,9 +516,10 @@ el.classList.add("selected");
 function toggleSidebarApi(){var b=document.getElementById("sidebar-api-body");b.classList.toggle("open");if(b.classList.contains("open")){document.getElementById("sb-endpoint").value=apiConfig.endpoint;document.getElementById("sb-apikey").value=apiConfig.apikey;document.getElementById("sb-model").value=apiConfig.model}}
 function saveSidebarApi(){apiConfig.endpoint=normalizeEndpoint(document.getElementById("sb-endpoint").value.trim());apiConfig.apikey=document.getElementById("sb-apikey").value.trim();apiConfig.model=document.getElementById("sb-model").value.trim()||"gpt-4o";localStorage.setItem("fp_endpoint",apiConfig.endpoint);localStorage.setItem("fp_apikey",apiConfig.apikey);localStorage.setItem("fp_model",apiConfig.model);document.getElementById("sidebar-api-body").classList.remove("open");updateApiStatus();updateFormApiStatus()}
 function updateApiStatus(){var s=document.getElementById("sidebar-api-body");var h=s.previousElementSibling;var dot=h.querySelector("span")||h;if(apiConfig.apikey){h.style.color="#10b981"}else{h.style.color="var(--text-muted)"}}
-function toggleSettings(e){e.stopPropagation();var p=document.getElementById("chat-settings-panel");p.classList.toggle("open");if(p.classList.contains("open"))loadConfigUI()}
-function saveSettings(){apiConfig.endpoint=normalizeEndpoint(document.getElementById("cfg-endpoint").value.trim());apiConfig.apikey=document.getElementById("cfg-apikey").value.trim();apiConfig.model=document.getElementById("cfg-model").value.trim()||"gpt-4o";localStorage.setItem("fp_endpoint",apiConfig.endpoint);localStorage.setItem("fp_apikey",apiConfig.apikey);localStorage.setItem("fp_model",apiConfig.model);document.getElementById("chat-settings-panel").classList.remove("open");updateApiStatus();addMessage("assistant","✅ 配置已保存！\n端点："+apiConfig.endpoint+"\n模型："+apiConfig.model)}
-function resetSettings(){apiConfig.endpoint="https://api.openai.com/v1/chat/completions";apiConfig.apikey="";apiConfig.model="gpt-4o";localStorage.setItem("fp_endpoint",apiConfig.endpoint);localStorage.setItem("fp_apikey","");localStorage.setItem("fp_model",apiConfig.model);loadConfigUI();addMessage("assistant","🔄 已重置为默认配置")}
+function toggleSettings(e){e.stopPropagation();var p=document.getElementById("chat-settings-panel");p.classList.toggle("open")}
+function applyAdjustment(){var t=document.getElementById("cfg-adjust");var v=t.value.trim();if(!v)return;document.getElementById("chat-settings-panel").classList.remove("open");addMessage("user","?? ?????"+v);t.value="";showTyping();callAgentForAdjust(v)}
+function clearAdjustment(){document.getElementById("cfg-adjust").value=""}
+function callAgentForAdjust(adjustText){var agent=agents[chatKey];if(!agent)return;if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant","?? ???? API Key?????? ? API ?? ????");return}var msgs=[{role:"system",content:agent.systemPrompt}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:"??????????????????????????????????????????\n"+adjustText});fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","? API ???"+data.error.message);return}addMessage("assistant",data.choices[0].message.content)}).catch(function(e){hideTyping();addMessage("assistant","? ???????"+e.message)})}
 function callAgent(userMsg){
 var agent=agents[chatKey];if(!agent)return;
 if(!apiConfig.apikey||apiConfig.apikey.length<10){

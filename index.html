@@ -10,6 +10,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 
 .sidebar-left{width:260px;min-width:260px;background:var(--bg-panel);border-right:1px solid var(--border-glow);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .3s ease,min-width .3s ease}.sidebar-left.collapsed{width:0;min-width:0;overflow:hidden;border-right:none}
 .sidebar-left::after{content:"";position:absolute;right:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,var(--cyan),transparent);opacity:.3}
+.sidebar-collapse-btn{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--cyan);font-size:10px;cursor:pointer;z-index:15;display:flex;align-items:center;justify-content:center;transition:all .3s ease}.sidebar-collapse-btn:hover{background:var(--cyan);color:#000;box-shadow:0 0 12px var(--cyan)}.sidebar-left.collapsed{width:0;min-width:0;overflow:hidden;border-right:none}.sidebar-left.collapsed .sidebar-collapse-btn{right:-34px}
 .logo-area{padding:28px 24px 20px;border-bottom:1px solid var(--border-glow);text-align:center}
 .logo-icon{width:48px;height:48px;margin:0 auto 10px;background:linear-gradient(135deg,var(--cyan),var(--purple));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 24px rgba(0,229,255,.3);animation:pulse-glow 3s ease-in-out infinite}
 @keyframes pulse-glow{0%,100%{box-shadow:0 0 24px rgba(0,229,255,.3)}50%{box-shadow:0 0 40px rgba(168,85,247,.5)}}
@@ -213,14 +214,23 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .chat-typing span:nth-child(3){animation-delay:.3s}
 @keyframes typeBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
-.sidebar-toggle{position:absolute;top:16px;right:-14px;width:28px;height:28px;background:var(--bg-panel);border:1px solid var(--border-glow);border-radius:50%;color:var(--cyan);font-size:14px;cursor:pointer;z-index:20;display:flex;align-items:center;justify-content:center;transition:all .3s ease;box-shadow:0 0 10px var(--cyan-dim)}.sidebar-toggle:hover{background:var(--cyan);color:#000;box-shadow:0 0 20px var(--cyan)}
-.sidebar-toggle.right-toggle{left:-14px;right:auto}
 @media(max-width:1024px){.sidebar-left{width:220px;min-width:220px}.sidebar-right{width:220px;min-width:220px}.content-area{padding:24px 16px}}
-@media(max-width:768px){.sidebar-left{width:0;min-width:0;overflow:hidden;border-right:none}.sidebar-left.mobile-open{width:260px;min-width:260px;overflow:visible;border-right:1px solid var(--border-glow);position:absolute;left:0;top:0;bottom:0;z-index:100;box-shadow:4px 0 30px rgba(0,0,0,.5)}.sidebar-right{display:none}.content-area{padding:20px 12px}.sidebar-toggle{right:auto;left:10px;top:10px;position:fixed;z-index:200}.sidebar-toggle.right-toggle{display:none}.mobile-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;display:none}.mobile-overlay.open{display:block}}
+.menu-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;width:40px;height:40px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--cyan);font-size:20px;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 0 16px var(--cyan-dim);transition:all .2s}.menu-toggle:hover{background:var(--cyan);color:#000}
+.mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99}
+.mobile-overlay.open{display:block}
+@media(max-width:768px){
+.menu-toggle{display:flex}
+.sidebar-left{position:fixed;left:-280px;top:0;bottom:0;width:280px;min-width:280px;z-index:100;transition:left .3s ease;box-shadow:none;overflow-y:auto}
+.sidebar-left.mobile-open{left:0;box-shadow:8px 0 40px rgba(0,0,0,.5)}
+.sidebar-right{display:none}
+.content-area{padding:20px 12px;padding-top:56px}
+}
 </style></head><body>
 <canvas id="bg-canvas"></canvas>
-<div class="app-container"><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
+<div class="app-container">
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
 <aside class="sidebar-left">
+<button class="sidebar-collapse-btn" id="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="收起侧边栏">◀</button>
 <div class="logo-area"><div class="logo-icon">⚡</div><div class="logo-title">头号流量玩家</div><div class="logo-subtitle">TOP TRAFFIC PLAYER</div></div>
 <nav class="nav-list">
 <div class="nav-item active" data-section="0"><div class="nav-icon">🎬</div><span class="nav-label">爆款脚本创作</span><span class="nav-badge">3 模式</span></div>
@@ -239,6 +249,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 <button class="sidebar-api-save" onclick="saveSidebarApi()">保存配置</button>
 </div>
 </div><div class="sidebar-footer">v1.0 · AI-Powered</div>
+<button class="menu-toggle" id="menu-toggle" onclick="toggleMobileMenu()" title="菜单">☰</button>
 </aside>
 <main class="content-area" id="content-area"></main>
 <aside class="sidebar-right">
@@ -361,7 +372,7 @@ if(currentSection===parseInt(e.dataset.section))return;
 document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active","entering")});
 e.classList.add("active","entering");
 setTimeout(function(){e.classList.remove("entering")},600);
-currentSection=parseInt(e.dataset.section);currentMode=0;renderContent();
+currentSection=parseInt(e.dataset.section);currentMode=0;closeMobileMenu();renderContent();
 });
 });
 var canvas=document.getElementById("bg-canvas"),ctx=canvas.getContext("2d"),particles=[],rainDrops=[],gridOffset=0,sparks=[],mx=-1,my=-1,pmx=-1,pmy=-1;
@@ -563,13 +574,13 @@ origSend();
 document.getElementById("chat-overlay").addEventListener("click",function(e){if(e.target===this)closeChat()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&chatOpen)closeChat()});
 
+function toggleSidebarCollapse(){var s=document.querySelector(".sidebar-left");var b=document.getElementById("sidebar-collapse-btn");s.classList.toggle("collapsed");b.textContent=s.classList.contains("collapsed")?"▶":"◀";b.title=s.classList.contains("collapsed")?"展开侧边栏":"收起侧边栏"}
+function toggleMobileMenu(){var s=document.querySelector(".sidebar-left");var o=document.getElementById("mobile-overlay");if(s.classList.contains("mobile-open")){closeMobileMenu()}else{s.classList.add("mobile-open");o.classList.add("open")}}
+function closeMobileMenu(){document.querySelector(".sidebar-left").classList.remove("mobile-open");document.getElementById("mobile-overlay").classList.remove("open")}
+function handleResize(){var m=document.getElementById("menu-toggle");if(window.innerWidth<=768){m.style.display="flex"}else{m.style.display="none";closeMobileMenu()}}
+window.addEventListener("resize",handleResize);
+handleResize();
 renderContent();
 updateApiStatus();
 
-function toggleSidebar(){var s=document.querySelector(".sidebar-left");var b=document.getElementById("sidebar-toggle");s.classList.toggle("collapsed");b.textContent=s.classList.contains("collapsed")?"?":"?";b.title=s.classList.contains("collapsed")?"?????":"?????"}
-function toggleRightSidebar(){var s=document.querySelector(".sidebar-right");var b=document.getElementById("right-toggle");s.classList.toggle("collapsed");b.textContent=s.classList.contains("collapsed")?"?":"?";b.title=s.classList.contains("collapsed")?"????":"????"}
-function openMobileSidebar(){document.querySelector(".sidebar-left").classList.add("mobile-open");document.getElementById("mobile-overlay").classList.add("open")}
-function closeMobileSidebar(){document.querySelector(".sidebar-left").classList.remove("mobile-open");document.getElementById("mobile-overlay").classList.remove("open")}
-function handleResize(){var w=window.innerWidth;var sb=document.getElementById("sidebar-toggle");if(w<=768){sb.style.display="flex";sb.onclick=openMobileSidebar;sb.textContent="?";sb.title="????";document.querySelector(".sidebar-left").classList.remove("collapsed");document.querySelector(".sidebar-right").classList.add("collapsed")}else{sb.onclick=toggleSidebar;sb.textContent=document.querySelector(".sidebar-left").classList.contains("collapsed")?"?":"?";sb.title=document.querySelector(".sidebar-left").classList.contains("collapsed")?"?????":"?????"}}
-window.addEventListener("resize",handleResize);handleResize();
 </script></body></html>

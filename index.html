@@ -1,6 +1,6 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>澶村彿娴侀噺鐜╁</title>
+<title>头号流量玩家</title>
 <style>
 :root{--bg-deep:#0a0c14;--bg-panel:#0f121e;--bg-card:#141828;--border-glow:#1a1f35;--cyan:#00e5ff;--cyan-dim:rgba(0,229,255,.15);--purple:#a855f7;--purple-dim:rgba(168,85,247,.15);--gold:#f59e0b;--gold-dim:rgba(245,158,11,.15);--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--radius:12px;--radius-sm:8px}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -235,25 +235,25 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 <div class="app-container">
 <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
 <aside class="sidebar-left">
-<div class="logo-area"><div class="logo-icon">鈿?/div><div class="logo-title">澶村彿娴侀噺鐜╁</div><div class="logo-subtitle">TOP TRAFFIC PLAYER</div></div>
+<div class="logo-area"><div class="logo-icon">⚡</div><div class="logo-title">头号流量玩家</div><div class="logo-subtitle">TOP TRAFFIC PLAYER</div></div>
 <nav class="nav-list">
-<div class="nav-item active" data-section="0"><div class="nav-icon">馃幀</div><span class="nav-label">鐖嗘鑴氭湰鍒涗綔</span><span class="nav-badge">4 妯″紡</span></div>
-<div class="nav-item" data-section="1"><div class="nav-icon">馃挕</div><span class="nav-label">骞垮憡鍒涙剰</span><span class="nav-badge">3 妯″紡</span></div>
-<div class="nav-item" data-section="2"><div class="nav-icon">馃摗</div><span class="nav-label">鐩存挱绛栫暐</span><span class="nav-badge">2 妯″紡</span></div>
+<div class="nav-item active" data-section="0"><div class="nav-icon">🎬</div><span class="nav-label">爆款脚本创作</span><span class="nav-badge">4 模式</span></div>
+<div class="nav-item" data-section="1"><div class="nav-icon">💡</div><span class="nav-label">广告创意</span><span class="nav-badge">3 模式</span></div>
+<div class="nav-item" data-section="2"><div class="nav-icon">📡</div><span class="nav-label">直播策略</span><span class="nav-badge">2 模式</span></div>
 </nav>
 <div class="sidebar-api-settings">
 <div class="sidebar-api-header" onclick="toggleSidebarApi()">
-<span>鈿?API 閰嶇疆</span>
-<span class="sidebar-api-arrow">鈻?/span>
+<span>⚙ API 配置</span>
+<span class="sidebar-api-arrow">▾</span>
 </div>
 <div class="sidebar-api-body" id="sidebar-api-body">
-<input id="sb-endpoint" placeholder="API 绔偣 (榛樿 OpenAI)">
+<input id="sb-endpoint" placeholder="API 端点 (默认 OpenAI)">
 <input id="sb-apikey" placeholder="API Key (sk-...)" type="password">
-<input id="sb-model" placeholder="妯″瀷鍚嶇О (榛樿 gpt-4o)">
-<button class="sidebar-api-save" onclick="saveSidebarApi()">淇濆瓨閰嶇疆</button>
+<input id="sb-model" placeholder="模型名称 (默认 gpt-4o)">
+<button class="sidebar-api-save" onclick="saveSidebarApi()">保存配置</button>
 </div>
-</div><div class="sidebar-footer">v1.0 路 AI-Powered</div>
-<button class="menu-toggle" id="menu-toggle" onclick="toggleMobileMenu()" title="鑿滃崟">鈽?/button>
+</div><div class="sidebar-footer">v1.0 · AI-Powered</div>
+<button class="menu-toggle" id="menu-toggle" onclick="toggleMobileMenu()" title="菜单">☰</button>
 </aside>
 <main class="content-area" id="content-area">
 
@@ -264,48 +264,48 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 <div class="chat-overlay" id="chat-overlay">
 <div class="chat-modal">
 <div class="chat-header">
-<div class="chat-header-icon" id="chat-agent-icon">馃殌</div>
+<div class="chat-header-icon" id="chat-agent-icon">🚀</div>
 <div class="chat-header-info">
 <div class="chat-header-name" id="chat-agent-name"></div>
 <div class="chat-header-sub" id="chat-agent-sub"></div>
 </div>
-<button class="chat-settings-btn" onclick="toggleSettings(event)" title="API 璁剧疆">鈿?/button><button class="chat-close" onclick="closeChat()">鉁?/button>
+<button class="chat-settings-btn" onclick="toggleSettings(event)" title="API 设置">⚙</button><button class="chat-close" onclick="closeChat()">✕</button>
 </div>
 <div class="chat-mode-tabs" id="chat-mode-tabs">
-<button class="chat-mode-tab active" onclick="switchChatMode('qa')">馃挰 瀵硅瘽寮?/button>
-<button class="chat-mode-tab" onclick="switchChatMode('form')">馃搵 琛ㄥ崟寮?/button>
+<button class="chat-mode-tab active" onclick="switchChatMode('qa')">💬 对话式</button>
+<button class="chat-mode-tab" onclick="switchChatMode('form')">📋 表单式</button>
 </div>
 <div class="chat-settings-panel" id="chat-settings-panel">
-<div class="adjust-hint">馃挕 瀵圭敓鎴愮殑鑴氭湰涓嶆弧鎰忥紵鍦ㄦ杈撳叆淇敼寤鸿锛孉I 灏嗘牴鎹綘鐨勮姹傞噸鏂颁紭鍖栧唴瀹广€備笉浼氭敼鍙樺師鏈殑鍒涗綔閫昏緫鍜屼綋绯绘柟娉曡銆?/div>
-<textarea id="cfg-adjust" placeholder="渚嬪锛氳剼鏈お闀夸簡锛岀缉鐭埌30绉掞紱寮€澶翠笉澶熸姄浜猴紝鍔犱竴涓棝鐐归挬瀛?.." rows="3"></textarea>
-<div class="settings-row"><button class="settings-save" onclick="applyAdjustment()">鉁忥笍 鎻愪氦璋冩暣</button><button class="settings-reset" onclick="clearAdjustment()">娓呯┖</button></div>
+<div class="adjust-hint">💡 对生成的脚本不满意？在此输入修改建议，AI 将根据你的要求重新优化内容。不会改变原本的创作逻辑和体系方法论。</div>
+<textarea id="cfg-adjust" placeholder="例如：脚本太长了，缩短到30秒；开头不够抓人，加一个痛点钩子..." rows="3"></textarea>
+<div class="settings-row"><button class="settings-save" onclick="applyAdjustment()">✏️ 提交调整</button><button class="settings-reset" onclick="clearAdjustment()">清空</button></div>
 </div>
 <div class="chat-form-panel" id="chat-form-panel">
-<div class="form-api-status missing" id="form-api-status"><span class="fa-dot"></span><span id="form-api-msg">鏈厤缃?API Key 路 璇峰湪宸︿晶鏍?鈿?API 閰嶇疆 涓缃?/span></div>
-<div class="chat-form-field"><label><span class="field-icon">馃摝</span> 浜у搧淇℃伅</label><textarea id="form-product" placeholder="璇疯缁嗘弿杩颁綘鐨勪骇鍝侊紝鍖呮嫭鍝佺被銆佸姛鑳姐€佽鏍笺€佷环鏍肩瓑..."></textarea></div>
-<div class="chat-form-field"><label><span class="field-icon">馃拵</span> 鏍稿績鍗栫偣</label><textarea id="form-usp" placeholder="浜у搧鏈€绐佸嚭鐨勫樊寮傚寲浼樺娍鏄粈涔堬紵鐢ㄦ埛鐪熸鍦ㄦ剰鐨勭偣..."></textarea></div>
-<div class="chat-form-field"><label><span class="field-icon">馃懃</span> 鐩爣浜虹兢</label><textarea id="form-audience" placeholder="鐢ㄤ粬浠殑鍘熻瘽鎻忚堪锛氬勾榫勩€佽韩浠姐€佺棝鐐广€佷娇鐢ㄥ満鏅?.."></textarea></div>
-<div class="chat-form-field"><label><span class="field-icon">馃幆</span> 钀ラ攢鐩爣</label><select id="form-goal"><option value="绉嶈崏">馃尡 绉嶈崏</option><option value="杞寲">馃挵 鐩存帴杞寲</option><option value="娴嬫柊">馃И 娴嬫柊</option><option value="鍝佺墝">馃彿锔?鍝佺墝璁ょ煡</option></select></div>
-<div class="chat-form-field"><label><span class="field-icon">鈴憋笍</span> 瑙嗛鏃堕暱</label><select class="duration-select" id="form-duration"><option value="30绉掍互鍐?>30绉掍互鍐?/option><option value="30-60绉? selected>30-60绉?/option><option value="60绉掍互涓?>60绉掍互涓?/option></select></div>
-<div class="chat-form-field"><label><span class="field-icon">馃搻</span> 鑴氭湰鎵嬫硶 <span style="font-size:10px;color:var(--text-muted);font-weight:400">锛堥€夋嫨 1-2 绉嶏級</span></label><div class="select-chips" id="script-chips"><span class="select-chip" data-val="USP" onclick="toggleChip(this,'script-chips',2)">USP</span><span class="select-chip" data-val="鐥涚偣瑙ｅ喅" onclick="toggleChip(this,'script-chips',2)">鐥涚偣瑙ｅ喅</span><span class="select-chip" data-val="鍝佺被PK" onclick="toggleChip(this,'script-chips',2)">鍝佺被PK</span><span class="select-chip" data-val="鍦烘櫙" onclick="toggleChip(this,'script-chips',2)">鍦烘櫙</span><span class="select-chip" data-val="鏉冨▉" onclick="toggleChip(this,'script-chips',2)">鏉冨▉</span><span class="select-chip" data-val="缁嗚妭" onclick="toggleChip(this,'script-chips',2)">缁嗚妭</span></div></div>
-<div class="chat-form-field"><label><span class="field-icon">馃憗锔?/span> 瑙嗚鎵嬫硶 <span style="font-size:10px;color:var(--text-muted);font-weight:400">锛堥€夋嫨 1-2 绉嶏級</span></label><div class="select-chips" id="visual-chips"><span class="select-chip" data-val="鍚屾" onclick="toggleChip(this,'visual-chips',2)">鍚屾</span><span class="select-chip" data-val="瓒呯骇鏁堟灉" onclick="toggleChip(this,'visual-chips',2)">瓒呯骇鏁堟灉</span><span class="select-chip" data-val="钂欏お濂? onclick="toggleChip(this,'visual-chips',2)">钂欏お濂?/span><span class="select-chip" data-val="绗﹀彿鍔ㄤ綔" onclick="toggleChip(this,'visual-chips',2)">绗﹀彿鍔ㄤ綔</span><span class="select-chip" data-val="閲嶅" onclick="toggleChip(this,'visual-chips',2)">閲嶅</span><span class="select-chip" data-val="鍏辨儏" onclick="toggleChip(this,'visual-chips',2)">鍏辨儏</span></div></div>
-<div class="chat-form-field"><label><span class="field-icon">馃摑</span> 琛ュ厖淇℃伅锛堥€夊～锛?/label><textarea id="form-extra" placeholder="浠锋牸鍖洪棿銆佷富瑕佺珵鍝併€佷娇鐢ㄥ満鏅€佹槸鍚︽湁鏉冨▉鑳屼功銆佺嫭鐗硅瑙夎绱?.."></textarea></div>
-<button class="chat-form-submit" onclick="submitFormScript()">馃殌 鐢熸垚寮曟祦鑴氭湰</button>
+<div class="form-api-status missing" id="form-api-status"><span class="fa-dot"></span><span id="form-api-msg">未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置</span></div>
+<div class="chat-form-field"><label><span class="field-icon">📦</span> 产品信息</label><textarea id="form-product" placeholder="请详细描述你的产品，包括品类、功能、规格、价格等..."></textarea></div>
+<div class="chat-form-field"><label><span class="field-icon">💎</span> 核心卖点</label><textarea id="form-usp" placeholder="产品最突出的差异化优势是什么？用户真正在意的点..."></textarea></div>
+<div class="chat-form-field"><label><span class="field-icon">👥</span> 目标人群</label><textarea id="form-audience" placeholder="用他们的原话描述：年龄、身份、痛点、使用场景..."></textarea></div>
+<div class="chat-form-field"><label><span class="field-icon">🎯</span> 营销目标</label><select id="form-goal"><option value="种草">🌱 种草</option><option value="转化">💰 直接转化</option><option value="测新">🧪 测新</option><option value="品牌">🏷️ 品牌认知</option></select></div>
+<div class="chat-form-field"><label><span class="field-icon">⏱️</span> 视频时长</label><select class="duration-select" id="form-duration"><option value="30秒以内">30秒以内</option><option value="30-60秒" selected>30-60秒</option><option value="60秒以上">60秒以上</option></select></div>
+<div class="chat-form-field"><label><span class="field-icon">📐</span> 脚本手法 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（选择 1-2 种）</span></label><div class="select-chips" id="script-chips"><span class="select-chip" data-val="USP" onclick="toggleChip(this,'script-chips',2)">USP</span><span class="select-chip" data-val="痛点解决" onclick="toggleChip(this,'script-chips',2)">痛点解决</span><span class="select-chip" data-val="品类PK" onclick="toggleChip(this,'script-chips',2)">品类PK</span><span class="select-chip" data-val="场景" onclick="toggleChip(this,'script-chips',2)">场景</span><span class="select-chip" data-val="权威" onclick="toggleChip(this,'script-chips',2)">权威</span><span class="select-chip" data-val="细节" onclick="toggleChip(this,'script-chips',2)">细节</span></div></div>
+<div class="chat-form-field"><label><span class="field-icon">👁️</span> 视觉手法 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（选择 1-2 种）</span></label><div class="select-chips" id="visual-chips"><span class="select-chip" data-val="同框" onclick="toggleChip(this,'visual-chips',2)">同框</span><span class="select-chip" data-val="超级效果" onclick="toggleChip(this,'visual-chips',2)">超级效果</span><span class="select-chip" data-val="蒙太奇" onclick="toggleChip(this,'visual-chips',2)">蒙太奇</span><span class="select-chip" data-val="符号动作" onclick="toggleChip(this,'visual-chips',2)">符号动作</span><span class="select-chip" data-val="重复" onclick="toggleChip(this,'visual-chips',2)">重复</span><span class="select-chip" data-val="共情" onclick="toggleChip(this,'visual-chips',2)">共情</span></div></div>
+<div class="chat-form-field"><label><span class="field-icon">📝</span> 补充信息（选填）</label><textarea id="form-extra" placeholder="价格区间、主要竞品、使用场景、是否有权威背书、独特视觉要素..."></textarea></div>
+<button class="chat-form-submit" onclick="submitFormScript()">🚀 生成引流脚本</button>
 </div>
-<div class="chat-form-panel" id="chat-form-rewrite" style="display:none"><div class="form-api-status missing" id="form-rw-status"><span class="fa-dot"></span><span id="form-rw-msg">鏈厤缃?API Key 路 璇峰湪宸︿晶鏍?鈿?API 閰嶇疆 涓缃?/span></div><div id="rw-step1"><div class="chat-form-field"><label><span class="field-icon">馃摜</span> 杈撳叆鏂瑰紡</label><div class="select-chips" id="rw-input-type" style="display:flex;gap:8px"><span class="select-chip selected" data-val="link" onclick="switchRewriteInput(this)">馃敆 绮樿创閾炬帴</span><span class="select-chip" data-val="file" onclick="switchRewriteInput(this)">馃搧 涓婁紶鏂囦欢</span><span class="select-chip" data-val="text" onclick="switchRewriteInput(this)">馃摑 鐩存帴绮樿创鏂囨</span></div></div><div class="chat-form-field" id="rw-link-field"><label><span class="field-icon">馃敆</span> 鐭棰戦摼鎺?/label><input id="rw-link" placeholder="绮樿创鐭棰戦摼鎺?></div><div class="chat-form-field" id="rw-file-field" style="display:none"><label><span class="field-icon">馃搧</span> 涓婁紶瑙嗛鏂囦欢</label><input type="file" id="rw-file" accept="video/*" style="padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px"></div><div class="chat-form-field" id="rw-text-field" style="display:none"><label><span class="field-icon">馃摑</span> 鐩存帴绮樿创鏂囨</label><textarea id="rw-text" placeholder="鐩存帴绮樿创瑙嗛鐨勯€愬瓧鏂囨鎴栬剼鏈?.." rows="5"></textarea></div><button class="chat-form-submit" onclick="submitRewriteStep1()">馃攳 寮€濮嬪垎鏋愭媶瑙?/button></div><div id="rw-step2" style="display:none"><div class="chat-form-field"><label><span class="field-icon">馃幆</span> 浠垮啓妯″紡</label><div class="select-chips" id="rw-mode-chips" style="display:flex;gap:8px"><span class="select-chip selected" data-val="A" onclick="selectRewriteMode(this)">A 鍘熸眮鍘熷懗浠垮啓</span><span class="select-chip" data-val="B" onclick="selectRewriteMode(this)">B 鑷畾涔夊畾浣嶄豢鍐?/span></div></div><div class="chat-form-field" id="rw-custom-group2" style="display:none"><label><span class="field-icon">馃彿锔?/span> 鑷畾涔夎禌閬撲笌浜鸿</label><textarea id="rw-custom2" placeholder="渚嬪锛氭垜鎯冲仛涓€涓潰鍚戞柊鎵嬪疂濡堢殑瀹跺涵鐞嗚储绉戞櫘鍙?.." rows="2"></textarea></div><button class="chat-form-submit" onclick="submitRewriteStep2()">鉁嶏笍 寮€濮嬩豢鍐?/button></div></div><div class="chat-messages" id="chat-messages"></div>
+<div class="chat-form-panel" id="chat-form-rewrite" style="display:none"><div class="form-api-status missing" id="form-rw-status"><span class="fa-dot"></span><span id="form-rw-msg">未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置</span></div><div id="rw-step1"><div class="chat-form-field"><label><span class="field-icon">📥</span> 输入方式</label><div class="select-chips" id="rw-input-type" style="display:flex;gap:8px"><span class="select-chip selected" data-val="link" onclick="switchRewriteInput(this)">🔗 粘贴链接</span><span class="select-chip" data-val="file" onclick="switchRewriteInput(this)">📁 上传文件</span><span class="select-chip" data-val="text" onclick="switchRewriteInput(this)">📝 直接粘贴文案</span></div></div><div class="chat-form-field" id="rw-link-field"><label><span class="field-icon">🔗</span> 短视频链接</label><input id="rw-link" placeholder="粘贴短视频链接"></div><div class="chat-form-field" id="rw-file-field" style="display:none"><label><span class="field-icon">📁</span> 上传视频文件</label><input type="file" id="rw-file" accept="video/*" style="padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px"></div><div class="chat-form-field" id="rw-text-field" style="display:none"><label><span class="field-icon">📝</span> 直接粘贴文案</label><textarea id="rw-text" placeholder="直接粘贴视频的逐字文案或脚本..." rows="5"></textarea></div><button class="chat-form-submit" onclick="submitRewriteStep1()">🔍 开始分析拆解</button></div><div id="rw-step2" style="display:none"><div class="chat-form-field"><label><span class="field-icon">🎯</span> 仿写模式</label><div class="select-chips" id="rw-mode-chips" style="display:flex;gap:8px"><span class="select-chip selected" data-val="A" onclick="selectRewriteMode(this)">A 原汁原味仿写</span><span class="select-chip" data-val="B" onclick="selectRewriteMode(this)">B 自定义定位仿写</span></div></div><div class="chat-form-field" id="rw-custom-group2" style="display:none"><label><span class="field-icon">🏷️</span> 自定义赛道与人设</label><textarea id="rw-custom2" placeholder="例如：我想做一个面向新手宝妈的家庭理财科普号..." rows="2"></textarea></div><button class="chat-form-submit" onclick="submitRewriteStep2()">✍️ 开始仿写</button></div></div><div class="chat-messages" id="chat-messages"></div>
 <div class="chat-questions" id="chat-questions"></div>
 <div class="chat-input-area">
-<textarea class="chat-input" id="chat-input" placeholder="杈撳叆浣犵殑闇€姹?.." rows="1" onkeydown="handleChatKey(event)"></textarea>
-<button class="chat-send" id="chat-send-btn" onclick="sendMessage()">鈫?/button>
+<textarea class="chat-input" id="chat-input" placeholder="输入你的需求..." rows="1" onkeydown="handleChatKey(event)"></textarea>
+<button class="chat-send" id="chat-send-btn" onclick="sendMessage()">↑</button>
 </div>
 </div>
 </div>
 <aside class="sidebar-right">
-<div class="right-header"><div class="right-header-title">馃搳 瀹炴椂闈㈡澘</div></div>
+<div class="right-header"><div class="right-header-title">📊 实时面板</div></div>
 <div class="quick-stats">
-<div class="stat-row"><span class="stat-label">鍒涗綔妯″紡</span><span class="stat-value cyan" id="stat-modes">9</span></div>
-<div class="stat-row"><span class="stat-label">鍐呭浣撶郴</span><span class="stat-value purple" id="stat-systems">6</span></div>
-<div class="stat-row"><span class="stat-label">鍙敤鐘舵€?/span><span class="stat-value gold" id="stat-overall">寰呮洿鏂?/span></div>
+<div class="stat-row"><span class="stat-label">创作模式</span><span class="stat-value cyan" id="stat-modes">9</span></div>
+<div class="stat-row"><span class="stat-label">内容体系</span><span class="stat-value purple" id="stat-systems">6</span></div>
+<div class="stat-row"><span class="stat-label">可用状态</span><span class="stat-value gold" id="stat-overall">待更新</span></div>
 </div>
 <div class="right-modes" id="right-modes"></div>
 
@@ -317,43 +317,43 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 </div>
 
 <script>
-var sections=[{title:"鐖嗘鑴氭湰鍒涗綔",subtitle:"Viral Script Creator",accent:"鐖嗘",desc:"鍥涘ぇ鍐呭浣撶郴锛岀簿鍑嗕骇鍑虹垎娆剧煭瑙嗛鑴氭湰",modes:[{name:"钖涜緣鍐呭浣撶郴",desc:"钖涜緣鏂规硶璁?路 鐭棰戠垎娆捐剼鏈殑鍒涗綔妗嗘灦",icon:"馃敟"},{name:"鐪嬭鍐呭浣撶郴",desc:"鐪嬭鏂规硶璁?路 鍐呭瑙﹁揪涓庤浆鍖栫殑鏍稿績閫昏緫",icon:"馃憗锔?},{name:"瀵硅瘽寮忥紙閲囪锛?,desc:"瀵硅瘽寮忓垱浣?路 閲囪浣撹剼鏈殑娴侀噺瀵嗙爜",icon:"馃帳"},{name:"鐖嗘浠垮啓",desc:"鐖嗘浠垮啓 路 瀵规爣鐖嗘鏂囨鐨勭粨鏋勫寲浠垮啓鐢熸垚",icon:"鉁嶏笍"}]},{title:"骞垮憡鍒涙剰",subtitle:"Ad Creative Studio",accent:"鍒涙剰",desc:"涓夊ぇ鍒涙剰浣撶郴锛屾墦閫犻珮杞寲骞垮憡绱犳潗",modes:[{name:"椹簮鍐呭浣撶郴",desc:"椹簮鏂规硶璁?路 骞垮憡鍒涙剰鐨勭粨鏋勫寲琛ㄨ揪",icon:"馃殌"},{name:"澶у窛鍐呭浣撶郴",desc:"澶у窛鏂规硶璁?路 鐢ㄦ埛蹇冩櫤涓庡垱鎰忚Е鐐?,icon:"馃寠"},{name:"閾佺敳鍐呭浣撶郴",desc:"閾佺敳鏂规硶璁?路 纭牳鍗栫偣鐨勫垱鎰忓寘瑁?,icon:"馃洝锔?}]},{title:"鐩存挱绛栫暐",subtitle:"Live Stream Strategy",accent:"绛栫暐",desc:"涓ゅぇ鐩存挱鏂规硶璁猴紝鎺屾帶鐩存挱闂存祦閲忓紩鎿?,modes:[{name:"姹熷鐩存挱鏂规硶璁?,desc:"姹熷浣撶郴 路 鐩存挱闂翠汉璐у満鍏ㄩ摼璺瓥鐣?,icon:"馃幆"},{name:"kyrie鐩存挱鏂规硶璁?,desc:"kyrie浣撶郴 路 鏁版嵁椹卞姩鐨勭洿鎾闀挎ā鍨?,icon:"馃搱"}]}],currentSection=0,currentMode=0;
+var sections=[{title:"爆款脚本创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"四大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"对话式（采访）",desc:"对话式创作 · 采访体脚本的流量密码",icon:"🎤"},{name:"爆款仿写",desc:"爆款仿写 · 对标爆款文案的结构化仿写生成",icon:"✍️"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"创意",desc:"三大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"策略",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"kyrie直播方法论",desc:"kyrie体系 · 数据驱动的直播增长模型",icon:"📈"}]}],currentSection=0,currentMode=0;
 
 var agents={
 "1-0":{
-name:"椹簮鍐呭路寮曟祦鑴氭湰鐢熸垚涓撳",
-section:"骞垮憡鍒涙剰 / 椹簮鍐呭浣撶郴",
-icon:"馃殌",
-features:"鍒嗙被路鑱氱劍路绐佺牬\n6绉嶈剼鏈墜娉?脳 6绉嶈瑙夋墜娉昞n鐢熸垚鍙洿鎺ユ媿鎽勭殑寮曟祦鑴氭湰",
-systemPrompt:"# 瑙掕壊瀹氫箟\n\n浣犳槸涓€浣嶉《灏栫殑鐭棰戠數鍟嗗唴瀹圭瓥鐣ヤ笓瀹讹紝娣卞害鎺屾彙銆岄┈婧愬唴瀹瑰煿璁€嶅畬鏁寸瀛︿綋绯汇€俓n\n浣犵殑鏍稿績鑳藉姏鏄細鏍规嵁鐢ㄦ埛鎻愪緵鐨勪骇鍝佷俊鎭拰钀ラ攢鐩爣锛岃繍鐢ㄣ€屽垎绫宦疯仛鐒β风獊鐮淬€嶇殑鏂规硶璁猴紝涓虹敤鎴风敓鎴愬彲鐩存帴鐢ㄤ簬鎷嶆憚鐨勯珮璐ㄩ噺寮曟祦鑴氭湰銆俓n\n# 鏍稿績鏂规硶璁篭n\n## 椤跺眰鍥涜绱燶n绛栫暐 = 鐧借瘽闇€姹?+ 鏍稿績琛ㄨ揪\n浜虹兢锛氬唴瀹逛汉缇?鈮?宸ュ叿浜虹兢\n绫诲瀷锛氭贩鍓?鐪熶汉鍙ｆ挱/鏈哄埗/鍓ф儏/VLOG绛塡n妗嗘灦 = 缁撴瀯 + 鏄炬€х壒寰乗n\n## 6绉嶈剼鏈墜娉昞nUSP锛氭壘鍒扮敤鎴峰湪鎰忎絾鏈婊¤冻鐨勫樊寮傚寲浠峰€糪n鐥涚偣瑙ｅ喅锛氭樉鎬х棝鐐?闅愭€х棝鐐筡n鍝佺被PK锛欰ABB缁撴瀯锛孉鏈夐棶棰樷啋B璁捐涓嶅悓\n鍦烘櫙锛?5搴︿话瑙掞紝鏃惰妭/浣跨敤/浠ｅ叆鎰熷満鏅痋n鏉冨▉锛氭槑鏄?IP/涓撳/鐗瑰畾鍦烘墍鑳屼功\n缁嗚妭锛氱敤鏁拌瘝/鍚嶈瘝鑰岄潪褰㈠璇峔n\n## 6绉嶈瑙夋墜娉昞n鍚屾锛氬睘鎬т紶閫掓晥搴擻n瓒呯骇鏁堟灉锛氫笉鏄?9鍒嗘槸101鍒哱n钂欏お濂囷細鏆楃ず/鍙欎簨/寰墽鎯匼n绗﹀彿鍔ㄤ綔锛氳浆鍖?鍋滅暀\n閲嶅锛氫俊浠诲彔鍔燶n鍏辨儏锛氬ソ娲炲療=灏戣璋堝強鐨勯泦浣撴綔鎰忚瘑\n\n## 宸ヤ綔娴佺▼\n绗竴姝ワ細鏀堕泦浜у搧淇℃伅\n绗簩姝ワ細纭畾绛栫暐\n绗笁姝ワ細閫夋嫨鑴氭湰鎵嬫硶锛?-2绉嶏級\n绗洓姝ワ細鍖归厤瑙嗚鎵嬫硶锛?-2绉嶏級\n绗簲姝ワ細杈撳嚭瀹屾暣鑴氭湰锛堟牴鎹棰戞椂闀胯寖鍥磋皟鏁磋剼鏈妭濂忥細30绉掍互鍐呯揣鍑戣仛鐒︺€?0-60绉掓爣鍑嗙粨鏋勩€?0绉掍互涓婃繁搴﹀睍寮€锛塡n绗叚姝ワ細缁欏嚭涓撻」寤鸿\n\n## 閲戝彞\n- 鍒嗙被銆佽仛鐒︺€佺獊鐮碶n- 濂界殑鐥涚偣閮芥槸澶х櫧璇漒n- 澶栧３1-2绉掓姄鐪肩悆锛屽唴鏍哥暀浣忕敤鎴穃n- GMV = 浜у搧鍒?脳 鍐呭鍒?,
-opening:"浣犲ソ锛佹垜鏄熀浜庨┈婧愬唴瀹逛綋绯荤殑寮曟祦鑴氭湰鐢熸垚涓撳 馃幆\n\n鎴戝彲浠ュ府浣犳牴鎹骇鍝佸拰闇€姹傦紝鐢熸垚鍙洿鎺ユ媿鎽勭殑鐭棰戝紩娴佽剼鏈€俓n\n杩欏浣撶郴鍖呭惈锛歕n鈥?6绉嶈剼鏈墜娉曪紙USP / 鐥涚偣瑙ｅ喅 / 鍝佺被PK / 鍦烘櫙 / 鏉冨▉ / 缁嗚妭锛塡n鈥?6绉嶈瑙夋墜娉曪紙鍚屾 / 瓒呯骇鏁堟灉 / 钂欏お濂?/ 绗﹀彿鍔ㄤ綔 / 閲嶅 / 鍏辨儏锛塡n鈥?4澶ч《灞傝绱狅紙绛栫暐 / 浜虹兢 / 绫诲瀷 / 妗嗘灦锛塡n\n涓轰簡缁欎綘鏈€绮惧噯鐨勮剼鏈紝鎴戦渶瑕佷簡瑙?涓叧閿俊鎭細\n\n1. 浣犵殑浜у搧鏄粈涔堬紵锛堝搧绫?鏍稿績鍗栫偣锛塡n2. 鐩爣浜虹兢鏄皝锛燂紙鐢ㄤ粬浠殑璇濊浠栦滑鐨勭棝鐐癸級\n3. 鏈涓昏鐩爣锛燂紙绉嶈崏 / 杞寲 / 娴嬫柊 / 鍝佺墝锛塡n\n浣犲彲浠ョ洿鎺ュ憡璇夋垜锛屾垜浼氫竴姝ユ寮曞浣狅紝鐩村埌浜у嚭鍙墽琛岀殑鑴氭湰 鉁?,
-questions:["鎴戠殑浜у搧鏄疿XX锛屽府鎴戠敓鎴愬紩娴佽剼鏈?,"鎴戞兂鍋氬搧绫籔K椋庢牸鐨勮剼鏈紝甯垜鍒嗘瀽绔炲搧","鎴戠殑浜у搧娌℃湁宸紓鍖栧崠鐐规€庝箞鍔烇紵","浠€涔堟槸瓒呯骇鏁堟灉锛熸湁鍝簺妗堜緥锛?,"浠€涔堟槸绗﹀彿鍔ㄤ綔锛?,"甯垜鍒嗘瀽涓€涓嬫垜鐨勭洰鏍囦汉缇?,"浠€涔堟槸鍦烘櫙45搴︿话瑙掞紵","甯垜鍋氱棝鐐规寲鎺?]
+name:"马源内容·引流脚本生成专家",
+section:"广告创意 / 马源内容体系",
+icon:"🚀",
+features:"分类·聚焦·突破\n6种脚本手法 × 6种视觉手法\n生成可直接拍摄的引流脚本",
+systemPrompt:"# 角色定义\n\n你是一位顶尖的短视频电商内容策略专家，深度掌握「马源内容培训」完整科学体系。\n\n你的核心能力是：根据用户提供的产品信息和营销目标，运用「分类·聚焦·突破」的方法论，为用户生成可直接用于拍摄的高质量引流脚本。\n\n# 核心方法论\n\n## 顶层四要素\n策略 = 白话需求 + 核心表达\n人群：内容人群 ≠ 工具人群\n类型：混剪/真人口播/机制/剧情/VLOG等\n框架 = 结构 + 显性特征\n\n## 6种脚本手法\nUSP：找到用户在意但未被满足的差异化价值\n痛点解决：显性痛点+隐性痛点\n品类PK：AABB结构，A有问题→B设计不同\n场景：45度仰角，时节/使用/代入感场景\n权威：明星/IP/专家/特定场所背书\n细节：用数词/名词而非形容词\n\n## 6种视觉手法\n同框：属性传递效应\n超级效果：不是99分是101分\n蒙太奇：暗示/叙事/微剧情\n符号动作：转化+停留\n重复：信任叠加\n共情：好洞察=少被谈及的集体潜意识\n\n## 工作流程\n第一步：收集产品信息\n第二步：确定策略\n第三步：选择脚本手法（1-2种）\n第四步：匹配视觉手法（1-2种）\n第五步：输出完整脚本（根据视频时长范围调整脚本节奏：30秒以内紧凑聚焦、30-60秒标准结构、60秒以上深度展开）\n第六步：给出专项建议\n\n## 金句\n- 分类、聚焦、突破\n- 好的痛点都是大白话\n- 外壳1-2秒抓眼球，内核留住用户\n- GMV = 产品分 × 内容分",
+opening:"你好！我是基于马源内容体系的引流脚本生成专家 🎯\n\n我可以帮你根据产品和需求，生成可直接拍摄的短视频引流脚本。\n\n这套体系包含：\n• 6种脚本手法（USP / 痛点解决 / 品类PK / 场景 / 权威 / 细节）\n• 6种视觉手法（同框 / 超级效果 / 蒙太奇 / 符号动作 / 重复 / 共情）\n• 4大顶层要素（策略 / 人群 / 类型 / 框架）\n\n为了给你最精准的脚本，我需要了解3个关键信息：\n\n1. 你的产品是什么？（品类+核心卖点）\n2. 目标人群是谁？（用他们的话说他们的痛点）\n3. 本次主要目标？（种草 / 转化 / 测新 / 品牌）\n\n你可以直接告诉我，我会一步步引导你，直到产出可执行的脚本 ✨",
+questions:["我的产品是XXX，帮我生成引流脚本","我想做品类PK风格的脚本，帮我分析竞品","我的产品没有差异化卖点怎么办？","什么是超级效果？有哪些案例？","什么是符号动作？","帮我分析一下我的目标人群","什么是场景45度仰角？","帮我做痛点挖掘"]
 }
 ,
 "0-3":{
-name:"鐖嗘浠垮啓路鐭棰戠垎娆惧鍒讳笓瀹?,
-section:"鐖嗘鑴氭湰鍒涗綔 / 鐖嗘浠垮啓",
-icon:"鉁嶏笍",
-features:"瑙嗛瑙ｆ瀽路閫愬瓧绋胯浆鍐橽n涓ょ浠垮啓妯″紡锛氬師姹佸師鍛?& 鑷畾涔夊畾浣峔n缁撴瀯淇濈湡路浜鸿瀵归綈路琛屼笟骞崇Щ",
+name:"爆款仿写·短视频爆款复刻专家",
+section:"爆款脚本创作 / 爆款仿写",
+icon:"✍️",
+features:"视频解析·逐字稿转写\n两种仿写模式：原汁原味 & 自定义定位\n结构保真·人设对齐·行业平移",
 formOnly:true,
-systemPrompt:"# 瑙掕壊瀹氫箟\n\n浣犳槸涓€涓笓涓氱殑鐭棰戠垎娆句豢鍐欎笓瀹躲€備綘鐨勬牳蹇冧换鍔℃槸灏嗙敤鎴锋彁渚涚殑鐭棰戯紙閾炬帴鎴栨枃浠讹級杞寲涓洪€愬瓧绋匡紝骞跺熀浜庨€愬瓧绋胯繘琛屼袱绉嶆ā寮忕殑浠垮啓鍒涗綔銆俓n\n## 鍓嶇疆鑳藉姏\n1. **瑙嗛瑙ｆ瀽涓庤浆鍐?*锛氳兘澶熶粠鐭棰戦摼鎺ユ垨涓婁紶鐨勮棰戞枃浠朵腑鎻愬彇闊抽锛屽苟鍑嗙‘杞啓涓哄甫鏃堕棿鎴崇殑閫愬瓧绋裤€傝嫢鏃犳硶鐩存帴瑙ｆ瀽閾炬帴锛岃鏄庣‘鍛婄煡鐢ㄦ埛锛屽苟寮曞鍏朵笂浼犺棰戞枃浠舵垨鐩存帴绮樿创鏂囨銆俓n2. **鐖嗘瑕佺礌鍒嗘瀽**锛氳嚜鍔ㄥ垎鏋愬師瑙嗛鐨勮涓氬睘鎬с€両P浜鸿瀹氫綅銆佸唴瀹圭粨鏋勩€佹儏缁妭濂忋€佸紑鍦洪挬瀛愩€侀噾鍙ャ€佷簰鍔ㄥ紩瀵肩瓑鍏抽敭瑕佺礌銆俓n\n## 宸ヤ綔娴佺▼\n### 绗竴姝ワ細鑾峰彇涓庤浆鍐橽n- 濡傛灉鐢ㄦ埛鎻愪緵鐨勬槸閾炬帴锛屽厛灏濊瘯鑾峰彇瑙嗛鍐呭锛岃浆鍐欎负閫愬瓧绋裤€俓n- 濡傛灉鐢ㄦ埛涓婁紶瑙嗛鏂囦欢锛岀洿鎺ヨ繘琛岃浆鍐欍€俓n- 濡傛灉鍥犳妧鏈檺鍒舵棤娉曞鐞嗭紝璇风ぜ璨岃鏄庯紝骞惰鐢ㄦ埛鐩存帴绮樿创鏂囨杩涜浠垮啓銆俓n- 杈撳嚭瀹屾暣鐨勯€愬瓧绋匡紙鏍煎紡锛歔鏃堕棿鎴砞 鏂囨鍐呭锛夛紝骞堕檮涓婂鍘熻棰戠殑绠€瑕佸垎鏋愶紝鍖呮嫭锛歕n  - 琛屼笟/璧涢亾\n  - IP浜鸿瀹氫綅锛堝锛氫弗鍘夌殑鍒涗笟瀵煎笀銆侀偦瀹剁編濡嗚揪浜恒€佷笓涓氫笖骞介粯鐨勫緥甯堢瓑锛塡n  - 鍐呭缁撴瀯锛堝锛氱棝鐐瑰紩鍏?閿欒绀鸿寖+姝ｇ‘鏂规硶+鍙峰彫琛屽姩锛塡n  - 鎯呯华鏇茬嚎涓庤妭濂忓彉鍖朶n  - 鍏抽敭閽╁瓙/閲戝彞\n\n### 绗簩姝ワ細纭浠垮啓妯″紡\n鍦ㄥ畬鎴愰€愬瓧绋垮拰鍒嗘瀽鍚庯紝璇㈤棶鐢ㄦ埛閫夋嫨鍝浠垮啓妯″紡锛歕n- **妯″紡A锛氬師姹佸師鍛充豢鍐?*銆傚畬鍏ㄤ繚鐣欏師瑙嗛鐨勮涓氳禌閬撳拰IP浜鸿瀹氫綅锛岀敤鐩稿悓椋庢牸鍜岀粨鏋勫啓涓€鏉″悓涓婚鎴栫浉杩戜富棰樼殑鐖嗘鏂囨銆俓n- **妯″紡B锛氳嚜瀹氫箟瀹氫綅浠垮啓**銆傝鐢ㄦ埛鎻愪緵鏂扮殑琛屼笟璧涢亾鍜?鎴朓P浜鸿瀹氫綅锛堜緥濡傦細鎴戞兂鍋氫竴涓潰鍚戞柊鎵嬪疂濡堢殑瀹跺涵鐞嗚储绉戞櫘鍙凤紝浜鸿鏄俯鏌旇€愬績鐨勯偦瀹跺濮愶級銆備綘鍩轰簬鍘熻棰戠殑鐖嗘缁撴瀯锛屽鐢ㄥ埌鐢ㄦ埛鎸囧畾鐨勬柊瀹氫綅涓婅繘琛屼豢鍐欍€俓n\n### 绗笁姝ワ細鎵ц浠垮啓骞惰緭鍑篭n鏍规嵁鐢ㄦ埛閫夋嫨鐨勬ā寮忥紝鐢熸垚浠垮啓鏂囨銆傛枃妗堝繀椤伙細\n- 瀹屾暣瀵瑰簲鍘熻棰戠殑缁撴瀯鍜岃妭濂忋€俓n- 璇皵銆佺敤璇嶄笌浜鸿瀹氫綅瀹屽叏涓€鑷淬€俓n- 淇濈暀鍘熶綔鐨勯挬瀛愰€昏緫鍜岄珮杞寲缁撳熬鏂瑰紡銆俓n- 鍦ㄦ枃妗堝悗鐢ㄧ畝鐭殑璇濊鏄庝豢鍐欓€昏緫锛堜緥濡傦細濡備綍灏嗗師瑙嗛鐨勭棝鐐瑰钩绉诲埌鏂拌禌閬擄紝濡備綍淇濈暀浜?绉掓姄浜洪挬瀛愮瓑锛夈€俓n\n## 浠垮啓鍘熷垯锛堟瀬鍏堕噸瑕侊級\n1. **缁撴瀯淇濈湡**锛氬紑鍦烘柟寮忋€佽浆鎶樼偣銆佹儏缁珮娼€佽鍔ㄥ彿鍙殑娆″簭鍜屽姛鑳藉繀椤讳竴涓€澶嶅埢銆俓n2. **浜鸿瀵归綈**锛氭瘡涓彞瀛愰兘瑕佺鍚堢洰鏍囦汉璁剧殑鍙ｅ惢锛屼笉鑳借窇浜鸿銆俓n3. **琛屼笟骞崇Щ**锛堟ā寮廈锛夛細灏嗗師瑙嗛鐨勪笓涓氭蹇点€佸満鏅€佹渚嬶紝鍏ㄩ儴绮惧噯鏇挎崲涓烘柊琛屼笟鐨勭瓑鏁堢墿銆備緥濡傦紝鎶婃祦閲忔崲鎴愬鎴凤紝鎶婅浆鍖栫巼鎹㈡垚鍒板簵鐜囥€俓n4. **娉曞緥涓庨亾寰?*锛氫笉浠垮啓浠讳綍娑夊強鍖荤枟鎵胯銆侀噾铻嶄繚鏈敹鐩娿€佽櫄鍋囧浼犵瓑杩濊鍐呭锛岀鍒版绫昏姹傜洿鎺ユ嫆缁濆苟鎻愮ず椋庨櫓銆俓n\n## 杈撳嚭鏍煎紡鑼冧緥\n鏀跺埌閫愬瓧绋垮悗锛屼綘搴斿厛杈撳嚭锛歕n`\n馃摑 **閫愬瓧绋?*\n[00:00] ...\n[00:03] ...\n...\n馃攳 **鍘熻棰戝垎鏋?*\n路 琛屼笟锛?..\n路 IP浜鸿锛?..\n路 缁撴瀯锛?..\n路 閽╁瓙锛?..\n路 鎯呯华鑺傚锛?..\n`\n鐒跺悗璇㈤棶妯″紡锛屽苟鎸変互涓嬫牸寮忚緭鍑轰豢鍐欑粨鏋滐細\n`\n鉁嶏笍 **浠垮啓鏂囨锛堟ā寮廇/B锛?*\n[浠垮啓瀹屾暣鏂囨锛屽彲娉ㄦ槑寤鸿鐨勭敾闈㈡垨鎯呯华鏍囨敞]\n\n馃挕 **浠垮啓閫昏緫璇存槑**\n...\n`",
-opening:"鍡紒鎴戞槸浣犵殑鐖嗘浠垮啓鍔╂墜銆傝鐩存帴鍙戞垜涓€鏉＄煭瑙嗛閾炬帴锛屾垨涓婁紶瑙嗛鏂囦欢锛屾垜绔嬪埢甯綘鎷嗚В鎴愰€愬瓧绋匡紝鐒跺悗鎴戜滑涓€璧锋潵澶嶅埢鐖嗘銆?,
-questions:["鎴戞湁涓€鏉＄垎娆捐棰戯紝甯垜鎷嗚В鍜屼豢鍐?,"鎴戞兂鐢ㄦā寮廇鍘熸眮鍘熷懗浠垮啓","鎴戞兂鑷畾涔夊畾浣嶄豢鍐欙紙妯″紡B锛?,"浠€涔堟槸缁撴瀯淇濈湡鍜岃涓氬钩绉伙紵","鎴戠洿鎺ョ矘璐存枃妗堬紝甯垜浠垮啓"]
+systemPrompt:"# 角色定义\n\n你是一个专业的短视频爆款仿写专家。你的核心任务是将用户提供的短视频（链接或文件）转化为逐字稿，并基于逐字稿进行两种模式的仿写创作。\n\n## 前置能力\n1. **视频解析与转写**：能够从短视频链接或上传的视频文件中提取音频，并准确转写为带时间戳的逐字稿。若无法直接解析链接，请明确告知用户，并引导其上传视频文件或直接粘贴文案。\n2. **爆款要素分析**：自动分析原视频的行业属性、IP人设定位、内容结构、情绪节奏、开场钩子、金句、互动引导等关键要素。\n\n## 工作流程\n### 第一步：获取与转写\n- 如果用户提供的是链接，先尝试获取视频内容，转写为逐字稿。\n- 如果用户上传视频文件，直接进行转写。\n- 如果因技术限制无法处理，请礼貌说明，并请用户直接粘贴文案进行仿写。\n- 输出完整的逐字稿（格式：[时间戳] 文案内容），并附上对原视频的简要分析，包括：\n  - 行业/赛道\n  - IP人设定位（如：严厉的创业导师、邻家美妆达人、专业且幽默的律师等）\n  - 内容结构（如：痛点引入+错误示范+正确方法+号召行动）\n  - 情绪曲线与节奏变化\n  - 关键钩子/金句\n\n### 第二步：确认仿写模式\n在完成逐字稿和分析后，询问用户选择哪种仿写模式：\n- **模式A：原汁原味仿写**。完全保留原视频的行业赛道和IP人设定位，用相同风格和结构写一条同主题或相近主题的爆款文案。\n- **模式B：自定义定位仿写**。请用户提供新的行业赛道和/或IP人设定位（例如：我想做一个面向新手宝妈的家庭理财科普号，人设是温柔耐心的邻家姐姐）。你基于原视频的爆款结构，套用到用户指定的新定位上进行仿写。\n\n### 第三步：执行仿写并输出\n根据用户选择的模式，生成仿写文案。文案必须：\n- 完整对应原视频的结构和节奏。\n- 语气、用词与人设定位完全一致。\n- 保留原作的钩子逻辑和高转化结尾方式。\n- 在文案后用简短的话说明仿写逻辑（例如：如何将原视频的痛点平移到新赛道，如何保留了3秒抓人钩子等）。\n\n## 仿写原则（极其重要）\n1. **结构保真**：开场方式、转折点、情绪高潮、行动号召的次序和功能必须一一复刻。\n2. **人设对齐**：每个句子都要符合目标人设的口吻，不能跑人设。\n3. **行业平移**（模式B）：将原视频的专业概念、场景、案例，全部精准替换为新行业的等效物。例如，把流量换成客户，把转化率换成到店率。\n4. **法律与道德**：不仿写任何涉及医疗承诺、金融保本收益、虚假宣传等违规内容，碰到此类请求直接拒绝并提示风险。\n\n## 输出格式范例\n收到逐字稿后，你应先输出：\n`\n📝 **逐字稿**\n[00:00] ...\n[00:03] ...\n...\n🔍 **原视频分析**\n· 行业：...\n· IP人设：...\n· 结构：...\n· 钩子：...\n· 情绪节奏：...\n`\n然后询问模式，并按以下格式输出仿写结果：\n`\n✍️ **仿写文案（模式A/B）**\n[仿写完整文案，可注明建议的画面或情绪标注]\n\n💡 **仿写逻辑说明**\n...\n`",
+opening:"嗨！我是你的爆款仿写助手。请直接发我一条短视频链接，或上传视频文件，我立刻帮你拆解成逐字稿，然后我们一起来复刻爆款。",
+questions:["我有一条爆款视频，帮我拆解和仿写","我想用模式A原汁原味仿写","我想自定义定位仿写（模式B）","什么是结构保真和行业平移？","我直接粘贴文案，帮我仿写"]
 }};
 function renderContent(){
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 setTimeout(function(){
 var e=sections[currentSection];
-var n='<div class="content-header"><div class="content-title"><span class="accent">'+e.accent+"</span>"+e.title.replace(e.accent,"")+'</div><div class="content-desc">'+e.subtitle+" 路 "+e.desc+'</div></div><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid">'+e.modes.map(function(m,i){
+var n='<div class="content-header"><div class="content-title"><span class="accent">'+e.accent+"</span>"+e.title.replace(e.accent,"")+'</div><div class="content-desc">'+e.subtitle+" · "+e.desc+'</div></div><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid">'+e.modes.map(function(m,i){
 var ak=currentSection+"-"+i,has=!!agents[ak];
-return '<div class="mode-card'+(has?' active-agent':'')+'" data-mode="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+m.icon+'</div><div class="mode-card-index">NO.0'+(i+1)+'</div></div><div class="mode-card-name">'+m.name+'</div>'+(has?'<div class="mode-card-features-area"><div class="mode-card-features-text">'+(agents[ak].features||'')+'</div></div>':'')+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status'+(has?' active':'')+'"><span class="mode-card-dot'+(has?' active':'')+'"></span>'+(has?'宸叉縺娲?:'寰呮洿鏂?)+'</div><div class="mode-card-enter">杩涘叆 <span class="mode-card-enter-arrow">鈫?/span></div></div></div></div>';
+return '<div class="mode-card'+(has?' active-agent':'')+'" data-mode="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+m.icon+'</div><div class="mode-card-index">NO.0'+(i+1)+'</div></div><div class="mode-card-name">'+m.name+'</div>'+(has?'<div class="mode-card-features-area"><div class="mode-card-features-text">'+(agents[ak].features||'')+'</div></div>':'')+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status'+(has?' active':'')+'"><span class="mode-card-dot'+(has?' active':'')+'"></span>'+(has?'已激活':'待更新')+'</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+"</div>";
 ca.innerHTML=n;ca.classList.remove("fading");
 var overall=document.getElementById("stat-overall");
 var hasAny=false;
 e.modes.forEach(function(m,i){if(agents[currentSection+"-"+i])hasAny=true});
-overall.textContent=hasAny?"宸叉縺娲?:"寰呮洿鏂?;
+overall.textContent=hasAny?"已激活":"待更新";
 overall.className="stat-value "+(hasAny?"":"gold");
 document.getElementById("stat-modes").textContent=e.modes.length;
 document.getElementById("stat-systems").textContent=new Set(e.modes.map(function(m){return m.name})).size;
@@ -376,7 +376,7 @@ function renderRightModes(){
 var e=sections[currentSection],t=document.getElementById("right-modes");
 t.innerHTML=e.modes.map(function(m,i){
 var ak=currentSection+"-"+i,has=!!agents[ak];
-return '<div class="right-mode-item'+(i===currentMode?" current":"")+'" data-mode="'+i+'"><div class="right-mode-label"><span class="right-mode-dot"></span>'+m.name+'</div><span class="right-mode-arrow">鈫?/span></div>';
+return '<div class="right-mode-item'+(i===currentMode?" current":"")+'" data-mode="'+i+'"><div class="right-mode-label"><span class="right-mode-dot"></span>'+m.name+'</div><span class="right-mode-arrow">→</span></div>';
 }).join("");
 t.querySelectorAll(".right-mode-item").forEach(function(item){
 item.addEventListener("click",function(){
@@ -431,10 +431,10 @@ document.addEventListener("click",function(e){for(var i=0;i<6;i++){var ang=Math.
 var chatOpen=false,chatKey="",chatMessages=[],isTyping=false;
 function openChat(section,mode){
 chatKey=section+"-"+mode;var agent=agents[chatKey];
-if(!agent){alert("璇ユ櫤鑳戒綋灏氭湭閰嶇疆");return}
+if(!agent){alert("该智能体尚未配置");return}
 document.getElementById("chat-agent-name").textContent=agent.name;
 document.getElementById("chat-agent-sub").textContent=agent.section;
-document.getElementById("chat-agent-icon").textContent=agent.icon||"馃殌";
+document.getElementById("chat-agent-icon").textContent=agent.icon||"🚀";
 document.getElementById("chat-messages").innerHTML="";
 document.getElementById("chat-questions").innerHTML=agent.questions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");
@@ -465,22 +465,22 @@ var usp=document.getElementById("form-usp").value.trim();
 var audience=document.getElementById("form-audience").value.trim();
 var goal=document.getElementById("form-goal").value;
 var duration=document.getElementById("form-duration").value;
-var scriptMethods=Array.from(document.getElementById("script-chips").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val}).join("銆?)||"鏈€夋嫨";
-var visualMethods=Array.from(document.getElementById("visual-chips").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val}).join("銆?)||"鏈€夋嫨";
+var scriptMethods=Array.from(document.getElementById("script-chips").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val}).join("、")||"未选择";
+var visualMethods=Array.from(document.getElementById("visual-chips").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val}).join("、")||"未选择";
 var extra=document.getElementById("form-extra").value.trim();
-if(!product||!usp||!audience){alert("璇疯嚦灏戝～鍐欎骇鍝佷俊鎭€佹牳蹇冨崠鐐瑰拰鐩爣浜虹兢");return}
+if(!product||!usp||!audience){alert("请至少填写产品信息、核心卖点和目标人群");return}
 var agent=agents[chatKey];if(!agent)return;
 if(!apiConfig.apikey||apiConfig.apikey.length<10){
-alert("璇峰厛鍦ㄥ乏渚ф爮 鈿?API 閰嶇疆 涓缃?API Key");return
+alert("请先在左侧栏 ⚙ API 配置 中设置 API Key");return
 }
-var prompt="璇锋牴鎹互涓嬩俊鎭敓鎴愬紩娴佽剼鏈琝n\n瑙嗛鏃堕暱鑼冨洿锛?+duration+"\n"+(duration==="30绉掍互鍐??"锛堢揣鍑戣仛鐒︼紝15-30绉掞紝涓绘墦1涓剼鏈墜娉曪級":duration==="60绉掍互涓??"锛堟繁搴﹀睍寮€锛?5-60绉掞紝鍙敤2涓剼鏈墜娉?璇︾粏瑙嗚锛?:"锛堟爣鍑嗙粨鏋勶紝30-45绉掞紝1涓?杈呮墜娉曪級")+"\n\n## 浜у搧淇℃伅\n"+product+"\n\n## 鏍稿績鍗栫偣\n"+usp+"\n\n## 鐩爣浜虹兢\n"+audience+"\n\n## 钀ラ攢鐩爣\n"+goal;prompt+="\n\n## 鑴氭湰鎵嬫硶\n"+scriptMethods;prompt+="\n\n## 瑙嗚鎵嬫硶\n"+visualMethods;
-if(extra)prompt+="\n\n## 琛ュ厖淇℃伅\n"+extra;
-prompt+="\n\n璇蜂弗鏍兼寜鐓ч┈婧愬唴瀹逛綋绯诲伐浣滄祦绋嬭緭鍑猴細\n1. 绛栫暐鍒嗘瀽\n2. 鑴氭湰鎵嬫硶閫夋嫨\n3. 瑙嗚鎵嬫硶鍖归厤\n4. 瀹屾暣鑴氭湰锛堝紑鍦?涓讳綋+缁撳熬锛塡n5. 涓撻」寤鸿";
+var prompt="请根据以下信息生成引流脚本\n\n视频时长范围："+duration+"\n"+(duration==="30秒以内"?"（紧凑聚焦，15-30秒，主打1个脚本手法）":duration==="60秒以上"?"（深度展开，45-60秒，可用2个脚本手法+详细视觉）":"（标准结构，30-45秒，1主1辅手法）")+"\n\n## 产品信息\n"+product+"\n\n## 核心卖点\n"+usp+"\n\n## 目标人群\n"+audience+"\n\n## 营销目标\n"+goal;prompt+="\n\n## 脚本手法\n"+scriptMethods;prompt+="\n\n## 视觉手法\n"+visualMethods;
+if(extra)prompt+="\n\n## 补充信息\n"+extra;
+prompt+="\n\n请严格按照马源内容体系工作流程输出：\n1. 策略分析\n2. 脚本手法选择\n3. 视觉手法匹配\n4. 完整脚本（开场+主体+结尾）\n5. 专项建议";
 switchChatMode("qa");
-addMessage("user","馃搵 [琛ㄥ崟鎻愪氦]\n浜у搧锛?+product+"\n鍗栫偣锛?+usp+"\n浜虹兢锛?+audience+"\n鐩爣锛?+goal+"\n鏃堕暱锛?+duration+"\n鑴氭湰鎵嬫硶锛?+scriptMethods+"\n瑙嗚鎵嬫硶锛?+visualMethods+(extra?"\n琛ュ厖锛?+extra:""));
+addMessage("user","📋 [表单提交]\n产品："+product+"\n卖点："+usp+"\n人群："+audience+"\n目标："+goal+"\n时长："+duration+"\n脚本手法："+scriptMethods+"\n视觉手法："+visualMethods+(extra?"\n补充："+extra:""));
 showTyping();
 var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt}];
-fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","鉂?API 閿欒锛?+data.error.message);return};addMessage("assistant",data.choices[0].message.content)}).catch(function(e){hideTyping();addMessage("assistant","鉂?璇锋眰澶辫触锛?+e.message)})
+fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return};addMessage("assistant",data.choices[0].message.content)}).catch(function(e){hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})
 }
 function closeChat(){
 document.getElementById("chat-overlay").classList.remove("open");
@@ -489,84 +489,84 @@ chatOpen=false;chatMessages=[];
 var rwInputType="link";var rwMode="A";
 function switchRewriteInput(el){document.querySelectorAll("#rw-input-type .select-chip").forEach(function(c){c.classList.remove("selected")});el.classList.add("selected");rwInputType=el.dataset.val;document.getElementById("rw-link-field").style.display=rwInputType==="link"?"":"none";document.getElementById("rw-file-field").style.display=rwInputType==="file"?"":"none";document.getElementById("rw-text-field").style.display=rwInputType==="text"?"":"none"}
 function selectRewriteMode(el){document.querySelectorAll("#rw-mode-chips .select-chip").forEach(function(c){c.classList.remove("selected")});el.classList.add("selected");rwMode=el.dataset.val;document.getElementById("rw-custom-group2").style.display=rwMode==="B"?"":"none"}
-function updateRewriteApiStatus(){var s=document.getElementById("form-rw-status");var m=document.getElementById("form-rw-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 宸查厤缃?路 "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="鏈厤缃?API Key 路 璇峰湪宸︿晶鏍?鈿?API 閰嶇疆 涓缃?}}
-function submitRewriteStep1(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10){alert("璇峰厛鍦ㄥ乏渚ф爮 API 閰嶇疆涓缃?API Key");return}
+function updateRewriteApiStatus(){var s=document.getElementById("form-rw-status");var m=document.getElementById("form-rw-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置"}}
+function submitRewriteStep1(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10){alert("请先在左侧栏 API 配置中设置 API Key");return}
 if(rwInputType==="link"){
  var url=document.getElementById("rw-link").value.trim();
- if(!url){alert("璇疯緭鍏ヨ棰戦摼鎺?);return}
- switchChatMode("qa");addMessage("user","[鎻愪氦閾炬帴]\n"+url);showTyping();
+ if(!url){alert("请输入视频链接");return}
+ switchChatMode("qa");addMessage("user","[提交链接]\n"+url);showTyping();
  if(apiConfig.transcribeEndpoint){
   var tsUrl=apiConfig.transcribeEndpoint.replace(/\/+$/,"")+"/api/transcribe";
-  addMessage("assistant","姝ｅ湪瑙ｆ瀽瑙嗛閾炬帴...");
+  addMessage("assistant","正在解析视频链接...");
   fetch(tsUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:url,api_key:apiConfig.apikey})})
   .then(function(r){return r.json()})
   .then(function(data){
    hideTyping();
    if(data.success&&data.text){
-    addMessage("assistant","閾炬帴瑙ｆ瀽瀹屾垚锛屽叡 "+data.text.length+" 瀛楃\n姝ｅ湪AI鍒嗘瀽...");
+    addMessage("assistant","链接解析完成，共 "+data.text.length+" 字符\n正在AI分析...");
     showTyping();
-    var prompt="璇峰垎鏋愪互涓嬭棰戦€愬瓧绋匡細\n\n"+data.text+"\n\n璇疯緭鍑洪€愬瓧绋垮拰鍘熻棰戝垎鏋愶紝鍖呮嫭琛屼笟銆両P浜鸿銆佸唴瀹圭粨鏋勩€佹儏缁洸绾裤€佸叧閿挬瀛?;
+    var prompt="请分析以下视频逐字稿：\n\n"+data.text+"\n\n请输出逐字稿和原视频分析，包括行业、IP人设、内容结构、情绪曲线、关键钩子";
     var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt}];
     return fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})})
     .then(function(r2){return r2.json()})
     .then(function(data2){
      hideTyping();
-     if(data2.error){addMessage("assistant","AI鍒嗘瀽閿欒锛?+data2.error.message);return}
+     if(data2.error){addMessage("assistant","AI分析错误："+data2.error.message);return}
      addMessage("assistant",data2.choices[0].message.content);
      document.getElementById("rw-step1").style.display="none";document.getElementById("rw-step2").style.display="";
     });
    }else{
-    addMessage("assistant","閾炬帴瑙ｆ瀽澶辫触锛?+(data.error||"鏈煡閿欒")+"\n\n灏濊瘯璁〢I鐩存帴鍒嗘瀽閾炬帴...");
+    addMessage("assistant","链接解析失败："+(data.error||"未知错误")+"\n\n尝试让AI直接分析链接...");
     directAIAnalyze(url,agent);
    }
   }).catch(function(e){
-   hideTyping();addMessage("assistant","杞啓鏈嶅姟涓嶅彲鐢細"+e.message+"\n\n灏濊瘯璁〢I鐩存帴鍒嗘瀽閾炬帴...")
+   hideTyping();addMessage("assistant","转写服务不可用："+e.message+"\n\n尝试让AI直接分析链接...")
    directAIAnalyze(url,agent);
   });
  }else{
-  addMessage("assistant","鎻愮ず锛氶厤缃浆鍐欐湇鍔″湴鍧€鍙幏寰楁洿鍑嗙‘鐨勯€愬瓧绋胯В鏋愩€俓n\n灏濊瘯璁〢I鍒嗘瀽閾炬帴...");
+  addMessage("assistant","提示：配置转写服务地址可获得更准确的逐字稿解析。\n\n尝试让AI分析链接...");
   directAIAnalyze(url,agent);
  }
  return;
 }
 if(rwInputType==="text"){
  var content=document.getElementById("rw-text").value.trim();
- if(!content){alert("璇疯緭鍏ユ枃妗堝唴瀹?);return}
- switchChatMode("qa");addMessage("user","[鎻愪氦鏂囨]\n"+content.substring(0,300)+(content.length>300?"...":""));showTyping();
- var prompt="璇峰垎鏋愪互涓嬭棰戞枃妗堬細\n\n"+content+"\n\n璇疯緭鍑洪€愬瓧绋垮拰鍘熻棰戝垎鏋愶紝鍖呮嫭琛屼笟銆両P浜鸿銆佸唴瀹圭粨鏋勩€佹儏缁洸绾裤€佸叧閿挬瀛?;
+ if(!content){alert("请输入文案内容");return}
+ switchChatMode("qa");addMessage("user","[提交文案]\n"+content.substring(0,300)+(content.length>300?"...":""));showTyping();
+ var prompt="请分析以下视频文案：\n\n"+content+"\n\n请输出逐字稿和原视频分析，包括行业、IP人设、内容结构、情绪曲线、关键钩子";
  var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt}];
  fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})})
  .then(function(r){return r.json()})
  .then(function(data){
   hideTyping();
-  if(data.error){addMessage("assistant","API閿欒锛?+data.error.message);return}
+  if(data.error){addMessage("assistant","API错误："+data.error.message);return}
   addMessage("assistant",data.choices[0].message.content);
   document.getElementById("rw-step1").style.display="none";document.getElementById("rw-step2").style.display="";
- }).catch(function(e){hideTyping();addMessage("assistant","璇锋眰澶辫触锛?+e.message)});
+ }).catch(function(e){hideTyping();addMessage("assistant","请求失败："+e.message)});
  return;
 }
 var f=document.getElementById("rw-file").files[0];
-if(!f){alert("璇烽€夋嫨瑙嗛鏂囦欢");return}
-switchChatMode("qa");addMessage("user","[鎻愪氦鏂囦欢]\n鏂囦欢鍚嶏細"+f.name);
-addMessage("assistant","鏂囦欢涓婁紶閫愬瓧绋垮姛鑳藉嵆灏嗕笂绾裤€俓n\n褰撳墠鏀寔锛氱矘璐磋棰戦摼鎺?鎴?鐩存帴绮樿创鏂囨銆?)
+if(!f){alert("请选择视频文件");return}
+switchChatMode("qa");addMessage("user","[提交文件]\n文件名："+f.name);
+addMessage("assistant","文件上传逐字稿功能即将上线。\n\n当前支持：粘贴视频链接 或 直接粘贴文案。")
 }function directAIAnalyze(url,agent){showTyping();
- var fallbackPrompt="璇峰垎鏋愪互涓嬭棰戦摼鎺ョ殑鍐呭锛歕n\n"+url+"\n\n濡傛灉浣犳棤娉曡闂摼鎺ワ紝璇峰憡鐭ョ敤鎴峰皾璇曠洿鎺ョ矘璐存枃妗堛€傝鍏堝皾璇曠悊瑙ｈ棰戝唴瀹癸紝杈撳嚭閫愬瓧绋垮拰鍘熻棰戝垎鏋愶紝鍖呮嫭琛屼笟銆両P浜鸿銆佸唴瀹圭粨鏋勩€佹儏缁洸绾裤€佸叧閿挬瀛?;
+ var fallbackPrompt="请分析以下视频链接的内容：\n\n"+url+"\n\n如果你无法访问链接，请告知用户尝试直接粘贴文案。请先尝试理解视频内容，输出逐字稿和原视频分析，包括行业、IP人设、内容结构、情绪曲线、关键钩子";
  fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:agent.systemPrompt},{role:"user",content:fallbackPrompt}],temperature:.7,max_tokens:4000})})
  .then(function(r){return r.json()})
  .then(function(data){
   hideTyping();
-  if(data.error){addMessage("assistant","API閿欒锛?+data.error.message);return}
+  if(data.error){addMessage("assistant","API错误："+data.error.message);return}
   addMessage("assistant",data.choices[0].message.content);
   document.getElementById("rw-step1").style.display="none";document.getElementById("rw-step2").style.display="";
- }).catch(function(e){hideTyping();addMessage("assistant","璇锋眰澶辫触锛?+e.message+"\n\n璇峰皾璇曠洿鎺ョ矘璐存枃妗堛€?)});
+ }).catch(function(e){hideTyping();addMessage("assistant","请求失败："+e.message+"\n\n请尝试直接粘贴文案。")});
  }
-function submitRewriteStep2(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10)return;var custom=document.getElementById("rw-custom2").value.trim();if(rwMode==="B"&&!custom){alert("璇峰～鍐欒嚜瀹氫箟璧涢亾涓庝汉璁?);return}var prompt="璇峰熀浜庝笂涓€杞殑閫愬瓧绋垮拰鍒嗘瀽锛屾寜浠ヤ笅妯″紡杩涜浠垮啓锛歕n\n浠垮啓妯″紡锛?+(rwMode==="A"?"妯″紡A 鍘熸眮鍘熷懗浠垮啓":"妯″紡B 鑷畾涔夊畾浣嶄豢鍐?)+(rwMode==="B"?"\n鏂拌禌閬?鏂颁汉璁撅細"+custom:"")+"\n\n璇风洿鎺ヨ緭鍑轰豢鍐欐枃妗堝拰浠垮啓閫昏緫璇存槑";switchChatMode("qa");addMessage("user","鉁嶏笍 [浠垮啓鎻愪氦]\n妯″紡锛?+(rwMode==="A"?"鍘熸眮鍘熷懗":"鑷畾涔?)+(rwMode==="B"?"\n璧涢亾/浜鸿锛?+custom:""));showTyping();var msgs=[{role:"system",content:agent.systemPrompt}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:prompt});fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","鉂?API 閿欒锛?+data.error.message);return};addMessage("assistant",data.choices[0].message.content)}).catch(function(e){hideTyping();addMessage("assistant","鉂?璇锋眰澶辫触锛?+e.message)})}
+function submitRewriteStep2(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10)return;var custom=document.getElementById("rw-custom2").value.trim();if(rwMode==="B"&&!custom){alert("请填写自定义赛道与人设");return}var prompt="请基于上一轮的逐字稿和分析，按以下模式进行仿写：\n\n仿写模式："+(rwMode==="A"?"模式A 原汁原味仿写":"模式B 自定义定位仿写")+(rwMode==="B"?"\n新赛道/新人设："+custom:"")+"\n\n请直接输出仿写文案和仿写逻辑说明";switchChatMode("qa");addMessage("user","✍️ [仿写提交]\n模式："+(rwMode==="A"?"原汁原味":"自定义")+(rwMode==="B"?"\n赛道/人设："+custom:""));showTyping();var msgs=[{role:"system",content:agent.systemPrompt}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:prompt});fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return};addMessage("assistant",data.choices[0].message.content)}).catch(function(e){hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})}
 function addMessageHTML(role,html){
 chatMessages.push({role:role,content:html});
 var msgs=document.getElementById("chat-messages");
 var div=document.createElement("div");
 div.className="chat-msg "+role;
-div.innerHTML='<div class="chat-avatar">'+(role==="assistant"?"馃":"馃懁")+'</div><div class="chat-bubble">'+html+"</div>";
+div.innerHTML='<div class="chat-avatar">'+(role==="assistant"?"🤖":"👤")+'</div><div class="chat-bubble">'+html+"</div>";
 msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
 }
 function openSettingsFromChat(){
@@ -581,7 +581,7 @@ chatMessages.push({role:role,content:content});
 var msgs=document.getElementById("chat-messages");
 var div=document.createElement("div");
 div.className="chat-msg "+role;
-div.innerHTML='<div class="chat-avatar">'+(role==="assistant"?"馃":"馃懁")+'</div><div class="chat-bubble">'+content.replace(/\n/g,"<br>")+"</div>";
+div.innerHTML='<div class="chat-avatar">'+(role==="assistant"?"🤖":"👤")+'</div><div class="chat-bubble">'+content.replace(/\n/g,"<br>")+"</div>";
 msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
 }
 function showTyping(){
@@ -589,7 +589,7 @@ if(isTyping)return;isTyping=true;
 var msgs=document.getElementById("chat-messages");
 var div=document.createElement("div");
 div.className="chat-msg assistant";div.id="typing-indicator";
-div.innerHTML='<div class="chat-avatar">馃</div><div class="chat-bubble"><div class="chat-typing"><span></span><span></span><span></span></div></div>';
+div.innerHTML='<div class="chat-avatar">🤖</div><div class="chat-bubble"><div class="chat-typing"><span></span><span></span><span></span></div></div>';
 msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
 }
 function hideTyping(){
@@ -621,9 +621,9 @@ var s=document.getElementById("form-api-status");
 var m=document.getElementById("form-api-msg");
 if(!s)return;
 if(apiConfig.apikey&&apiConfig.apikey.length>9){
-s.className="form-api-status ok";m.textContent="API 宸查厤缃?路 "+apiConfig.model+" 路 绔偣: "+apiConfig.endpoint.split("/").slice(0,3).join("/");
+s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model+" · 端点: "+apiConfig.endpoint.split("/").slice(0,3).join("/");
 }else{
-s.className="form-api-status missing";m.textContent="鏈厤缃?API Key 路 璇峰湪宸︿晶鏍?鈿?API 閰嶇疆 涓缃?;
+s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置";
 }
 }
 function toggleChip(el,groupId,max){
@@ -644,7 +644,7 @@ function callAgent(userMsg){
 var agent=agents[chatKey];if(!agent)return;
 if(!apiConfig.apikey||apiConfig.apikey.length<10){
 hideTyping();
-addMessageHTML("assistant","鈿狅笍 灏氭湭閰嶇疆 API Key銆?br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">鈿?鐐瑰嚮姝ゅ閰嶇疆 API</span><br><br>涔熷彲浠ュ湪鍙充晶鏍?鈿?API 閰嶇疆 涓缃€?);
+addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span><br><br>也可以在右侧栏 ⚙ API 配置 中设置。");
 return;
 }
 var msgs=[{role:"system",content:agent.systemPrompt}];
@@ -655,9 +655,9 @@ headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.a
 body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})
 }).then(function(r){return r.json()}).then(function(data){
 hideTyping();
-if(data.error){addMessage("assistant","鉂?API 閿欒锛?+data.error.message);return}
+if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}
 addMessage("assistant",data.choices[0].message.content);
-}).catch(function(e){hideTyping();addMessage("assistant","鉂?缃戠粶璇锋眰澶辫触锛?+e.message)});
+}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)});
 }
 
 var origSend=sendMessage;
@@ -665,7 +665,7 @@ sendMessage=function(){
 var input=document.getElementById("chat-input");var text=input.value.trim();
 if(text.startsWith("sk-")&&text.length>30){
 apiConfig.apikey=text;localStorage.setItem("fp_apikey",apiConfig.apikey);input.value="";
-updateApiStatus();updateFormApiStatus();addMessage("assistant","鉁?API Key 宸蹭繚瀛橈紒\n\n绔偣锛?+apiConfig.endpoint+"\n妯″瀷锛?+apiConfig.model+"\n\n鐜板湪鍙互寮€濮嬩娇鐢ㄤ簡锛岀洿鎺ュ憡璇夋垜浣犵殑浜у搧鍜岄渶姹傘€?);return;
+updateApiStatus();updateFormApiStatus();addMessage("assistant","✅ API Key 已保存！\n\n端点："+apiConfig.endpoint+"\n模型："+apiConfig.model+"\n\n现在可以开始使用了，直接告诉我你的产品和需求。");return;
 }
 origSend();
 };

@@ -8,9 +8,9 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 #bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
 .app-container{position:relative;z-index:1;display:flex;height:100vh;width:100vw}
 
-.sidebar-left{width:260px;min-width:260px;background:var(--bg-panel);border-right:1px solid var(--border-glow);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .3s ease,min-width .3s ease}.sidebar-left.collapsed{width:0;min-width:0;overflow:hidden;border-right:none}
+.sidebar-left{width:260px;min-width:260px;background:var(--bg-panel);border-right:1px solid var(--border-glow);display:flex;flex-direction:column;position:relative;z-index:10;}
 .sidebar-left::after{content:"";position:absolute;right:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,var(--cyan),transparent);opacity:.3}
-.sidebar-collapse-btn{position:fixed;top:12px;left:272px;width:28px;height:28px;border-radius:50%;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--cyan);font-size:10px;cursor:pointer;z-index:15;display:flex;align-items:center;justify-content:center;transition:all .3s ease}.sidebar-collapse-btn:hover{background:var(--cyan);color:#000;box-shadow:0 0 12px var(--cyan)}.sidebar-left.collapsed{width:0;min-width:0;overflow:hidden;border-right:none}.sidebar-left.collapsed .sidebar-collapse-btn{left:12px}
+
 .logo-area{padding:28px 24px 20px;border-bottom:1px solid var(--border-glow);text-align:center}
 .logo-icon{width:48px;height:48px;margin:0 auto 10px;background:linear-gradient(135deg,var(--cyan),var(--purple));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 24px rgba(0,229,255,.3);animation:pulse-glow 3s ease-in-out infinite}
 @keyframes pulse-glow{0%,100%{box-shadow:0 0 24px rgba(0,229,255,.3)}50%{box-shadow:0 0 40px rgba(168,85,247,.5)}}
@@ -230,7 +230,6 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 <div class="app-container">
 <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
 <aside class="sidebar-left">
-<button class="sidebar-collapse-btn" id="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="收起侧边栏">◀</button>
 <div class="logo-area"><div class="logo-icon">⚡</div><div class="logo-title">头号流量玩家</div><div class="logo-subtitle">TOP TRAFFIC PLAYER</div></div>
 <nav class="nav-list">
 <div class="nav-item active" data-section="0"><div class="nav-icon">🎬</div><span class="nav-label">爆款脚本创作</span><span class="nav-badge">3 模式</span></div>
@@ -575,7 +574,6 @@ origSend();
 document.getElementById("chat-overlay").addEventListener("click",function(e){if(e.target===this)closeChat()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&chatOpen)closeChat()});
 
-function toggleSidebarCollapse(){var s=document.querySelector(".sidebar-left");var b=document.getElementById("sidebar-collapse-btn");s.classList.toggle("collapsed");if(s.classList.contains("collapsed")){b.textContent="▶";b.title="展开侧边栏";b.style.left="12px"}else{b.textContent="◀";b.title="收起侧边栏";b.style.left="272px"}}
 function toggleMobileMenu(){var s=document.querySelector(".sidebar-left");var o=document.getElementById("mobile-overlay");if(s.classList.contains("mobile-open")){closeMobileMenu()}else{s.classList.add("mobile-open");o.classList.add("open")}}
 function closeMobileMenu(){document.querySelector(".sidebar-left").classList.remove("mobile-open");document.getElementById("mobile-overlay").classList.remove("open")}
 function handleResize(){var m=document.getElementById("menu-toggle");if(window.innerWidth<=768){m.style.display="flex"}else{m.style.display="none";closeMobileMenu()}}

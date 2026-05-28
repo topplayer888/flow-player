@@ -31,7 +31,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .nav-item.entering{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.35);box-shadow:0 0 20px rgba(0,229,255,.08)}
 .sidebar-footer{padding:16px 24px;border-top:1px solid var(--border-glow);font-size:11px;color:var(--text-muted);text-align:center}
 
-.content-area{flex:1;display:flex;flex-direction:column;padding:32px 24px;overflow-y:auto;position:relative}
+.content-area{flex:1;min-height:0;display:flex;flex-direction:column;padding:32px 24px;overflow-y:auto;position:relative}
 .content-area.fading{opacity:0;transition:opacity .25s}
 .content-header{margin-bottom:28px;animation:fadeSlideIn .5s cubic-bezier(.4,0,.2,1) both}
 @keyframes fadeSlideIn{0%{opacity:0;transform:translateY(-16px)}100%{opacity:1;transform:translateY(0)}}
@@ -223,7 +223,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .sidebar-left{position:fixed;left:-280px;top:0;bottom:0;width:280px;min-width:280px;z-index:100;transition:left .3s ease;box-shadow:none;overflow-y:auto}
 .sidebar-left.mobile-open{left:0;box-shadow:8px 0 40px rgba(0,0,0,.5)}
 .sidebar-right{display:none}
-.content-area{padding:20px 12px;padding-top:56px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.content-area{flex:1;min-height:0;padding:20px 12px;padding-top:56px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 }
 </style></head><body>
 <canvas id="bg-canvas"></canvas>

@@ -63,6 +63,10 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .mode-card:nth-child(1):hover .mode-card-corner{border-width:0 28px 28px 0;border-color:transparent rgba(0,229,255,.15) transparent transparent}
 .mode-card:nth-child(2):hover .mode-card-corner{border-width:0 28px 28px 0;border-color:transparent rgba(168,85,247,.15) transparent transparent}
 .mode-card:nth-child(3):hover .mode-card-corner{border-width:0 28px 28px 0;border-color:transparent rgba(245,158,11,.15) transparent transparent}
+.mode-card:nth-child(4)::before{background:radial-gradient(circle at 70% 30%,rgba(34,197,94,.1),transparent 60%)}
+.mode-card:nth-child(4) .mode-card-icon{background:rgba(34,197,94,.12);color:#22c55e;box-shadow:0 0 16px rgba(34,197,94,.15)}
+.mode-card:nth-child(4):hover .mode-card-corner{border-width:0 28px 28px 0;border-color:transparent rgba(34,197,94,.15) transparent transparent}
+.mode-card:nth-child(4) .mode-card-scanline{background:linear-gradient(90deg,transparent,#22c55e,transparent)}
 .mode-card-scanline{position:absolute;left:0;right:0;height:1px;z-index:3;pointer-events:none;opacity:0;transition:opacity .3s}
 .mode-card:nth-child(1) .mode-card-scanline{background:linear-gradient(90deg,transparent,var(--cyan),transparent);top:40%}
 .mode-card:nth-child(2) .mode-card-scanline{background:linear-gradient(90deg,transparent,var(--purple),transparent);top:45%}
@@ -232,7 +236,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 <aside class="sidebar-left">
 <div class="logo-area"><div class="logo-icon">⚡</div><div class="logo-title">头号流量玩家</div><div class="logo-subtitle">TOP TRAFFIC PLAYER</div></div>
 <nav class="nav-list">
-<div class="nav-item active" data-section="0"><div class="nav-icon">🎬</div><span class="nav-label">爆款脚本创作</span><span class="nav-badge">3 模式</span></div>
+<div class="nav-item active" data-section="0"><div class="nav-icon">🎬</div><span class="nav-label">爆款脚本创作</span><span class="nav-badge">4 模式</span></div>
 <div class="nav-item" data-section="1"><div class="nav-icon">💡</div><span class="nav-label">广告创意</span><span class="nav-badge">3 模式</span></div>
 <div class="nav-item" data-section="2"><div class="nav-icon">📡</div><span class="nav-label">直播策略</span><span class="nav-badge">2 模式</span></div>
 </nav>
@@ -254,8 +258,8 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 <aside class="sidebar-right">
 <div class="right-header"><div class="right-header-title">📊 实时面板</div></div>
 <div class="quick-stats">
-<div class="stat-row"><span class="stat-label">创作模式</span><span class="stat-value cyan" id="stat-modes">8</span></div>
-<div class="stat-row"><span class="stat-label">内容体系</span><span class="stat-value purple" id="stat-systems">5</span></div>
+<div class="stat-row"><span class="stat-label">创作模式</span><span class="stat-value cyan" id="stat-modes">9</span></div>
+<div class="stat-row"><span class="stat-label">内容体系</span><span class="stat-value purple" id="stat-systems">6</span></div>
 <div class="stat-row"><span class="stat-label">可用状态</span><span class="stat-value gold" id="stat-overall">待更新</span></div>
 </div>
 <div class="right-modes" id="right-modes"></div>
@@ -304,7 +308,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 </div>
 
 <script>
-var sections=[{title:"爆款脚本创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"三大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"对话式（采访）",desc:"对话式创作 · 采访体脚本的流量密码",icon:"🎤"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"创意",desc:"三大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"策略",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"kyrie直播方法论",desc:"kyrie体系 · 数据驱动的直播增长模型",icon:"📈"}]}],currentSection=0,currentMode=0;
+var sections=[{title:"爆款脚本创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"四大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"对话式（采访）",desc:"对话式创作 · 采访体脚本的流量密码",icon:"🎤"},{name:"爆款仿写",desc:"爆款仿写 · 对标爆款文案的结构化仿写生成",icon:"✍️"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"创意",desc:"三大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"策略",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"kyrie直播方法论",desc:"kyrie体系 · 数据驱动的直播增长模型",icon:"📈"}]}],currentSection=0,currentMode=0;
 
 var agents={
 "1-0":{

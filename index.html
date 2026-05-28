@@ -498,7 +498,7 @@ if(rwInputType==="link"){
  if(apiConfig.transcribeEndpoint){
   var tsUrl=apiConfig.transcribeEndpoint.replace(/\/+$/,"")+"/api/transcribe";
   addMessage("assistant","正在解析视频链接...");
-  fetch(tsUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:url})})
+  fetch(tsUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:url,api_key:apiConfig.apikey})})
   .then(function(r){return r.json()})
   .then(function(data){
    hideTyping();

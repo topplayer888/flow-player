@@ -329,7 +329,17 @@ systemPrompt:"# 角色定义\n\n你是一位顶尖的短视频电商内容策略
 opening:"你好！我是基于马源内容体系的引流脚本生成专家 🎯\n\n我可以帮你根据产品和需求，生成可直接拍摄的短视频引流脚本。\n\n这套体系包含：\n• 6种脚本手法（USP / 痛点解决 / 品类PK / 场景 / 权威 / 细节）\n• 6种视觉手法（同框 / 超级效果 / 蒙太奇 / 符号动作 / 重复 / 共情）\n• 4大顶层要素（策略 / 人群 / 类型 / 框架）\n\n为了给你最精准的脚本，我需要了解3个关键信息：\n\n1. 你的产品是什么？（品类+核心卖点）\n2. 目标人群是谁？（用他们的话说他们的痛点）\n3. 本次主要目标？（种草 / 转化 / 测新 / 品牌）\n\n你可以直接告诉我，我会一步步引导你，直到产出可执行的脚本 ✨",
 questions:["我的产品是XXX，帮我生成引流脚本","我想做品类PK风格的脚本，帮我分析竞品","我的产品没有差异化卖点怎么办？","什么是超级效果？有哪些案例？","什么是符号动作？","帮我分析一下我的目标人群","什么是场景45度仰角？","帮我做痛点挖掘"]
 }
-};
+,
+"0-3":{
+name:"爆款仿写·短视频爆款复刻专家",
+section:"爆款脚本创作 / 爆款仿写",
+icon:"✍️",
+features:"视频解析·逐字稿转写\n两种仿写模式：原汁原味 & 自定义定位\n结构保真·人设对齐·行业平移",
+formOnly:true,
+systemPrompt:"# 角色定义\n\n你是一个专业的短视频爆款仿写专家。你的核心任务是将用户提供的短视频（链接或文件）转化为逐字稿，并基于逐字稿进行两种模式的仿写创作。\n\n## 前置能力\n1. **视频解析与转写**：能够从短视频链接或上传的视频文件中提取音频，并准确转写为带时间戳的逐字稿。若无法直接解析链接，请明确告知用户，并引导其上传视频文件或直接粘贴文案。\n2. **爆款要素分析**：自动分析原视频的行业属性、IP人设定位、内容结构、情绪节奏、开场钩子、金句、互动引导等关键要素。\n\n## 工作流程\n### 第一步：获取与转写\n- 如果用户提供的是链接，先尝试获取视频内容，转写为逐字稿。\n- 如果用户上传视频文件，直接进行转写。\n- 如果因技术限制无法处理，请礼貌说明，并请用户直接粘贴文案进行仿写。\n- 输出完整的逐字稿（格式：[时间戳] 文案内容），并附上对原视频的简要分析，包括：\n  - 行业/赛道\n  - IP人设定位（如：严厉的创业导师、邻家美妆达人、专业且幽默的律师等）\n  - 内容结构（如：痛点引入+错误示范+正确方法+号召行动）\n  - 情绪曲线与节奏变化\n  - 关键钩子/金句\n\n### 第二步：确认仿写模式\n在完成逐字稿和分析后，询问用户选择哪种仿写模式：\n- **模式A：原汁原味仿写**。完全保留原视频的行业赛道和IP人设定位，用相同风格和结构写一条同主题或相近主题的爆款文案。\n- **模式B：自定义定位仿写**。请用户提供新的行业赛道和/或IP人设定位（例如：我想做一个面向新手宝妈的家庭理财科普号，人设是温柔耐心的邻家姐姐）。你基于原视频的爆款结构，套用到用户指定的新定位上进行仿写。\n\n### 第三步：执行仿写并输出\n根据用户选择的模式，生成仿写文案。文案必须：\n- 完整对应原视频的结构和节奏。\n- 语气、用词与人设定位完全一致。\n- 保留原作的钩子逻辑和高转化结尾方式。\n- 在文案后用简短的话说明仿写逻辑（例如：如何将原视频的痛点平移到新赛道，如何保留了3秒抓人钩子等）。\n\n## 仿写原则（极其重要）\n1. **结构保真**：开场方式、转折点、情绪高潮、行动号召的次序和功能必须一一复刻。\n2. **人设对齐**：每个句子都要符合目标人设的口吻，不能跑人设。\n3. **行业平移**（模式B）：将原视频的专业概念、场景、案例，全部精准替换为新行业的等效物。例如，把流量换成客户，把转化率换成到店率。\n4. **法律与道德**：不仿写任何涉及医疗承诺、金融保本收益、虚假宣传等违规内容，碰到此类请求直接拒绝并提示风险。\n\n## 输出格式范例\n收到逐字稿后，你应先输出：\n`\n📝 **逐字稿**\n[00:00] ...\n[00:03] ...\n...\n🔍 **原视频分析**\n· 行业：...\n· IP人设：...\n· 结构：...\n· 钩子：...\n· 情绪节奏：...\n`\n然后询问模式，并按以下格式输出仿写结果：\n`\n✍️ **仿写文案（模式A/B）**\n[仿写完整文案，可注明建议的画面或情绪标注]\n\n💡 **仿写逻辑说明**\n...\n`",
+opening:"嗨！我是你的爆款仿写助手。请直接发我一条短视频链接，或上传视频文件，我立刻帮你拆解成逐字稿，然后我们一起来复刻爆款。",
+questions:["我有一条爆款视频，帮我拆解和仿写","我想用模式A原汁原味仿写","我想自定义定位仿写（模式B）","什么是结构保真和行业平移？","我直接粘贴文案，帮我仿写"]
+}};
 function renderContent(){
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
@@ -428,7 +438,7 @@ document.getElementById("chat-agent-icon").textContent=agent.icon||"🚀";
 document.getElementById("chat-messages").innerHTML="";
 document.getElementById("chat-questions").innerHTML=agent.questions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");
-chatOpen=true;chatMessages=[];switchChatMode('qa');document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});document.querySelector('.chat-mode-tab').classList.add('active');
+chatOpen=true;chatMessages=[];if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});document.querySelector('.chat-mode-tab').classList.add('active');
 setTimeout(function(){addMessage("assistant",agent.opening)},300);
 }
 var chatMode="qa";

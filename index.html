@@ -154,6 +154,13 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .chat-mode-tab.active{color:var(--purple);border-bottom-color:var(--purple)}
 .chat-form-panel{flex:1;overflow-y:auto;padding:24px;display:none;flex-direction:column;gap:20px}
 .chat-form-panel.open{display:flex}
+.rec-badge{display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:10px;padding:1px 5px;border-radius:4px;margin-left:4px;font-weight:600;animation:recPulse 1.5s ease-in-out infinite}
+@keyframes recPulse{0%,100%{opacity:1}50%{opacity:.7}}
+.recommend-btn{margin-top:8px;padding:6px 12px;background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(239,68,68,.1));border:1px solid rgba(245,158,11,.4);color:#f59e0b;border-radius:8px;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s}
+.recommend-btn:hover{background:linear-gradient(135deg,rgba(245,158,11,.25),rgba(239,68,68,.15));border-color:rgba(245,158,11,.6);transform:translateY(-1px)}
+.recommend-btn:disabled{opacity:.5;cursor:not-allowed}
+
+
 .chat-form-field{display:flex;flex-direction:column;gap:6px}.chat-form-field label{font-size:13px;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;gap:6px}.chat-form-field label .field-icon{font-size:15px}
 .chat-form-field label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
 .chat-form-field textarea,.chat-form-field select{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;font-family:inherit;outline:none;resize:vertical;min-height:80px;transition:all .2s;line-height:1.6}
@@ -232,6 +239,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 }
 @media(max-width:768px){.chat-overlay{left:0;right:0}}
 </style></head><body>
+<div style="background:#00ff88;color:#000;text-align:center;padding:6px;font-weight:bold;font-size:13px;">[V3] 江导方法论 + 智能推荐 + 动态模板 + 字数修复</div>
 <canvas id="bg-canvas"></canvas>
 <div class="app-container">
 <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
@@ -298,6 +306,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 <div id="xh-step1">
 <div class="chat-form-field"><label><span class="field-icon">&#x1f3ed;</span> 你的行业</label><input id="xh-industry" placeholder="如：美妆、教育、餐饮、健身..."></div>
 <div class="chat-form-field"><label><span class="field-icon">&#x1f465;</span> 目标人群</label><input id="xh-audience" placeholder="如：25-35岁女性白领、新手宝妈..."></div>
+<button class="recommend-btn" onclick="xuehuiRecommendElements()" style="margin-bottom:12px">智能推荐爆款元素</button>
 <div class="chat-form-field"><label><span class="field-icon">&#x1f4a5;</span> 爆款元素 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（可多选）</span></label>
 <div class="select-chips" id="xh-elements" style="display:flex;flex-wrap:wrap;gap:8px">
 <span class="select-chip" data-val="头牌选题" onclick="toggleChip(this,'xh-elements',8)">&#x1f3c6; 头牌选题</span>
@@ -311,13 +320,14 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 </div></div>
 <button class="chat-form-submit" onclick="xuehuiStep1()">&#x1f680; 生成爆款选题</button>
 </div>
-<div id="xh-step2" style="display:none">
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button onclick="xuehuiBackTo(1)" style="background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-primary);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px">&#x2190; 返回</button><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 2/4 · 选择爆款选题</span></div>
+<div id="xh-step2">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 2/4 · 选择爆款选题</span></div>
 <div id="xh-topics-list" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto"></div>
-<button class="chat-form-submit" onclick="xuehuiStep2Next()" style="margin-top:12px">下一步 &#x2192;</button>
+<button class="recommend-btn" onclick="xuehuiRecommendTemplates()" style="margin-right:8px">智能推荐模板</button>
+
 </div>
-<div id="xh-step3" style="display:none">
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button onclick="xuehuiBackTo(2)" style="background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-primary);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px">&#x2190; 返回</button><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 3/4 · 选择文案模板</span></div>
+<div id="xh-step3">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 3/4 · 选择文案模板</span></div>
 <div class="chat-form-field"><label><span class="field-icon">&#x1f4cb;</span> 文案模板 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（可多选）</span></label>
 <div class="select-chips" id="xh-templates" style="display:flex;flex-wrap:wrap;gap:8px">
 <span class="select-chip" data-val="讲故事类" onclick="toggleChip(this,'xh-templates',4)">&#x1f4d6; 讲故事类</span>
@@ -325,17 +335,18 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 <span class="select-chip" data-val="教知识类" onclick="toggleChip(this,'xh-templates',4)">&#x1f4da; 教知识类</span>
 <span class="select-chip" data-val="晒过程类" onclick="toggleChip(this,'xh-templates',4)">&#x1f3ac; 晒过程类</span>
 </div></div>
-<button class="chat-form-submit" onclick="xuehuiStep3Next()">下一步 &#x2192;</button>
+<button class="chat-form-submit" onclick="xuehuiRecommendOpenings()" style="margin-right:8px">智能推荐开头</button>
+
 </div>
-<div id="xh-step4" style="display:none">
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button onclick="xuehuiBackTo(3)" style="background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-primary);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px">&#x2190; 返回</button><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 4/4 · 选择开头类型</span></div>
+<div id="xh-step4">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 4/4 · 选择开头类型</span></div>
 <div class="chat-form-field"><label><span class="field-icon">&#x1f3a4;</span> 开头类型 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（可多选）</span></label>
 <div class="select-chips" id="xh-openings" style="display:flex;flex-wrap:wrap;gap:6px;max-height:260px;overflow-y:auto"></div></div>
 <div style="font-size:11px;color:var(--text-muted);margin:8px 0" id="xh-count-info">已选 0 个开头 x 0 个模板 = 0 条文案</div>
 <button class="chat-form-submit" onclick="xuehuiGenerate()">&#x270d; 生成爆款文案</button>
 </div>
 <div id="xh-results" style="display:none">
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button onclick="xuehuiBackTo(4)" style="background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-primary);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px">&#x2190; 返回修改</button><button onclick="xuehuiReset()" style="background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-muted);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px">&#x1f504; 重新开始</button><span style="font-size:12px;color:#10b981;font-weight:600">&#x2705; 文案已生成</span></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button onclick="xuehuiReset()" style="background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-muted);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px">&#x1f504; 重新开始</button><span style="font-size:12px;color:#10b981;font-weight:600">&#x2705; 文案已生成</span></div>
 <div id="xh-results-content" style="max-height:500px;overflow-y:auto;display:flex;flex-direction:column;gap:12px"></div>
 </div>
 </div>
@@ -396,7 +407,17 @@ features:"文案拆解·爆款分析\n两种仿写模式：原汁原味 & 自定
 systemPrompt:"# 角色定义\n\n你是一个专业的短视频爆款仿写专家。你的核心任务是将用户提供的短视频（链接或文件）转化为逐字稿，并基于逐字稿进行两种模式的仿写创作。\n\n## 前置能力\n1. **视频解析与转写**：能够从短视频链接或上传的视频文件中提取音频，并准确转写为带时间戳的逐字稿。若无法直接解析链接，请明确告知用户，并引导其上传视频文件或直接粘贴文案。\n2. **爆款要素分析**：自动分析原视频的行业属性、IP人设定位、内容结构、情绪节奏、开场钩子、金句、互动引导等关键要素。\n\n## 工作流程\n### 第一步：获取与转写\n- 如果用户提供的是链接，先尝试获取视频内容，转写为逐字稿。\n- 如果用户上传视频文件，直接进行转写。\n- 如果因技术限制无法处理，请礼貌说明，并请用户直接粘贴文案进行仿写。\n- 输出完整的逐字稿（格式：[时间戳] 文案内容），并附上对原视频的简要分析，包括：\n  - 行业/赛道\n  - IP人设定位（如：严厉的创业导师、邻家美妆达人、专业且幽默的律师等）\n  - 内容结构（如：痛点引入+错误示范+正确方法+号召行动）\n  - 情绪曲线与节奏变化\n  - 关键钩子/金句\n\n### 第二步：确认仿写模式\n在完成逐字稿和分析后，询问用户选择哪种仿写模式：\n- **模式A：原汁原味仿写**。完全保留原视频的行业赛道和IP人设定位，用相同风格和结构写一条同主题或相近主题的爆款文案。\n- **模式B：自定义定位仿写**。请用户提供新的行业赛道和/或IP人设定位（例如：我想做一个面向新手宝妈的家庭理财科普号，人设是温柔耐心的邻家姐姐）。你基于原视频的爆款结构，套用到用户指定的新定位上进行仿写。\n\n### 第三步：执行仿写并输出\n根据用户选择的模式，生成仿写文案。文案必须：\n- 完整对应原视频的结构和节奏。\n- 语气、用词与人设定位完全一致。\n- 保留原作的钩子逻辑和高转化结尾方式。\n- 在文案后用简短的话说明仿写逻辑（例如：如何将原视频的痛点平移到新赛道，如何保留了3秒抓人钩子等）。\n\n## 仿写原则（极其重要）\n1. **结构保真**：开场方式、转折点、情绪高潮、行动号召的次序和功能必须一一复刻。\n2. **人设对齐**：每个句子都要符合目标人设的口吻，不能跑人设。\n3. **行业平移**（模式B）：将原视频的专业概念、场景、案例，全部精准替换为新行业的等效物。例如，把流量换成客户，把转化率换成到店率。\n4. **法律与道德**：不仿写任何涉及医疗承诺、金融保本收益、虚假宣传等违规内容，碰到此类请求直接拒绝并提示风险。\n\n## 输出格式范例\n收到逐字稿后，你应先输出：\n`\n📝 **逐字稿**\n[00:00] ...\n[00:03] ...\n...\n🔍 **原视频分析**\n· 行业：...\n· IP人设：...\n· 结构：...\n· 钩子：...\n· 情绪节奏：...\n`\n然后询问模式，并按以下格式输出仿写结果：\n`\n✍️ **仿写文案（模式A/B）**\n[仿写完整文案，可注明建议的画面或情绪标注]\n\n💡 **仿写逻辑说明**\n...\n`",
 opening:"嗨！我是你的爆款仿写助手 👋\n\n请直接把你要仿写的短视频逐字文案发给我，我会：\n\n1️⃣ 拆解分析——行业、人设、结构、钩子、情绪节奏\n2️⃣ 让你选择仿写模式——原汁原味 or 自定义定位\n3️⃣ 生成仿写文案\n\n直接粘贴文案，我们开始吧！",
 questions:["我有一条爆款文案，帮我拆解和仿写","我想用模式A原汁原味仿写","我想自定义定位仿写（模式B）","什么是结构保真和行业平移？","帮我分析这篇文案的爆款逻辑"]
-}};
+},
+"2-0":{
+name:"江导直播·增长教练",
+section:"直播策略 / 江导直播方法论",
+icon:"🎯",
+features:"四根支柱公式|诊断5问𘎧信念挖掘𘎧话术生成𘎧定位设计|诊断报告自动输出",
+systemPrompt:"# 角色定义\n\n你是直播增长教练，不是知识库、不是客服、不是顾问。\n\n你以江导直播方法论为核心方法论，帮助直播操盘手和IP解决四类问题：\n- 定位问题：直播间打谁、讲什么、卖什么\n- 流量问题：状态打不开、进人留不住、在线上不去\n- 转化问题：不敢卖、卖不好、信念不笃定\n- 运营问题：新IP如何起手、直播间如何调\n\n## 说话风格\n语气：直接、不绕弯子、先说结论再说原因\n专业：随时引用江导方法论的框架和术语\n温度：有同理心，先理解用户处境再说问题\n\n## 核心方法论\n### 四根支柱公式\n直播成功 = 定位 x 状态 x 场外重心 x 信念\n\n| 支柱 | 核心概念 | 优先级判断 |\n|------|---------|-----------|\n| 定位 | 主题（痛点）+ 话题（弱点）+ 产品（答案） | 直播间打不开人/成交低时必查 |\n| 状态 | 情绪开关 -> 四档状态 | 在线<60人时优先解决 |\n| 场外 | 重心永远在场外新粉 | 留人线水平/越播越窄时必查 |\n| 信念 | 我有/我能/我信/我想 四维度 | 不敢卖/推不动时必查 |\n\n### 四个核心原理\n1. 痛点决定成交效率，弱点决定流量上限\n2. 在线<60人时，数据分析无意义\n3. 直播重心永远在场外新粉\n4. 卖不好的根因是信念不足\n\n### 诊断优先级\nStep 1：问在线人数（<60先解决状态）\nStep 2：问留人线趋势（水平不动->老粉陷阱）\nStep 3：问推产品时的状态（不敢推->信念问题）\nStep 4：问直播内容框架\n\n## 诊断工具箱\n### 快速诊断5问\nQ1：现在直播一般在线多少人？\nQ2：进来的人留得住吗？\nQ3：推产品的时候状态怎么样？\nQ4：这个状态持续多久了？\nQ5：你觉得主要卡在哪？\n\n### 问题分类\n- 状态型：在线<60 -> 表达心法\n- 流量型：进人慢 -> 定位阵法\n- 老粉陷阱：增长停 -> 场外重心\n- 不敢卖型：推产品弱 -> 转化刀法\n- 卖不好型：没人买 -> 定位+信念\n- 框架型：不知道讲什么 -> 碎片思考\n\n## 输出格式\n诊断报告：【基本情况】【问题定位】【核心建议】【注意事项】【下一步建议】\n定位设计：3层结构（主题/话题/产品）+ 5次为什么\n话术生成：全文/使用时机/注意事项/变体\n信念挖掘：卡点->递进问题->信念档案\n\n## 禁止\n- 不说\"这个问题很常见\"\n- 不说\"按我说的做一定有效\"\n- 不一次给超过3个改动建议",
+opening:"你好！我是江导直播增长教练。\n\n我能帮你解决：\n定位问题-直播间打谁讲什么卖什么\n流量问题-状态打不开进人留不住\n转化问题-不敢卖卖不好\n运营问题-新IP如何起手\n\n你现在有遇到什么直播上的问题吗？告诉我，我帮你解决。",
+questions:["我的直播间一直在线二三十个人，怎么都上不去","直播间在线还行但就是卖不动","直播半年了成交越来越少","一到带货环节就卡住","帮我设计一个直播定位","帮我生成一段带货话术","我感觉不敢卖，帮我挖一下信念"]
+}
+};
 function renderContent(){
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
@@ -495,7 +516,7 @@ document.getElementById("chat-agent-icon").textContent=agent.icon||"🚀";
 document.getElementById("chat-messages").innerHTML="";
 document.getElementById("chat-questions").innerHTML=agent.questions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");
-chatOpen=true;chatMessages=[];if(chatKey==='0-3'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});document.querySelector('.chat-mode-tab').classList.add('active');
+chatOpen=true;chatMessages=[];if(chatKey==='0-3'||chatKey==='2-0'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});document.querySelector('.chat-mode-tab').classList.add('active');
 setTimeout(function(){addMessage("assistant",agent.opening)},300);
 }
 var chatMode="qa";
@@ -626,6 +647,12 @@ var xhElementDetails={
 "圈人群选题":{rules:"句式：星座的 / 内向或外向的 / 不同MBTI的 / 身价十个亿的 / 第一次体验的 / 弱势群体的",example:"母婴->巨蟹座妈妈带孩子有哪些麻烦、身价十个亿的妈妈怎么带孩子"},
 "成本选题":{rules:"围绕成本元素（金钱/时间/面子/力气）：便宜又有面子的 / 十分之一金钱时间 / 如何偷懒 / 花小钱办大事",example:"母婴->如何让爸爸帮忙夜里看孩子，摄影->逛街拍照找这三个建筑物肯定好看"}
 };
+var xhTemplateDetails={
+"讲故事类":{principles:"用户不爱听道理爱听故事。好故事3特征：有冲突、有细节、有反转",steps:"4步模板：1锁定人群(3秒拦截) 2引爆冲突(情绪钩子) 3展开过程(分2-3阶段含具体事件) 4自然带货(产品变解决方案)",techniques:"3技巧：爆点前置(开头亮结果)、细节特写如婆婆凌晨3点开车带我去泡温泉、金句点睛对比式/数字式收尾",pitfalls:"避坑：别自嗨删主观感慨、别啰嗦删无关细节、别虚假"},
+"共鸣型段子类":{principles:"用户心理：这不就是我吗/终于有人说实话了",steps:"3大模板：1假如XX说真话揭露行业潜规则 2深度还原名场面复刻尴尬瞬间 3XX和XX的差别极端对比制造笑点",techniques:"5技巧：反转型、行业梗+大众梗、具象化数字、方言反差、结尾神转折带货",pitfalls:"避坑：别自嗨删业内梗、别侵权、前3秒必出爆点"},
+"教知识类":{principles:"获得感三要素：信息量大、效果立现、颠覆认知",steps:"5大模板：三段论痛点->方案->步骤、一口气挑战密集知识点、盘点体怀旧猎奇、五问法、防坑指南",techniques:"拒绝正确的废话、慎用专业术语、情绪大于知识量",pitfalls:"减肥要少吃多动->火锅后喝这杯刮油水体重不涨"},
+"晒过程类":{principles:"核心：有手艺/猎奇性/治愈感",steps:"火车节模型：拆解成连贯步骤每节关键动作+情绪波动",techniques:"3玩法：猎奇反差、治愈解压、反向操作",pitfalls:"避免纯流水账、慎用专业术语、选题猎奇优先"}
+};
 
 function xuehuiUpdateStatus(){var s=document.getElementById("form-xh-status");var m=document.getElementById("form-xh-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 - "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key"}}
 function xuehuiCallAPI(systemPrompt,userPrompt,callback){
@@ -662,11 +689,22 @@ xuehuiCallAPI(sysPrompt,userPrompt,function(json){
  document.getElementById("xh-step2").style.display="";
 });
 }
-function xuehuiSelectTopic(idx,el){
+function xuehuiSelectTopic_orig(idx,el){
 document.querySelectorAll(".xh-topic-card").forEach(function(c){c.style.borderColor="var(--border-glow)";c.style.background="var(--bg-card)"});
 el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";
 xhState.selectedTopic=xhState.topics[idx];
 }
+
+function xuehuiSelectTopic(idx){
+xuehuiSelectTopic_orig(idx);
+// Auto-recommend templates after topic selection
+setTimeout(function(){
+if(xhState.selectedTopic){
+xuehuiRecommendTemplates();
+}
+},500);
+}
+
 function xuehuiStep2Next(){
 if(!xhState.selectedTopic){alert("请先选择一个选题");return}
 document.getElementById("xh-step2").style.display="none";
@@ -692,11 +730,16 @@ var tmpl=xhState.templates.length;
 document.getElementById("xh-count-info").textContent="已选 "+sel+" 个开头 x "+tmpl+" 个模板 = "+(sel*tmpl*2)+" 条文案（90秒标准 + 2分钟深度）";
 }
 function xuehuiGenerate(){
+// Ensure templates are captured from DOM if not already set
+if(!xhState.templates||xhState.templates.length===0){
+xhState.templates=Array.from(document.getElementById("xh-templates").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
+}
 xhState.selectedOpenings=Array.from(document.getElementById("xh-openings").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
 if(xhState.selectedOpenings.length===0){alert("请至少选择一个开头类型");return}
 var t=xhState.selectedTopic;
 var openingRules=xhState.selectedOpenings.map(function(n){var d=xhOpeningDetails[n];if(!d)return"【"+n+"】无详细规则";return"【"+n+"】公式："+d.formula+" 逻辑："+d.logic+" 示例："+d.examples.join("；")+" 技巧："+d.tips;}).join("\n\n");
-var sysPrompt="你是短视频爆款文案生成专家，基于薛辉内容培训体系。根据用户选择的文案模板类型和开头类型，为指定的选题生成完整文案。\n\n=== 四种文案模板详细规则 ===\n\n【模板1：讲故事类】\n4步万能模板：\n第1步-锁定人群（3秒拦截）：\"XX人群注意！\" 如\"所有被婆婆欺负过的女生\"\"25岁还月薪5千的人\"\n第2步-引爆冲突（情绪钩子）：制造矛盾冲突点，引发好奇和情感共鸣\n第3步-展开过程（用细节带节奏）：分2-3个阶段，每段有具体事件和数据。如阶段1失败→阶段2发现机会→阶段3逆袭结果\n第4步-自然带货（植入产品）：把产品变成解决方案。如\"就是这款APP帮我理清了债务\"\n技巧：爆点前置（\"一条视频赚100万后，我才明白…\"）、细节特写（不用\"婆婆对我很好\"，用\"婆婆凌晨3点开车带我去泡温泉\"）、金句点睛（对比式/数字式收尾）\n避坑：删掉主观感慨、无关细节，不编造假故事\n\n【模板2：共鸣型段子类】\n3大模板：\nA-假如XX说真话：揭露用户想知道但没人敢说的真相。如柜姐内心OS\"您试戴的钻戒被50人戴过\"\nB-深度还原名场面：100%复刻用户经历的尴尬/搞笑瞬间。如家长群\"收到\"接龙\nC-XX和XX的差别：用极端对比制造笑点。如奶奶vs妈妈买童装\n技巧：反转型结构、具象化数字、结尾神转折带货。前3秒必须出爆点，黄金15秒原则\n\n【模板3：教知识类】\n5大模板：三段论（痛点→方案→步骤）、一口气挑战（密集知识点+结尾钩子）、盘点体（怀旧/猎奇）、五问法（问基础→问价格→问陷阱→问技巧→问内幕）、防坑指南（先共情→再颠覆→给方案）\n关键：获得感=未知信息+即刻效果+情绪波动。拒绝正确的废话，慎用专业术语\n\n【模板4：晒过程类】\n火车节模型：拆解成连贯步骤，每节关键动作+情绪波动\n3种玩法：猎奇反差型（常见过程+奇葩操作）、治愈解压型（视觉/听觉享受）、反向操作型（挑战高难度→失败搞笑）\n技巧：结果前置（先放成品）、彩蛋叙事（过程配旁白）\n避坑：不加情绪的晒过程=无效内容\n\n=== 用户选择的开头类型规则 ===\n{openingRules}\n\n=== 生成规则（必须严格遵守） ===\n\n【字数强制要求 - 不达标视为不合格】\n1. 90秒标准版：必须写够 250-350 字（约 35-45 秒口播时长），结构完整、节奏紧凑、信息密度高\n2. 2分钟深度版：必须写够 500-650 字（约 100-120 秒口播时长），深入展开、有细节描写、有情绪铺垫、有场景还原\n\n【严正警告】\n- 禁止输出低于字数下限的文案！90秒版不可少于250字，2分钟版不可少于500字\n- 禁止用空话凑字数，每句话都要有信息量\n- 每种「模板类型 + 开头类型」组合，必须同时输出90秒版和2分钟版各1条\n\n【格式要求】\n- 文案必须以用户选择的开头类型句式开头，前3秒必须有钩子\n- 文案口语化，适合真人口播，像在跟朋友聊天，不是念稿\n- 有明确转化引导（关注/点赞/评论/私信），自然植入不突兀\n- 避免书面语、主观感慨、啰嗦废话\n- 【强制】每条文案写完后请自查字数：90秒版不低于250字，2分钟版不低于500字，字数不够请重写\n- 每句不超过25字，段落不超过3句\n\n【输出JSON格式】\n{\"results\":[\n  {\"copyType\":\"讲故事类\",\"openingType\":\"圈定人群\",\"duration\":\"90秒标准\",\"content\":\"（250-350字完整文案）\"},\n  {\"copyType\":\"讲故事类\",\"openingType\":\"圈定人群\",\"duration\":\"2分钟深度\",\"content\":\"（500-650字完整文案）\"},\n  ...每种模板×开头组合2条\n]}".replace("{industry}",xhState.industry).replace("{audience}",xhState.audience).replace("{topic}",t.title).replace("{element}",t.element).replace("{templates}",xhState.templates.join("、")).replace("{openings}",xhState.selectedOpenings.join("、")).replace("{openingRules}",openingRules);
+var tmplRules=xhState.templates.map(function(tn){var d=xhTemplateDetails[tn];if(!d)return"";return"【模板："+tn+"】\n原则："+d.principles+"\n步骤："+d.steps+"\n技巧："+d.techniques+"\n避坑："+d.pitfalls}).join("\n\n");
+var sysPrompt="你是短视频爆款文案生成专家，基于薛辉内容培训体系。根据用户选择的文案模板类型和开头类型，为指定的选题生成完整文案。\n\n=== 用户选择的文案模板规则 ===\n\n"+tmplRules+"\\n\\n=== 用户选择的开头类型规则 ===\\n{openingRules}\\n\\n=== 生成规则（必须严格遵守） ===\\n\\n【字数强制要求 - 这是最重要的规则】\\n!!! 警告：字数不足的文案将被拒绝，请务必严格遵守 !!!\\n1. 90秒标准版：必须写够 250-350 字（约 35-45 秒口播时长），结构完整、节奏紧凑、信息密度高\\n2. 2分钟深度版：必须写够 500-650 字（约 100-120 秒口播时长），深入展开、有细节描写、有情绪铺垫、有场景还原\\n\\n【严正警告】\\n- 禁止输出低于字数下限的文案！90秒版不可少于250字，2分钟版不可少于500字\\n- 禁止用空话凑字数，每句话都要有信息量\\n- 每种「模板类型 + 开头类型」组合，必须同时输出90秒版和2分钟版各1条\\n\\n【格式要求】\\n- 文案必须以用户选择的开头类型句式开头，前3秒必须有钩子\\n- 文案口语化，适合真人口播，像在跟朋友聊天，不是念稿\\n- 有明确转化引导（关注/点赞/评论/私信），自然植入不突兀\\n- 避免书面语、主观感慨、啰嗦废话\\n- 【强制】每条文案写完后请自查字数：90秒版不低于250字，2分钟版不低于500字，字数不够请重写\\n- 每句不超过25字，段落不超过3句\\n\\n【输出JSON格式】\\n{\\\"results\\\":[\\n  {\\\"copyType\\\":\\\"讲故事类\\\",\\\"openingType\\\":\\\"圈定人群\\\",\\\"duration\\\":\\\"90秒标准\\\",\\\"content\\\":\\\"（250-350字完整文案）\\\"},\\n  {\\\"copyType\\\":\\\"讲故事类\\\",\\\"openingType\\\":\\\"圈定人群\\\",\\\"duration\\\":\\\"2分钟深度\\\",\\\"content\\\":\\\"（500-650字完整文案）\\\"},\\n  ...每种模板×开头组合2条\\n]}\"".replace("{industry}",xhState.industry).replace("{audience}",xhState.audience).replace("{topic}",t.title).replace("{element}",t.element).replace("{templates}",xhState.templates.join("、")).replace("{openings}",xhState.selectedOpenings.join("、")).replace("{openingRules}",openingRules);
 var userPrompt="行业："+xhState.industry+" 人群："+xhState.audience+" 选题："+t.title+" 元素："+t.element+" 模板："+xhState.templates.join("、")+" 开头："+xhState.selectedOpenings.join("、");
 var btn=document.querySelector("#xh-step4 .chat-form-submit");btn.textContent="生成中...";btn.disabled=true;
 xuehuiCallAPI(sysPrompt,userPrompt,function(json){
@@ -713,6 +756,24 @@ xuehuiCallAPI(sysPrompt,userPrompt,function(json){
   grouped[g].forEach(function(r){
    var durColor=r.duration==="90秒标准"?"var(--cyan)":"var(--gold)";
    html+='<div style="padding:12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);margin-bottom:8px"><div style="display:flex;gap:8px;margin-bottom:6px"><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(0,229,255,.1);color:'+durColor+'">'+r.duration+'</span><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(168,85,247,.1);color:var(--purple)">'+r.openingType+'</span><span style="flex:1"></span><button onclick="copyXhResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px" title="复制全文">&#x1f4cb; 复制</button></div><div style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+r.content+'</div></div>';
+// Monitor template selection for auto-recommend
+var xhOrigToggleChip=toggleChip;
+toggleChip=function(chip,containerId,maxSelect){
+xhOrigToggleChip(chip,containerId,maxSelect);
+// Check if it's the templates container
+if(containerId==="xh-templates"){
+setTimeout(function(){
+var selected=Array.from(document.getElementById("xh-templates").querySelectorAll(".select-chip.selected"));
+if(selected.length>0){
+// Set xhState.templates and trigger openings recommendation
+xhState.templates=selected.map(function(c){return c.dataset.val});
+xuehuiRecommendOpenings();
+}
+},300);
+}
+};
+
+
   });
   html+='</div>';
  }
@@ -721,6 +782,95 @@ xuehuiCallAPI(sysPrompt,userPrompt,function(json){
  document.getElementById("xh-results").style.display="";
 });
 }
+
+
+// Auto-recommend: debounced input handling
+var xhAutoRecTimer=null;
+function xhAutoRecElements(){
+clearTimeout(xhAutoRecTimer);
+xhAutoRecTimer=setTimeout(function(){
+var industry=document.getElementById("xh-industry").value.trim();
+var audience=document.getElementById("xh-audience").value.trim();
+if(industry.length>=2&&audience.length>=2){
+xuehuiRecommendElements();
+}
+},800);
+}
+// Attach auto-recommend to inputs
+document.getElementById("xh-industry").addEventListener("input",xhAutoRecElements);
+document.getElementById("xh-audience").addEventListener("input",xhAutoRecElements);
+
+
+function xuehuiRecommendElements(){
+var industry=document.getElementById("xh-industry").value.trim();
+var audience=document.getElementById("xh-audience").value.trim();
+if(!industry||!audience){alert("请先填写行业和人群");return}
+var btn=event.target;btn.textContent="分析中...";btn.disabled=true;
+var prompt="行业："+industry+" 人群："+audience+"\n\n从以下8种爆款元素中推荐1-2个最适合的，只输出JSON数组：\n"+JSON.stringify(Object.keys(xhElementDetails))+"\n每个元素说明：\n"+Object.entries(xhElementDetails).map(function(e){return e[0]+": "+e[1].desc}).join("\n")+"\n\n只输出JSON数组。";
+xuehuiCallAPI("你是爆款选题推荐专家。根据行业和人群推荐最合适的爆款元素。只输出JSON数组。",prompt,function(json){
+ btn.textContent="智能推荐爆款元素";btn.disabled=false;
+ var recs=Array.isArray(json)?json:(json.raw?JSON.parse(json.raw):[]);
+ if(!Array.isArray(recs)||recs.length===0){alert("推荐失败");return}
+ var container=document.getElementById("xh-elements");
+ if(!container)return;
+ container.querySelectorAll(".select-chip .rec-badge").forEach(function(b){b.remove()});
+ recs.forEach(function(key){
+  var chip=container.querySelector('.select-chip[data-val="'+key+'"]');
+  if(chip&&!chip.querySelector(".rec-badge")){
+   var badge=document.createElement("span");badge.className="rec-badge";badge.textContent="推荐";
+   chip.appendChild(badge);chip.classList.add("recommended");
+  }
+ });
+});
+}
+function xuehuiRecommendTemplates(){
+var industry=document.getElementById("xh-industry").value.trim();
+var audience=document.getElementById("xh-audience").value.trim();
+if(!industry||!audience){alert("请先填写行业和人群");return}
+var btn=event.target;btn.textContent="分析中...";btn.disabled=true;
+var element=xhState.selectedTopic?xhState.selectedTopic.element:"";
+var prompt="行业："+industry+" 人群："+audience+" 选题元素："+element+"\n\n从以下4种模板推荐1-2个：讲故事类、共鸣型段子类、教知识类、晒过程类\n只输出JSON数组。";
+xuehuiCallAPI("你是文案模板推荐专家。只输出JSON数组。",prompt,function(json){
+ btn.textContent="智能推荐模板";btn.disabled=false;
+ var recs=Array.isArray(json)?json:(json.raw?JSON.parse(json.raw):[]);
+ if(!Array.isArray(recs)||recs.length===0){alert("推荐失败");return}
+ var container=document.getElementById("xh-templates");
+ if(!container)return;
+ container.querySelectorAll(".select-chip .rec-badge").forEach(function(b){b.remove()});
+ recs.forEach(function(key){
+  var chip=container.querySelector('.select-chip[data-val="'+key+'"]');
+  if(chip&&!chip.querySelector(".rec-badge")){
+   var badge=document.createElement("span");badge.className="rec-badge";badge.textContent="推荐";
+   chip.appendChild(badge);chip.classList.add("recommended");
+  }
+ });
+});
+}
+function xuehuiRecommendOpenings(){
+var industry=document.getElementById("xh-industry").value.trim();
+var audience=document.getElementById("xh-audience").value.trim();
+var tmpls=xhState.templates||[];
+if(!industry||!audience){alert("请先填写行业和人群");return}
+var btn=event.target;btn.textContent="分析中...";btn.disabled=true;
+var prompt="行业："+industry+" 人群："+audience+" 已选模板："+tmpls.join("、")+"\n\n从以下36种开头推荐2-3个：\n"+JSON.stringify(Object.keys(xhOpeningDetails))+"\n只输出JSON数组。";
+xuehuiCallAPI("你是开头推荐专家。只输出JSON数组。",prompt,function(json){
+ btn.textContent="智能推荐开头";btn.disabled=false;
+ var recs=Array.isArray(json)?json:(json.raw?JSON.parse(json.raw):[]);
+ if(!Array.isArray(recs)||recs.length===0){alert("推荐失败");return}
+ var container=document.getElementById("xh-openings");
+ if(!container)return;
+ container.querySelectorAll(".select-chip .rec-badge").forEach(function(b){b.remove()});
+ recs.forEach(function(key){
+  var chip=container.querySelector('.select-chip[data-val="'+key+'"]');
+  if(chip&&!chip.querySelector(".rec-badge")){
+   var badge=document.createElement("span");badge.className="rec-badge";badge.textContent="推荐";
+   chip.appendChild(badge);chip.classList.add("recommended");
+  }
+ });
+});
+}
+
+
 function xuehuiBackTo(step){
 ["xh-step1","xh-step2","xh-step3","xh-step4","xh-results"].forEach(function(id){document.getElementById(id).style.display="none"});
 document.getElementById("xh-step"+step).style.display="";
@@ -875,4 +1025,44 @@ handleResize();
 renderContent();
 updateApiStatus();
 
-</script></body></html>
+
+﻿// Auto-recommend triggers
+xuehuiRenderOpenings();
+(function(){
+var elIndustry=document.getElementById("xh-industry");
+var elAudience=document.getElementById("xh-audience");
+if(!elIndustry||!elAudience)return;
+var recTimer=null;
+function autoRecElements(){
+clearTimeout(recTimer);
+recTimer=setTimeout(function(){
+if(elIndustry.value.trim().length>=2&&elAudience.value.trim().length>=2){
+xuehuiRecommendElements();
+}
+},1000);
+}
+elIndustry.addEventListener("input",autoRecElements);
+elAudience.addEventListener("input",autoRecElements);
+var origSelectTopic=xuehuiSelectTopic;
+xuehuiSelectTopic=function(idx,el){
+origSelectTopic(idx,el);
+setTimeout(function(){
+if(xhState.selectedTopic)xuehuiRecommendTemplates();
+},500);
+};
+var origToggleChip=toggleChip;
+toggleChip=function(chip,containerId,maxSelect){
+origToggleChip(chip,containerId,maxSelect);
+if(containerId==="xh-templates"){
+setTimeout(function(){
+var sel=document.getElementById("xh-templates").querySelectorAll(".select-chip.selected");
+if(sel.length>0){
+xhState.templates=Array.from(sel).map(function(c){return c.dataset.val});
+xuehuiRenderOpenings();
+xuehuiRecommendOpenings();
+}
+},300);
+}
+};
+})();
+</script><div id="diag" style="position:fixed;bottom:0;left:0;background:#000;color:#0f0;font-size:10px;padding:4px;z-index:99999"></div><script>var ak=Object.keys(agents).join(",");var a20=!!agents["2-0"];var ar="origSelectTopic" in window;document.getElementById("diag").textContent="agents:"+ak+" | 2-0:"+a20+" | autoRec:"+ar;</script></body></html>

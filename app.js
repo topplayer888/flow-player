@@ -316,6 +316,7 @@ function xuehuiSelectTopic_orig(idx,el){
 document.querySelectorAll(".xh-topic-card").forEach(function(c){c.style.borderColor="var(--border-glow)";c.style.background="var(--bg-card)"});
 el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";
 xhState.selectedTopic=xhState.topics[idx];
+setTimeout(function(){if(xhState.selectedTopic)xuehuiRecommendTemplates();},500);
 }
 
 function xuehuiSelectTopic(idx,el){
@@ -645,13 +646,7 @@ updateApiStatus();
 
 ﻿// Auto-recommend triggers
 // Auto-recommend function overrides (global scope)
-var origSelectTopic=xuehuiSelectTopic;
-xuehuiSelectTopic=function(idx,el){
-origSelectTopic(idx,el);
-setTimeout(function(){
-if(xhState.selectedTopic)xuehuiRecommendTemplates();
-},500);
-};
+// Auto-recommend now handled in xuehuiSelectTopic_orig
 var origToggleChip2=toggleChip;
 toggleChip=function(chip,containerId,maxSelect){
 origToggleChip2(chip,containerId,maxSelect);

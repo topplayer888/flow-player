@@ -12,18 +12,7 @@
 <div class="nav-item" data-section="1"><div class="nav-icon">💡</div><span class="nav-label">广告创意</span><span class="nav-badge">3 模式</span></div>
 <div class="nav-item" data-section="2"><div class="nav-icon">📡</div><span class="nav-label">直播策略</span><span class="nav-badge">2 模式</span></div>
 </nav>
-<div class="sidebar-api-settings">
-<div class="sidebar-api-header" onclick="toggleSidebarApi()">
-<span>⚙ API 配置</span>
-<span class="sidebar-api-arrow">▾</span>
-</div>
-<div class="sidebar-api-body" id="sidebar-api-body">
-<input id="sb-endpoint" placeholder="API 端点 (默认 OpenAI)">
-<input id="sb-apikey" placeholder="API Key (sk-...)" type="password">
-<input id="sb-model" placeholder="模型名称 (默认 gpt-4o)">
-<button class="sidebar-api-save" onclick="saveSidebarApi()">保存配置</button>
-</div>
-</div><div class="sidebar-footer">v1.0 · AI-Powered</div>
+<div class="sidebar-settings-btn" onclick="openSettings()"><span class="sidebar-settings-icon">⚙</span><span>设置</span></div><div class="sidebar-footer">v1.0 · AI-Powered</div>
 <button class="menu-toggle" id="menu-toggle" onclick="toggleMobileMenu()" title="菜单">☰</button>
 </aside>
 <main class="content-area" id="content-area">

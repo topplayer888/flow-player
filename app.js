@@ -316,6 +316,8 @@ function xuehuiSelectTopic_orig(idx,el){
 document.querySelectorAll(".xh-topic-card").forEach(function(c){c.style.borderColor="var(--border-glow)";c.style.background="var(--bg-card)"});
 el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";
 xhState.selectedTopic=xhState.topics[idx];
+document.getElementById("xh-step2").style.display="none";
+document.getElementById("xh-step3").style.display="";
 setTimeout(function(){if(xhState.selectedTopic)xuehuiRecommendTemplates();},500);
 }
 

@@ -1,4 +1,4 @@
-html,body{margin:0;padding:0;height:100%}
+﻿html,body{margin:0;padding:0;height:100%}
 :root{--bg-deep:#0a0c14;--bg-panel:#0f121e;--bg-card:#141828;--border-glow:#1a1f35;--cyan:#00e5ff;--cyan-dim:rgba(0,229,255,.15);--purple:#a855f7;--purple-dim:rgba(168,85,247,.15);--gold:#f59e0b;--gold-dim:rgba(245,158,11,.15);--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--radius:12px;--radius-sm:8px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg-deep);color:var(--text-primary);height:100vh;overflow:hidden;user-select:none}
@@ -196,8 +196,8 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .settings-save:hover{box-shadow:0 0 16px rgba(168,85,247,.3)}
 .settings-reset{padding:8px 14px;border-radius:8px;border:1px solid var(--border-glow);background:transparent;color:var(--text-muted);font-size:12px;cursor:pointer;transition:all .2s}
 .settings-reset:hover{background:rgba(255,255,255,.03);color:var(--text-primary)}
-.chat-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border-glow);background:transparent;color:var(--text-muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.chat-close:hover{background:rgba(255,255,255,.05);color:var(--text-primary)}
+.chat-close{width:32px;height:32px;border-radius:8px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.12);color:rgba(239,68,68,.7);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.chat-close:hover{background:rgba(239,68,68,.25);color:#fff;border-color:rgba(239,68,68,.6)}
 .chat-messages{flex:1;min-height:0;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:16px;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .chat-msg{display:flex;gap:10px;animation:msgIn .3s ease-out}
 @keyframes msgIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}

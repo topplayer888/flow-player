@@ -56,15 +56,15 @@ function renderContent(){
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 setTimeout(function(){
-var e=sections[currentSection];
+var e=sections[renderSection];
 var n='<div class="content-header"><div class="content-title"><span class="accent">'+e.accent+"</span>"+e.title.replace(e.accent,"")+'</div><div class="content-desc">'+e.subtitle+" · "+e.desc+'</div></div><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid">'+e.modes.map(function(m,i){
-var ak=currentSection+"-"+i,has=!!agents[ak];
+var ak=renderSection+"-"+i,has=!!agents[ak];
 return '<div class="mode-card'+(has?' active-agent':'')+'" data-mode="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+m.icon+'</div><div class="mode-card-index">NO.0'+(i+1)+'</div></div><div class="mode-card-name">'+m.name+'</div>'+(has?'<div class="mode-card-features-area"><div class="mode-card-features-text">'+(agents[ak].features||'')+'</div></div>':'')+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status'+(has?' active':'')+'"><span class="mode-card-dot'+(has?' active':'')+'"></span>'+(has?'已激活':'待更新')+'</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+"</div>";
 ca.innerHTML=n;ca.classList.remove("fading");
 var overall=document.getElementById("stat-overall");
 var hasAny=false;
-e.modes.forEach(function(m,i){if(agents[currentSection+"-"+i])hasAny=true});
+e.modes.forEach(function(m,i){if(agents[renderSection+"-"+i])hasAny=true});
 overall.textContent=hasAny?"已激活":"待更新";
 overall.className="stat-value "+(hasAny?"":"gold");
 document.getElementById("stat-modes").textContent=e.modes.length;
@@ -74,8 +74,8 @@ var ld=ca.querySelector(".content-loading");if(ld)ld.remove();
 document.querySelectorAll(".mode-card").forEach(function(card){
 card.addEventListener("click",function(){
 var modeIdx=parseInt(card.dataset.mode);
-var ak=currentSection+"-"+modeIdx;
-if(agents[ak]){sectionModes[currentSection]=modeIdx;openChat(currentSection,modeIdx)}
+var ak=renderSection+"-"+modeIdx;
+if(agents[ak]){sectionModes[renderSection]=modeIdx;openChat(renderSection,modeIdx)}
 else{currentMode=modeIdx;renderContent();renderRightModes()}
 });
 });

@@ -697,7 +697,7 @@ renderContent();
 updateApiStatus();document.querySelector(".sidebar-settings-btn").addEventListener("click",function(e){e.stopPropagation();openSettings()});document.getElementById("logo-area").addEventListener("click",function(e){e.stopPropagation();goHome()});
 
 
-﻿// Auto-recommend triggers
+// Auto-recommend triggers
 // Auto-recommend function overrides (global scope)
 // Auto-recommend now handled in xuehuiSelectTopic_orig
 var origToggleChip2=toggleChip;

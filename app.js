@@ -650,8 +650,7 @@ updateApiStatus();
 
 
 ﻿// Auto-recommend triggers
-xuehuiRenderOpenings();
-(function(){
+document.addEventListener("DOMContentLoaded",function(){xuehuiRenderOpenings();(function(){
 var elIndustry=document.getElementById("xh-industry");
 var elAudience=document.getElementById("xh-audience");
 if(!elIndustry||!elAudience)return;
@@ -687,6 +686,6 @@ xuehuiRecommendOpenings();
 },300);
 }
 };
-})();
+})();});
 
-var ak=Object.keys(agents).join(",");var a20=!!agents["2-0"];var ar="origSelectTopic" in window;document.getElementById("diag").textContent="agents:"+ak+" | 2-0:"+a20+" | autoRec:"+ar;
+document.addEventListener("DOMContentLoaded",function(){var diag=document.getElementById("diag");if(diag){var ak=Object.keys(agents).join(",");var a20=!!agents["2-0"];var ar="origSelectTopic" in window;diag.textContent="agents:"+ak+" | 2-0:"+a20+" | autoRec:"+ar;}});

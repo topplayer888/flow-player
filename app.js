@@ -694,7 +694,7 @@ function handleResize(){var m=document.getElementById("menu-toggle");if(window.i
 window.addEventListener("resize",handleResize);
 handleResize();
 renderContent();
-updateApiStatus();document.querySelector(".sidebar-settings-btn").addEventListener("click",function(e){e.stopPropagation();openSettings()});
+updateApiStatus();document.querySelector(".sidebar-settings-btn").addEventListener("click",function(e){e.stopPropagation();openSettings()});document.getElementById("logo-area").addEventListener("click",function(e){e.stopPropagation();goHome()});
 
 
 ﻿// Auto-recommend triggers

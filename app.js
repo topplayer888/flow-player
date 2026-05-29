@@ -318,8 +318,8 @@ el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)"
 xhState.selectedTopic=xhState.topics[idx];
 }
 
-function xuehuiSelectTopic(idx){
-xuehuiSelectTopic_orig(idx);
+function xuehuiSelectTopic(idx,el){
+xuehuiSelectTopic_orig(idx,el);
 // Auto-recommend templates after topic selection
 setTimeout(function(){
 if(xhState.selectedTopic){
@@ -650,7 +650,31 @@ updateApiStatus();
 
 
 ﻿// Auto-recommend triggers
-document.addEventListener("DOMContentLoaded",function(){xuehuiRenderOpenings();(function(){
+// Auto-recommend function overrides (global scope)
+var origSelectTopic=xuehuiSelectTopic;
+xuehuiSelectTopic=function(idx,el){
+origSelectTopic(idx,el);
+setTimeout(function(){
+if(xhState.selectedTopic)xuehuiRecommendTemplates();
+},500);
+};
+var origToggleChip2=toggleChip;
+toggleChip=function(chip,containerId,maxSelect){
+origToggleChip2(chip,containerId,maxSelect);
+if(containerId==="xh-templates"){
+setTimeout(function(){
+var sel=document.getElementById("xh-templates").querySelectorAll(".select-chip.selected");
+if(sel.length>0){
+xhState.templates=Array.from(sel).map(function(c){return c.dataset.val});
+xuehuiRenderOpenings();
+xuehuiRecommendOpenings();
+}
+},300);
+}
+};
+// DOM-dependent auto-recommend initialization
+document.addEventListener("DOMContentLoaded",function(){
+xuehuiRenderOpenings();
 var elIndustry=document.getElementById("xh-industry");
 var elAudience=document.getElementById("xh-audience");
 if(!elIndustry||!elAudience)return;
@@ -665,27 +689,6 @@ xuehuiRecommendElements();
 }
 elIndustry.addEventListener("input",autoRecElements);
 elAudience.addEventListener("input",autoRecElements);
-var origSelectTopic=xuehuiSelectTopic;
-xuehuiSelectTopic=function(idx,el){
-origSelectTopic(idx,el);
-setTimeout(function(){
-if(xhState.selectedTopic)xuehuiRecommendTemplates();
-},500);
-};
-var origToggleChip=toggleChip;
-toggleChip=function(chip,containerId,maxSelect){
-origToggleChip(chip,containerId,maxSelect);
-if(containerId==="xh-templates"){
-setTimeout(function(){
-var sel=document.getElementById("xh-templates").querySelectorAll(".select-chip.selected");
-if(sel.length>0){
-xhState.templates=Array.from(sel).map(function(c){return c.dataset.val});
-xuehuiRenderOpenings();
-xuehuiRecommendOpenings();
-}
-},300);
-}
-};
-})();});
+});
 
 document.addEventListener("DOMContentLoaded",function(){var diag=document.getElementById("diag");if(diag){var ak=Object.keys(agents).join(",");var a20=!!agents["2-0"];var ar="origSelectTopic" in window;diag.textContent="agents:"+ak+" | 2-0:"+a20+" | autoRec:"+ar;}});

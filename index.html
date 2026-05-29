@@ -150,7 +150,7 @@
 </div>
 
 <div id="tj-step2" style="display:none">
-<div style="font-size:12px;color:var(--purple);font-weight:600;margin-bottom:12px">📌 步骤 2/5 · 根据产品信息推荐钩子类型</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">📌 步骤 2/5 · 根据产品信息推荐钩子类型</span></div>
 <div id="tj-hooks-result" style="margin-bottom:12px;padding:12px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:12px;line-height:1.8"></div>
 <div class="chat-form-field"><label>📎 选择钩子类型 <span style="font-size:10px;color:var(--text-muted)">（可多选，最多3个）</span></label>
 <div class="select-chips" id="tj-hooks" style="display:flex;flex-wrap:wrap;gap:8px">
@@ -171,7 +171,7 @@
 </div>
 
 <div id="tj-step3" style="display:none">
-<div style="font-size:12px;color:var(--purple);font-weight:600;margin-bottom:12px">🎭 步骤 3/5 · 选择文案视角和风格</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">🎭 步骤 3/5 · 选择文案视角和风格</span></div>
 <div class="chat-form-field"><label><span class="field-icon">👤</span> 人设视角</label>
 <div class="select-chips" id="tj-persona" style="display:flex;flex-wrap:wrap;gap:8px">
 <span class="select-chip" data-val="产品创始人/老板" onclick="tjPick(this,'tj-persona',1)">👔 产品创始人/老板</span>
@@ -192,7 +192,7 @@
 </div>
 
 <div id="tj-step4" style="display:none">
-<div style="font-size:12px;color:var(--purple);font-weight:600;margin-bottom:12px">📝 步骤 4/5 · 生成的文案</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">📝 步骤 4/5 · 生成的文案</span></div>
 <div id="tj-result" style="padding:12px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:450px;overflow-y:auto"></div>
 <div style="margin-top:12px;display:flex;gap:8px">
 <button class="chat-form-submit" style="flex:1;background:var(--bg-panel);color:var(--text-primary);border:1px solid var(--border-glow)" onclick="tjCopyResult()">📋 复制全文</button>
@@ -200,7 +200,7 @@
 </div>
 
 <div id="tj-step5" style="display:none">
-<div style="font-size:12px;color:var(--purple);font-weight:600;margin-bottom:12px">🔄 步骤 5/5 · 优化迭代</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">🔄 步骤 5/5 · 优化迭代</span></div>
 <div class="select-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
 <span class="select-chip" onclick="tjIterate('换钩子')">🎣 换一种钩子类型</span>
 <span class="select-chip" onclick="tjIterate('换人设')">👤 换人设视角</span>

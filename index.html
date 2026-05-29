@@ -237,4 +237,33 @@
 </aside>
 </div>
 <script src="app.js"></script>
-</body></html>
+
+<div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
+<div class="settings-panel" onclick="event.stopPropagation()">
+<div class="settings-header">
+<span>⚙ 设置</span>
+<button class="settings-close" onclick="closeSettings()">✕</button>
+</div>
+<div class="settings-tabs">
+<button class="settings-tab active" onclick="switchSettingsTab('api',this)">🔑 API 配置</button>
+<button class="settings-tab" onclick="switchSettingsTab('sound',this)">🔊 音效设置</button>
+<button class="settings-tab" onclick="switchSettingsTab('theme',this)">🎨 主题设置</button>
+</div>
+<div class="settings-body">
+<div class="settings-tab-content active" id="settings-tab-api">
+<input id="set-endpoint" placeholder="API 端点 (默认 OpenAI)">
+<input id="set-apikey" placeholder="API Key (sk-...)" type="password">
+<input id="set-model" placeholder="模型名称 (默认 gpt-4o)">
+<button class="sidebar-api-save" onclick="saveSettingsApi()">保存配置</button>
+</div>
+<div class="settings-tab-content" id="settings-tab-sound">
+<div class="settings-placeholder">🔊 音效设置</div>
+<div class="settings-coming">功能开发中，敬请期待...</div>
+</div>
+<div class="settings-tab-content" id="settings-tab-theme">
+<div class="settings-placeholder">🎨 主题设置</div>
+<div class="settings-coming">功能开发中，敬请期待...</div>
+</div>
+</div>
+</div>
+</div></body></html>

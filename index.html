@@ -248,10 +248,10 @@
 <div class="settings-tab-content" id="settings-tab-sound">
 <div class="settings-placeholder">🔊 音效设置</div>
 <div style="margin-bottom:14px"><label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:6px">声音选择</label><select id="set-sound-mode" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;outline:none;cursor:pointer"><option value="1">声音 1 · 电流声 + 爆炸声</option><option value="2">声音 2 · 水流声 + 水滴声</option></select></div>
-<div style="margin-bottom:14px"><span style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:6px">音效开关</span><div style="display:flex;gap:8px"><button id="sound-btn-on" class="sound-onoff-btn active" onclick="setSoundOn(true)">开</button><button id="sound-btn-off" class="sound-onoff-btn" onclick="setSoundOn(false)">关</button></div></div>
-<button class="sidebar-api-save" onclick="saveSoundSettings()">保存音效设置</button>/button>
+<div style="margin-bottom:14px"><label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:6px">音效开关</label><select id="set-sound-toggle" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;outline:none;cursor:pointer"><option value="1">开</option><option value="0">关</option></select></div>
+<button class="sidebar-api-save" id="btn-save-sound">保存音效设置</button>
 </div>
-<div class="settings-tab-content" id="settings-tab-theme">
+<div class="settings-tab-content"id="settings-tab-theme">
 <div class="settings-placeholder">🎨 主题设置</div>
 <div class="settings-coming">功能开发中，敬请期待...</div>
 </div>

@@ -164,10 +164,14 @@ var formPanel=document.getElementById("chat-form-panel");
 var rwPanel=document.getElementById("chat-form-rewrite");
 if(mode==="form"){
 msgs.style.display="none";questions.style.display="none";inputArea.style.display="none";
+var xp=document.getElementById("chat-form-xuehui");if(xp)xp.style.display="none";
+var tj=document.getElementById("chat-form-tiejia");if(tj)tj.style.display="none";
 if(chatKey==="0-3"){formPanel.style.display="none";rwPanel.style.display="flex";updateRewriteApiStatus()}else if(chatKey==="0-0"){formPanel.style.display="none";rwPanel.style.display="none";var xp=document.getElementById("chat-form-xuehui");if(xp)xp.style.display="flex";xuehuiUpdateStatus()}else if(chatKey==="1-2"){formPanel.style.display="none";rwPanel.style.display="none";var tj=document.getElementById("chat-form-tiejia");if(tj)tj.style.display="flex";tjUpdateStatus()}else{formPanel.style.display="flex";rwPanel.style.display="none";updateFormApiStatus()}
 }else{
 msgs.style.display="";questions.style.display="";inputArea.style.display="";
-formPanel.style.display="none";rwPanel.style.display="none";var xp=document.getElementById("chat-form-xuehui");if(xp)xp.style.display="none";
+formPanel.style.display="none";rwPanel.style.display="none";
+var xp=document.getElementById("chat-form-xuehui");if(xp)xp.style.display="none";
+var tj=document.getElementById("chat-form-tiejia");if(tj)tj.style.display="none";
 }
 }
 function submitFormScript(){

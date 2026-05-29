@@ -109,6 +109,113 @@
 <div id="xh-results-content" style="max-height:500px;overflow-y:auto;display:flex;flex-direction:column;gap:12px"></div>
 </div>
 </div>
+﻿<div id="chat-form-tiejia" style="display:none">
+<div class="form-api-status missing" id="form-tj-status"><span class="fa-dot"></span><span id="form-tj-msg">未配置 API Key</span></div>
+<div id="tj-step1">
+<div class="chat-form-field"><label><span class="field-icon">📦</span> 产品类型</label>
+<div class="select-chips" id="tj-product-type" style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="select-chip" data-val="实体产品" onclick="tjPick(this,'tj-product-type',1)">📦 实体产品</span>
+<span class="select-chip" data-val="虚拟产品/课程" onclick="tjPick(this,'tj-product-type',1)">🎓 虚拟产品/课程</span>
+<span class="select-chip" data-val="本地服务" onclick="tjPick(this,'tj-product-type',1)">📍 本地服务</span>
+<span class="select-chip" data-val="SaaS/工具" onclick="tjPick(this,'tj-product-type',1)">🔧 SaaS/工具</span>
+<span class="select-chip" data-val="其他" onclick="tjPick(this,'tj-product-type',1)">📋 其他</span>
+</div></div>
+<div class="chat-form-field"><label><span class="field-icon">👥</span> 目标受众</label>
+<div class="select-chips" id="tj-audience" style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="select-chip" data-val="宝妈" onclick="tjPick(this,'tj-audience',1)">👩‍👧 宝妈</span>
+<span class="select-chip" data-val="年轻女性" onclick="tjPick(this,'tj-audience',1)">👧 年轻女性</span>
+<span class="select-chip" data-val="职场人群" onclick="tjPick(this,'tj-audience',1)">💼 职场人群</span>
+<span class="select-chip" data-val="中年男性" onclick="tjPick(this,'tj-audience',1)">👨 中年男性</span>
+<span class="select-chip" data-val="银发人群" onclick="tjPick(this,'tj-audience',1)">👴 银发人群</span>
+<span class="select-chip" data-val="学生" onclick="tjPick(this,'tj-audience',1)">🎒 学生</span>
+<span class="select-chip" data-val="其他" onclick="tjPick(this,'tj-audience',1)">📋 其他</span>
+</div></div>
+<div class="chat-form-field"><label><span class="field-icon">💎</span> 核心卖点（1-3个）</label><textarea id="tj-selling-points" placeholder="产品最突出的优势，每个卖点一行..." rows="3"></textarea></div>
+<div class="chat-form-field"><label><span class="field-icon">😣</span> 核心痛点（1-3个）</label><textarea id="tj-pain-points" placeholder="用户最大的困扰，每个痛点一行..." rows="3"></textarea></div>
+<div class="chat-form-field"><label><span class="field-icon">🎯</span> 使用场景</label>
+<div class="select-chips" id="tj-scene" style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="select-chip" data-val="引流吸粉" onclick="tjPick(this,'tj-scene',1)">📈 引流吸粉</span>
+<span class="select-chip" data-val="直接转化成交" onclick="tjPick(this,'tj-scene',1)">💰 直接转化成交</span>
+<span class="select-chip" data-val="直播间憋单" onclick="tjPick(this,'tj-scene',1)">📺 直播间憋单</span>
+<span class="select-chip" data-val="私域转化" onclick="tjPick(this,'tj-scene',1)">📱 私域转化</span>
+<span class="select-chip" data-val="品牌种草" onclick="tjPick(this,'tj-scene',1)">🌱 品牌种草</span>
+</div></div>
+<div class="chat-form-field"><label><span class="field-icon">💲</span> 价格定位</label>
+<div class="select-chips" id="tj-price" style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="select-chip" data-val="低价引流" onclick="tjPick(this,'tj-price',1)">🪙 低价引流（9.9-99）</span>
+<span class="select-chip" data-val="中端" onclick="tjPick(this,'tj-price',1)">💵 中端（100-999）</span>
+<span class="select-chip" data-val="高端" onclick="tjPick(this,'tj-price',1)">💎 高端（1000+）</span>
+</div></div>
+<button class="chat-form-submit" onclick="tjStep1()">🎣 智能推荐钩子类型</button>
+</div>
+
+<div id="tj-step2" style="display:none">
+<div style="font-size:12px;color:var(--purple);font-weight:600;margin-bottom:12px">📌 步骤 2/5 · 根据产品信息推荐钩子类型</div>
+<div id="tj-hooks-result" style="margin-bottom:12px;padding:12px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:12px;line-height:1.8"></div>
+<div class="chat-form-field"><label>📎 选择钩子类型 <span style="font-size:10px;color:var(--text-muted)">（可多选，最多3个）</span></label>
+<div class="select-chips" id="tj-hooks" style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="select-chip" data-val="点名受众" onclick="tjPick(this,'tj-hooks',3)">🎯 点名受众</span>
+<span class="select-chip" data-val="痛点共鸣" onclick="tjPick(this,'tj-hooks',3)">😣 痛点共鸣</span>
+<span class="select-chip" data-val="身份推荐" onclick="tjPick(this,'tj-hooks',3)">⭐ 身份推荐</span>
+<span class="select-chip" data-val="对话冲突" onclick="tjPick(this,'tj-hooks',3)">💬 对话冲突</span>
+<span class="select-chip" data-val="提出疑问" onclick="tjPick(this,'tj-hooks',3)">❓ 提出疑问</span>
+<span class="select-chip" data-val="开箱评测" onclick="tjPick(this,'tj-hooks',3)">📦 开箱评测</span>
+<span class="select-chip" data-val="产地探访" onclick="tjPick(this,'tj-hooks',3)">🏭 产地探访</span>
+<span class="select-chip" data-val="实验演示" onclick="tjPick(this,'tj-hooks',3)">🧪 实验演示</span>
+<span class="select-chip" data-val="情绪共鸣" onclick="tjPick(this,'tj-hooks',3)">💗 情绪共鸣</span>
+<span class="select-chip" data-val="效果前置" onclick="tjPick(this,'tj-hooks',3)">✨ 效果前置</span>
+<span class="select-chip" data-val="悬念好奇" onclick="tjPick(this,'tj-hooks',3)">🔮 悬念好奇</span>
+<span class="select-chip" data-val="正话反说" onclick="tjPick(this,'tj-hooks',3)">🔄 正话反说</span>
+</div></div>
+<button class="chat-form-submit" onclick="tjStep2()" style="margin-top:12px">➡️ 下一步：选择文案视角</button>
+</div>
+
+<div id="tj-step3" style="display:none">
+<div style="font-size:12px;color:var(--purple);font-weight:600;margin-bottom:12px">🎭 步骤 3/5 · 选择文案视角和风格</div>
+<div class="chat-form-field"><label><span class="field-icon">👤</span> 人设视角</label>
+<div class="select-chips" id="tj-persona" style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="select-chip" data-val="产品创始人/老板" onclick="tjPick(this,'tj-persona',1)">👔 产品创始人/老板</span>
+<span class="select-chip" data-val="一线使用者" onclick="tjPick(this,'tj-persona',1)">🙋 一线使用者</span>
+<span class="select-chip" data-val="第三方测评" onclick="tjPick(this,'tj-persona',1)">🔍 第三方测评</span>
+<span class="select-chip" data-val="专家/老师" onclick="tjPick(this,'tj-persona',1)">🎓 专家/老师</span>
+<span class="select-chip" data-val="普通消费者" onclick="tjPick(this,'tj-persona',1)">🛒 普通消费者</span>
+</div></div>
+<div class="chat-form-field"><label><span class="field-icon">🎵</span> 语气风格</label>
+<div class="select-chips" id="tj-tone" style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="select-chip" data-val="犀利直接" onclick="tjPick(this,'tj-tone',1)">⚡ 犀利直接</span>
+<span class="select-chip" data-val="温暖走心" onclick="tjPick(this,'tj-tone',1)">💝 温暖走心</span>
+<span class="select-chip" data-val="专业权威" onclick="tjPick(this,'tj-tone',1)">📚 专业权威</span>
+<span class="select-chip" data-val="幽默轻松" onclick="tjPick(this,'tj-tone',1)">😄 幽默轻松</span>
+<span class="select-chip" data-val="制造焦虑" onclick="tjPick(this,'tj-tone',1)">😰 制造焦虑</span>
+</div></div>
+<button class="chat-form-submit" onclick="tjStep3()" style="margin-top:12px">✍️ 生成完整文案</button>
+</div>
+
+<div id="tj-step4" style="display:none">
+<div style="font-size:12px;color:var(--purple);font-weight:600;margin-bottom:12px">📝 步骤 4/5 · 生成的文案</div>
+<div id="tj-result" style="padding:12px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:450px;overflow-y:auto"></div>
+<div style="margin-top:12px;display:flex;gap:8px">
+<button class="chat-form-submit" style="flex:1;background:var(--bg-panel);color:var(--text-primary);border:1px solid var(--border-glow)" onclick="tjCopyResult()">📋 复制全文</button>
+</div>
+</div>
+
+<div id="tj-step5" style="display:none">
+<div style="font-size:12px;color:var(--purple);font-weight:600;margin-bottom:12px">🔄 步骤 5/5 · 优化迭代</div>
+<div class="select-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+<span class="select-chip" onclick="tjIterate('换钩子')">🎣 换一种钩子类型</span>
+<span class="select-chip" onclick="tjIterate('换人设')">👤 换人设视角</span>
+<span class="select-chip" onclick="tjIterate('换风格')">🎵 换语气风格</span>
+<span class="select-chip" onclick="tjIterate('缩短')">⏪ 缩短时长</span>
+<span class="select-chip" onclick="tjIterate('加长')">⏩ 加长时长</span>
+<span class="select-chip" onclick="tjIterate('批量')">📦 批量生成更多变体</span>
+</div>
+<button class="chat-form-submit" style="background:var(--bg-panel);color:var(--text-primary);border:1px solid var(--border-glow)" onclick="tjReset()">🔄 重新开始</button>
+<div id="tj-iterate-result" style="margin-top:12px;padding:12px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;display:none"></div>
+</div>
+<div id="tj-loading" style="display:none;text-align:center;padding:20px;color:var(--text-muted)">⏳ AI 正在生成中...</div>
+</div>
+
+
 <div class="chat-messages" id="chat-messages"></div>
 <div class="chat-questions" id="chat-questions"></div>
 <div class="chat-input-area">

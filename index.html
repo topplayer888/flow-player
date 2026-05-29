@@ -6,13 +6,24 @@
 <div class="app-container">
 <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
 <aside class="sidebar-left">
-<div class="logo-area" onclick="goHome()" style="cursor:pointer"><div class="logo-icon">⚡</div><div class="logo-title">头号流量玩家</div><div class="logo-subtitle">TOP TRAFFIC PLAYER</div></div>
+<div class="logo-area" onclick="goHome()"><div class="logo-icon">⚡</div><div class="logo-title">头号流量玩家</div><div class="logo-subtitle">TOP TRAFFIC PLAYER</div></div>
 <nav class="nav-list">
 <div class="nav-item active" data-section="0"><div class="nav-icon">🎬</div><span class="nav-label">爆款脚本创作</span><span class="nav-badge">4 模式</span></div>
 <div class="nav-item" data-section="1"><div class="nav-icon">💡</div><span class="nav-label">广告创意</span><span class="nav-badge">3 模式</span></div>
 <div class="nav-item" data-section="2"><div class="nav-icon">📡</div><span class="nav-label">直播策略</span><span class="nav-badge">2 模式</span></div>
 </nav>
-<div class="sidebar-settings-btn"><div class="sidebar-settings-icon">⚙</div><span>设置</span></div><div class="sidebar-footer">v1.0 · AI-Powered</div>
+<div class="sidebar-api-settings">
+<div class="sidebar-api-header" onclick="toggleSidebarApi()">
+<span>⚙ API 配置</span>
+<span class="sidebar-api-arrow">▾</span>
+</div>
+<div class="sidebar-api-body" id="sidebar-api-body">
+<input id="sb-endpoint" placeholder="API 端点 (默认 OpenAI)">
+<input id="sb-apikey" placeholder="API Key (sk-...)" type="password">
+<input id="sb-model" placeholder="模型名称 (默认 gpt-4o)">
+<button class="sidebar-api-save" onclick="saveSidebarApi()">保存配置</button>
+</div>
+</div><div class="sidebar-footer">v1.0 · AI-Powered</div>
 <button class="menu-toggle" id="menu-toggle" onclick="toggleMobileMenu()" title="菜单">☰</button>
 </aside>
 <main class="content-area" id="content-area">
@@ -217,7 +228,7 @@
 <div class="stat-row"><span class="stat-label">内容体系</span><span class="stat-value purple" id="stat-systems">6</span></div>
 <div class="stat-row"><span class="stat-label">可用状态</span><span class="stat-value gold" id="stat-overall">待更新</span></div>
 </div>
-<div class="right-modes" id="right-modes"></div><div class="history-section" id="history-section"><div class="history-title">📋 历史记录</div><div class="history-list" id="history-list"></div></div>
+<div class="right-modes" id="right-modes"></div>
 
 
 
@@ -226,33 +237,4 @@
 </aside>
 </div>
 <script src="app.js"></script>
-
-<div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
-<div class="settings-panel" onclick="event.stopPropagation()">
-<div class="settings-header">
-<span>⚙ 设置</span>
-<button class="settings-close" onclick="closeSettings()">✕</button>
-</div>
-<div class="settings-tabs">
-<button class="settings-tab active" onclick="switchSettingsTab('api',this)">🔑 API 配置</button>
-<button class="settings-tab" onclick="switchSettingsTab('sound',this)">🔊 音效设置</button>
-<button class="settings-tab" onclick="switchSettingsTab('theme',this)">🎨 主题设置</button>
-</div>
-<div class="settings-body">
-<div class="settings-tab-content active" id="settings-tab-api">
-<input id="set-endpoint" placeholder="API 端点 (默认 OpenAI)">
-<input id="set-apikey" placeholder="API Key (sk-...)" type="password">
-<input id="set-model" placeholder="模型名称 (默认 gpt-4o)">
-<button class="sidebar-api-save" onclick="saveSettingsApi()">保存配置</button>
-</div>
-<div class="settings-tab-content" id="settings-tab-sound">
-<div class="settings-placeholder">🔊 音效设置</div>
-<div class="settings-coming">功能开发中，敬请期待...</div>
-</div>
-<div class="settings-tab-content" id="settings-tab-theme">
-<div class="settings-placeholder">🎨 主题设置</div>
-<div class="settings-coming">功能开发中，敬请期待...</div>
-</div>
-</div>
-</div>
-</div></body></html>
+</body></html>

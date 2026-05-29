@@ -1,4 +1,4 @@
-var sectionModes=[-1,-1,-1];var sectionSavedKey=["","",""];var historyStack=[];
+var sectionModes=[-1,-1,-1];var sectionSavedKey=["","",""];
 var sections=[{title:"爆款脚本创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"四大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"对话式（采访）",desc:"对话式创作 · 采访体脚本的流量密码",icon:"🎤"},{name:"爆款仿写",desc:"爆款仿写 · 对标爆款文案的结构化仿写生成",icon:"✍️"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"创意",desc:"三大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"策略",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"kyrie直播方法论",desc:"kyrie体系 · 数据驱动的直播增长模型",icon:"📈"}]}],currentSection=0,currentMode=0;
 
 var agents={
@@ -84,7 +84,7 @@ renderRightModes();
 },250);
 }
 
-function addHistory(section,mode){var agent=agents[section+"-"+mode];if(!agent)return;historyStack=historyStack.filter(function(h){return h.section!==section||h.mode!==mode});historyStack.unshift({section:section,mode:mode,name:agent.name,icon:agent.icon});if(historyStack.length>5)historyStack.pop();renderHistory()}function renderHistory(){var list=document.getElementById("history-list");if(!list)return;list.innerHTML=historyStack.map(function(h){return '<div class="history-item" onclick="goHistory('+h.section+','+h.mode+')"><span class="history-icon">'+h.icon+'</span>'+h.name+'</div>'}).join("")||'<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无记录</div>'}function goHistory(section,mode){if(currentSection!==section){document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active")});var nav=document.querySelector('.nav-item[data-section="'+section+'"]');if(nav)nav.classList.add("active");currentSection=section;sectionModes[currentSection]=mode;currentMode=mode}if(chatOpen){closeChat()}sectionSavedKey[currentSection]=section+"-"+mode;openChat(section,mode)}function renderRightModes(){
+function renderRightModes(){
 var e=sections[currentSection],t=document.getElementById("right-modes");
 t.innerHTML=e.modes.map(function(m,i){
 var ak=currentSection+"-"+i,has=!!agents[ak];
@@ -106,7 +106,7 @@ if(currentSection===parseInt(e.dataset.section))return;
 document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active","entering")});
 e.classList.add("active","entering");
 setTimeout(function(){e.classList.remove("entering")},600);
-sectionSavedKey[currentSection]=chatOpen?chatKey:"";currentSection=parseInt(e.dataset.section);closeMobileMenu();if(sectionSavedKey[currentSection]){var parts=sectionSavedKey[currentSection].split("-");var m=parseInt(parts[1]);currentMode=m;sectionModes[currentSection]=m;renderRightModes();openChat(parseInt(parts[0]),m)}else{if(chatOpen){closeChat()}renderContent();renderRightModes();renderHistory()}
+sectionSavedKey[currentSection]=chatOpen?chatKey:"";currentSection=parseInt(e.dataset.section);closeMobileMenu();if(sectionSavedKey[currentSection]){var parts=sectionSavedKey[currentSection].split("-");var m=parseInt(parts[1]);currentMode=m;sectionModes[currentSection]=m;renderRightModes();openChat(parseInt(parts[0]),m)}else{if(chatOpen){closeChat()}renderContent();renderRightModes()}
 });
 });
 var canvas=document.getElementById("bg-canvas"),ctx=canvas.getContext("2d"),particles=[],rainDrops=[],gridOffset=0,sparks=[],mx=-1,my=-1,pmx=-1,pmy=-1;
@@ -154,7 +154,7 @@ document.getElementById("chat-agent-icon").textContent=agent.icon||"🚀";
 document.getElementById("chat-messages").innerHTML="";
 document.getElementById("chat-questions").innerHTML=agent.questions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");
-chatOpen=true;chatMessages=[];addHistory(section,mode);if(chatKey==='0-3'||chatKey==='2-0'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});var firstTab=document.querySelector('.chat-mode-tab');if(firstTab)firstTab.classList.add('active');
+chatOpen=true;chatMessages=[];if(chatKey==='0-3'||chatKey==='2-0'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});var firstTab=document.querySelector('.chat-mode-tab');if(firstTab)firstTab.classList.add('active');
 addMessage("assistant",agent.opening);
 }
 var chatMode="qa";
@@ -648,9 +648,9 @@ if(el.classList.contains("selected")){el.classList.remove("selected");return}
 if(selected.length>=max){selected[0].classList.remove("selected")}
 el.classList.add("selected");
 }
-function openSettings(e){var o=document.getElementById("settings-overlay");o.classList.add("open");document.getElementById("set-endpoint").value=apiConfig.endpoint;document.getElementById("set-apikey").value=apiConfig.apikey;document.getElementById("set-model").value=apiConfig.model}function closeSettings(e){if(e&&e.target!==document.getElementById("settings-overlay"))return;document.getElementById("settings-overlay").classList.remove("open")}function switchSettingsTab(tab,btn){document.querySelectorAll(".settings-tab").forEach(function(t){t.classList.remove("active")});btn.classList.add("active");document.querySelectorAll(".settings-tab-content").forEach(function(c){c.classList.remove("active")});document.getElementById("settings-tab-"+tab).classList.add("active")}
-function saveSettingsApi(){apiConfig.endpoint=normalizeEndpoint(document.getElementById("set-endpoint").value.trim());apiConfig.apikey=document.getElementById("set-apikey").value.trim();apiConfig.model=document.getElementById("set-model").value.trim()||"gpt-4o";localStorage.setItem("fp_endpoint",apiConfig.endpoint);localStorage.setItem("fp_apikey",apiConfig.apikey);localStorage.setItem("fp_model",apiConfig.model);document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus()}
-function updateApiStatus(){var btn=document.querySelector(".sidebar-settings-btn");if(!btn)return;if(apiConfig.apikey){btn.style.color="#10b981";btn.style.borderColor="rgba(16,185,129,.3)"}else{btn.style.color="var(--text-muted)";btn.style.borderColor="var(--border-glow)"}}
+function toggleSidebarApi(){var b=document.getElementById("sidebar-api-body");b.classList.toggle("open");if(b.classList.contains("open")){document.getElementById("sb-endpoint").value=apiConfig.endpoint;document.getElementById("sb-apikey").value=apiConfig.apikey;document.getElementById("sb-model").value=apiConfig.model}}
+function saveSidebarApi(){apiConfig.endpoint=normalizeEndpoint(document.getElementById("sb-endpoint").value.trim());apiConfig.apikey=document.getElementById("sb-apikey").value.trim();apiConfig.model=document.getElementById("sb-model").value.trim()||"gpt-4o";localStorage.setItem("fp_endpoint",apiConfig.endpoint);localStorage.setItem("fp_apikey",apiConfig.apikey);localStorage.setItem("fp_model",apiConfig.model);document.getElementById("sidebar-api-body").classList.remove("open");updateApiStatus();updateFormApiStatus()}
+function updateApiStatus(){var s=document.getElementById("sidebar-api-body");var h=s.previousElementSibling;var dot=h.querySelector("span")||h;if(apiConfig.apikey){h.style.color="#10b981"}else{h.style.color="var(--text-muted)"}}
 function toggleSettings(e){e.stopPropagation();var p=document.getElementById("chat-settings-panel");p.classList.toggle("open")}
 function applyAdjustment(){var t=document.getElementById("cfg-adjust");var v=t.value.trim();if(!v)return;document.getElementById("chat-settings-panel").classList.remove("open");addMessage("user","?? ?????"+v);t.value="";showTyping();callAgentForAdjust(v)}
 function clearAdjustment(){document.getElementById("cfg-adjust").value=""}
@@ -694,7 +694,7 @@ function handleResize(){var m=document.getElementById("menu-toggle");if(window.i
 window.addEventListener("resize",handleResize);
 handleResize();
 renderContent();
-updateApiStatus();document.querySelector(".sidebar-settings-btn").addEventListener("click",function(e){e.stopPropagation();openSettings()});
+updateApiStatus();
 
 
 ﻿// Auto-recommend triggers

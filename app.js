@@ -457,9 +457,10 @@ xuehuiCallAPI("你是文案模板推荐专家。只输出JSON数组。",prompt,f
  container.querySelectorAll(".select-chip .rec-badge").forEach(function(b){b.remove()});
  recs.forEach(function(key){
   var chip=container.querySelector('.select-chip[data-val="'+key+'"]');
-  if(chip&&!chip.querySelector(".rec-badge")){
+  if(chip){chip.style.background="#ff6600";chip.style.borderColor="#ff6600";if(!chip.querySelector(".rec-badge")){
    var badge=document.createElement("span");badge.className="rec-badge";badge.textContent="推荐";
    chip.appendChild(badge);chip.classList.add("recommended");
+  }
   }
  });
 });

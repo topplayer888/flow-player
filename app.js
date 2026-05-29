@@ -316,6 +316,18 @@ document.querySelectorAll(".xh-topic-card").forEach(function(c){c.style.borderCo
 el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";
 xhState.selectedTopic=xhState.topics[idx];
 document.getElementById("xh-step3").style.display="";
+// DIRECT TEST: add badge to first template chip
+setTimeout(function(){
+var tc=document.getElementById("xh-templates");
+if(tc){
+var chip=tc.querySelector('.select-chip[data-val="讲故事类"]');
+if(chip){alert("DIRECT: found chip="+chip);
+var b=document.createElement("span");b.className="rec-badge";b.textContent="测试";
+chip.appendChild(b);chip.classList.add("recommended");
+alert("DIRECT: badge appended");
+}else{alert("DIRECT: chip NOT found");}
+}else{alert("DIRECT: container NOT found");}
+},1000);
 setTimeout(function(){if(xhState.selectedTopic)xuehuiRecommendTemplates();},500);
 }
 

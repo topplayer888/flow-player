@@ -694,7 +694,7 @@ function handleResize(){var m=document.getElementById("menu-toggle");if(window.i
 window.addEventListener("resize",handleResize);
 handleResize();
 renderContent();
-updateApiStatus();document.querySelector(".sidebar-settings-btn").addEventListener("click",function(e){e.stopPropagation();openSettings()});document.getElementById("logo-area").addEventListener("click",function(e){e.stopPropagation();goHome()});
+updateApiStatus();document.querySelector(".sidebar-settings-btn").addEventListener("click",function(e){e.stopPropagation();openSettings()});document.getElementById("logo-area").addEventListener("click",function(e){e.stopPropagation();goHome()});document.querySelector(".sidebar-settings-btn").addEventListener("click",function(e){e.stopPropagation();openSettings()});
 
 
 // Auto-recommend triggers

@@ -69,7 +69,6 @@
 <div id="xh-step1">
 <div class="chat-form-field"><label><span class="field-icon">&#x1f3ed;</span> 你的行业</label><input id="xh-industry" placeholder="如：美妆、教育、餐饮、健身..."></div>
 <div class="chat-form-field"><label><span class="field-icon">&#x1f465;</span> 目标人群</label><input id="xh-audience" placeholder="如：25-35岁女性白领、新手宝妈..."></div>
-<button class="recommend-btn" onclick="xuehuiRecommendElements()" style="margin-bottom:12px">智能推荐爆款元素</button>
 <div class="chat-form-field"><label><span class="field-icon">&#x1f4a5;</span> 爆款元素 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（可多选）</span></label>
 <div class="select-chips" id="xh-elements" style="display:flex;flex-wrap:wrap;gap:8px">
 <span class="select-chip" data-val="头牌选题" onclick="toggleChip(this,'xh-elements',8)">&#x1f3c6; 头牌选题</span>
@@ -86,7 +85,6 @@
 <div id="xh-step2">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 2/4 · 选择爆款选题</span></div>
 <div id="xh-topics-list" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto"></div>
-<button class="recommend-btn" onclick="xuehuiRecommendTemplates()" style="margin-right:8px">智能推荐模板</button>
 
 </div>
 <div id="xh-step3">
@@ -98,7 +96,6 @@
 <span class="select-chip" data-val="教知识类" onclick="toggleChip(this,'xh-templates',4)">&#x1f4da; 教知识类</span>
 <span class="select-chip" data-val="晒过程类" onclick="toggleChip(this,'xh-templates',4)">&#x1f3ac; 晒过程类</span>
 </div></div>
-<button class="chat-form-submit" onclick="xuehuiRecommendOpenings()" style="margin-right:8px">智能推荐开头</button>
 
 </div>
 <div id="xh-step4">

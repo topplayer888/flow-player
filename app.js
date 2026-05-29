@@ -308,7 +308,6 @@ xuehuiCallAPI(sysPrompt,userPrompt,function(json){
  xhState.topics=topics;xhState.selectedTopic=null;
  var list=document.getElementById("xh-topics-list");
  list.innerHTML=topics.map(function(t,i){return '<div class="xh-topic-card" onclick="xuehuiSelectTopic('+i+',this)" style="padding:12px 14px;border-radius:10px;border:2px solid var(--border-glow);background:var(--bg-card);cursor:pointer;transition:all .2s"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:12px;color:var(--purple);font-weight:700">#'+(i+1)+'</span><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(168,85,247,.12);color:var(--purple)">'+t.element+'</span></div><div style="font-size:13px;font-weight:600;color:var(--text-primary)">'+t.title+'</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">'+t.idea+'</div></div>'}).join("");
- document.getElementById("xh-step1").style.display="none";
  document.getElementById("xh-step2").style.display="";
 });
 }
@@ -316,7 +315,6 @@ function xuehuiSelectTopic_orig(idx,el){
 document.querySelectorAll(".xh-topic-card").forEach(function(c){c.style.borderColor="var(--border-glow)";c.style.background="var(--bg-card)"});
 el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";
 xhState.selectedTopic=xhState.topics[idx];
-document.getElementById("xh-step2").style.display="none";
 document.getElementById("xh-step3").style.display="";
 setTimeout(function(){if(xhState.selectedTopic)xuehuiRecommendTemplates();},500);
 }
@@ -327,14 +325,12 @@ xuehuiSelectTopic_orig(idx,el);
 
 function xuehuiStep2Next(){
 if(!xhState.selectedTopic){alert("请先选择一个选题");return}
-document.getElementById("xh-step2").style.display="none";
 document.getElementById("xh-step3").style.display="";
 }
 function xuehuiStep3Next(){
 var tmpls=Array.from(document.getElementById("xh-templates").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
 if(tmpls.length===0){alert("请至少选择一个文案模板");return}
 xhState.templates=tmpls;
-document.getElementById("xh-step3").style.display="none";
 document.getElementById("xh-step4").style.display="";
 xuehuiRenderOpenings();
 }
@@ -494,6 +490,8 @@ xuehuiCallAPI("你是开头推荐专家。只输出JSON数组。",prompt,functio
 function xuehuiBackTo(step){
 ["xh-step1","xh-step2","xh-step3","xh-step4","xh-results"].forEach(function(id){document.getElementById(id).style.display="none"});
 document.getElementById("xh-step"+step).style.display="";
+// Show all previous steps too
+for(var s=1;s<=step;s++)document.getElementById("xh-step"+s).style.display="";
 }
 function xuehuiReset(){
 ["xh-step2","xh-step3","xh-step4","xh-results"].forEach(function(id){document.getElementById(id).style.display="none"});

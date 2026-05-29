@@ -449,13 +449,10 @@ var btn=(typeof event!=="undefined"&&event&&event.target)?event.target:null;if(b
 var element=xhState.selectedTopic?xhState.selectedTopic.element:"";
 var prompt="行业："+industry+" 人群："+audience+" 选题元素："+element+"\n\n从以下4种模板推荐1-2个：讲故事类、共鸣型段子类、教知识类、晒过程类\n只输出JSON数组。";
 xuehuiCallAPI("你是文案模板推荐专家。只输出JSON数组。",prompt,function(json){
-alert("STEP1 json="+JSON.stringify(json));
  if(btn){btn.textContent="智能推荐模板";btn.disabled=false;}
  var recs=Array.isArray(json)?json:(json.raw?JSON.parse(json.raw):[]);
- alert("STEP2 recs="+JSON.stringify(recs));
  if(!Array.isArray(recs)||recs.length===0){alert("推荐失败");return}
  var container=document.getElementById("xh-templates");
- alert("STEP3 container="+container);
  if(!container)return;
  container.querySelectorAll(".select-chip .rec-badge").forEach(function(b){b.remove()});
  recs.forEach(function(key){

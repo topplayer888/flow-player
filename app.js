@@ -151,7 +151,7 @@ document.getElementById("chat-messages").innerHTML="";
 document.getElementById("chat-questions").innerHTML=agent.questions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");
 chatOpen=true;chatMessages=[];if(chatKey==='0-3'||chatKey==='2-0'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});var firstTab=document.querySelector('.chat-mode-tab');if(firstTab)firstTab.classList.add('active');
-setTimeout(function(){addMessage("assistant",agent.opening)},300);
+addMessage("assistant",agent.opening);
 }
 var chatMode="qa";
 function switchChatMode(mode){
@@ -743,6 +743,7 @@ function tjCopyResult(){var text=document.getElementById("tj-result").textConten
 function fallbackTjCopy(text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");alert("已复制")}catch(e){alert("复制失败，请手动复制")}document.body.removeChild(ta)}
 function tjIterate(type){var current=document.getElementById("tj-result").textContent;if(!current){alert("请先生成文案");return}document.getElementById("tj-loading").style.display="";var prompt="原文案："+current+"\n\n操作："+type+"\n\n请根据操作重新生成文案。只输出纯文本。";xuehuiCallAPI("你是文案优化专家。只输出纯文本。",prompt,function(json){document.getElementById("tj-loading").style.display="none";var result=typeof json==="string"?json:(json.raw||json.content||json.text||JSON.stringify(json));var div=document.getElementById("tj-iterate-result");div.textContent=result;div.style.display=""})}
 function tjReset(){var ir=document.getElementById("tj-iterate-result");if(ir)ir.style.display="none";document.getElementById("tj-step1").style.display="";document.getElementById("tj-selling-points").value="";document.getElementById("tj-pain-points").value="";document.getElementById("tj-hooks-result").innerHTML="";document.getElementById("tj-result").textContent="";document.querySelectorAll("#tj-product-type .select-chip.selected,#tj-audience .select-chip.selected,#tj-scene .select-chip.selected,#tj-price .select-chip.selected,#tj-hooks .select-chip.selected,#tj-persona .select-chip.selected,#tj-tone .select-chip.selected").forEach(function(c){c.classList.remove("selected")})}
+
 
 
 

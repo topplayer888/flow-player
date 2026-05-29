@@ -320,12 +320,6 @@ xhState.selectedTopic=xhState.topics[idx];
 
 function xuehuiSelectTopic(idx,el){
 xuehuiSelectTopic_orig(idx,el);
-// Auto-recommend templates after topic selection
-setTimeout(function(){
-if(xhState.selectedTopic){
-xuehuiRecommendTemplates();
-}
-},500);
 }
 
 function xuehuiStep2Next(){
@@ -447,7 +441,6 @@ xuehuiCallAPI("你是爆款选题推荐专家。根据行业和人群推荐最�
 });
 }
 function xuehuiRecommendTemplates(){
-console.log("[DEBUG] xuehuiRecommendTemplates called");
 var industry=document.getElementById("xh-industry").value.trim();
 var audience=document.getElementById("xh-audience").value.trim();
 if(!industry||!audience){alert("请先填写行业和人群");return}
@@ -654,9 +647,9 @@ updateApiStatus();
 // Auto-recommend function overrides (global scope)
 var origSelectTopic=xuehuiSelectTopic;
 xuehuiSelectTopic=function(idx,el){
-console.log("[DEBUG] xuehuiSelectTopic called with idx="+idx+", selectedTopic=",xhState.selectedTopic);origSelectTopic(idx,el);
-console.log("[DEBUG] after origSelectTopic, selectedTopic=",xhState.selectedTopic);setTimeout(function(){
-console.log("[DEBUG] timeout firing, selectedTopic=",xhState.selectedTopic);if(xhState.selectedTopic){console.log("[DEBUG] calling xuehuiRecommendTemplates");xuehuiRecommendTemplates();}
+origSelectTopic(idx,el);
+setTimeout(function(){
+if(xhState.selectedTopic)xuehuiRecommendTemplates();
 },500);
 };
 var origToggleChip2=toggleChip;

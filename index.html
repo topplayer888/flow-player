@@ -397,16 +397,11 @@ console.log("[HIST] v6");
 (function(){
   var _origAlert = window.alert;
   window.alert = function(msg) {
-    _origAlert(msg);
     if (!window.apiConfig || !window.apiConfig.apikey || window.apiConfig.apikey.length < 10) {
-      setTimeout(function(){
-        if (typeof openSettings === 'function') {
-          openSettings();
-          var t = document.querySelector('.settings-tab');
-          if (t && typeof switchSettingsTab === 'function') switchSettingsTab('api', t);
-        }
-      }, 300);
+      _origAlert('⚠️ 尚未配置 API Key\n\n请在左下角 ⚙ 设置 → 🔑 API 配置 中设置');
+      return;
     }
+    _origAlert(msg);
   };
 })();
 </script></body></html>

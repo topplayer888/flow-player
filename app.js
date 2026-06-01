@@ -629,14 +629,14 @@ var el=e.target;el.style.height="auto";el.style.height=Math.min(el.scrollHeight,
 }
 
 function normalizeEndpoint(url){
-if(!url||url.length<5)return "https://api.openai.com/v1/chat/completions";
+if(!url||url.length<5)return "https://api.deepseek.com/v1/chat/completions";
 if(url.includes("/chat/completions")||url.includes("/v1/chat/completions"))return url;
 url=url.replace(/\/+$/,"");
-var known={ "api.deepseek.com":"https://api.deepseek.com/chat/completions" };
+var known={ "api.deepseek.com":"https://api.deepseek.com/v1/chat/completions" };
 for(var key in known){if(url.includes(key))return known[key]}
 return url+"/v1/chat/completions";
 }
-var apiConfig={endpoint:localStorage.getItem("fp_endpoint")||"https://api.openai.com/v1/chat/completions",apikey:localStorage.getItem("fp_apikey")||localStorage.getItem("flowplayer_api_key")||"",model:localStorage.getItem("fp_model")||"gpt-4o"};
+var apiConfig={endpoint:localStorage.getItem("fp_endpoint")||"https://api.deepseek.com/v1/chat/completions",apikey:localStorage.getItem("fp_apikey")||localStorage.getItem("flowplayer_api_key")||"",model:localStorage.getItem("fp_model")||"deepseek-chat"};
 function loadConfigUI(){document.getElementById("cfg-endpoint").value=apiConfig.endpoint;document.getElementById("cfg-apikey").value=apiConfig.apikey;document.getElementById("cfg-model").value=apiConfig.model}
 function updateFormApiStatus(){
 var s=document.getElementById("form-api-status");
@@ -656,7 +656,7 @@ if(selected.length>=max){selected[0].classList.remove("selected")}
 el.classList.add("selected");
 }
 function openSettings(e){var o=document.getElementById("settings-overlay");o.classList.add("open");document.getElementById("set-endpoint").value=apiConfig.endpoint;document.getElementById("set-apikey").value=apiConfig.apikey;document.getElementById("set-model").value=apiConfig.model;updateSoundUI();updateThemeUI();var b=document.querySelector("#settings-tab-theme .sidebar-api-save");if(b){b.onclick=saveThemeSettings}}function closeSettings(e){if(e&&e.target!==document.getElementById("settings-overlay"))return;document.getElementById("settings-overlay").classList.remove("open")}function switchSettingsTab(tab,btn){document.querySelectorAll(".settings-tab").forEach(function(t){t.classList.remove("active")});btn.classList.add("active");document.querySelectorAll(".settings-tab-content").forEach(function(c){c.classList.remove("active")});document.getElementById("settings-tab-"+tab).classList.add("active")}
-function saveSettingsApi(){apiConfig.endpoint=normalizeEndpoint(document.getElementById("set-endpoint").value.trim());apiConfig.apikey=document.getElementById("set-apikey").value.trim();apiConfig.model=document.getElementById("set-model").value.trim()||"gpt-4o";localStorage.setItem("fp_endpoint",apiConfig.endpoint);localStorage.setItem("fp_apikey",apiConfig.apikey);localStorage.setItem("fp_model",apiConfig.model);document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus()}
+function saveSettingsApi(){apiConfig.endpoint=normalizeEndpoint(document.getElementById("set-endpoint").value.trim());apiConfig.apikey=document.getElementById("set-apikey").value.trim();apiConfig.model=document.getElementById("set-model").value.trim()||"deepseek-chat";localStorage.setItem("fp_endpoint",apiConfig.endpoint);localStorage.setItem("fp_apikey",apiConfig.apikey);localStorage.setItem("fp_model",apiConfig.model);document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus()}
 function updateApiStatus(){var btn=document.querySelector(".sidebar-settings-btn");if(!btn)return;if(apiConfig.apikey){if(themeWasteland){btn.style.color="#d4a830";btn.style.borderColor="rgba(200,132,42,.4)"}else{btn.style.color="#10b981";btn.style.borderColor="rgba(16,185,129,.3)"}}else{btn.style.color="var(--text-muted)";btn.style.borderColor="var(--border-glow)"}}
 function toggleSettings(e){e.stopPropagation();var p=document.getElementById("chat-settings-panel");p.classList.toggle("open")}
 function applyAdjustment(){var t=document.getElementById("cfg-adjust");var v=t.value.trim();if(!v)return;document.getElementById("chat-settings-panel").classList.remove("open");addMessage("user","?? ?????"+v);t.value="";showTyping();callAgentForAdjust(v)}

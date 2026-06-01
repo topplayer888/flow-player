@@ -352,7 +352,7 @@
 })();
 </script></body></html<script>
 cons<script>
-console.log("[HIST] v3 init");
+console.log("[HIST] v4 init");
 (function(){
   var timer=null;
   function save(){
@@ -370,70 +370,47 @@ console.log("[HIST] v3 init");
       return '<div onclick="window._hop('+i+')" style="cursor:pointer;padding:6px 8px;margin:2px 0;border:1px solid var(--border-glow);border-radius:4px;font-size:11px;color:var(--text-secondary)">'+k+' ('+d[k].length+'条)</div>';
     }).join("")||'<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无</div>';
     window._hkeys=keys; window._hdata=d;
+    console.log("[HIST] show done, keys:",keys);
   }
   window._hop=function(i){
+    console.log("[HIST] _hop called, i="+i);
     var keys=window._hkeys||[], d=window._hdata||{}, k=keys[i], msgs=d[k];
-    if(!msgs)return;
-    if(typeof window.openChat !== "function"){alert("openChat未加载，请刷新页面");return}
+    console.log("[HIST] _hop key="+k+" msgs="+(msgs?msgs.length:0));
+    if(!msgs){alert("该记录无内容");return}
+    if(typeof window.openChat !== "function"){alert("openChat未加载");return}
     var p=k.split("-"), s=parseInt(p[0]), m=parseInt(p[1]);
-    if(window.chatOpen)window.closeChat();
+    console.log("[HIST] _hop opening section="+s+" mode="+m);
+    if(window.chatOpen){window.closeChat();console.log("[HIST] _hop closed prev chat")}
     setTimeout(function(){
       window.currentSection=s; window.currentMode=m;
       window.sectionModes=window.sectionModes||[-1,-1,-1]; window.sectionModes[s]=m;
       window.sectionSavedKey=window.sectionSavedKey||["","",""]; window.sectionSavedKey[s]=k;
       window.openChat(s,m);
-      setTimeout(function(){window.chatMessages=msgs;var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML='<div class=chat-avatar>'+(m.role==="user"?"U":"A")+'</div><div class=chat-bubble>'+m.content+'</div>';el.appendChild(d)})}},300);
+      console.log("[HIST] _hop openChat done, restoring msgs...");
+      setTimeout(function(){
+        window.chatMessages=msgs;
+        var el=document.getElementById("chat-messages");
+        if(el){
+          el.innerHTML="";
+          msgs.forEach(function(m){
+            var d=document.createElement("div");d.className="chat-msg "+m.role;
+            d.innerHTML='<div class=chat-avatar>'+(m.role==="user"?"U":"A")+'</div><div class=chat-bubble>'+m.content+'</div>';
+            el.appendChild(d)
+          });
+          console.log("[HIST] _hop restored "+msgs.length+" msgs");
+        }
+      },300);
     },100);
   };
   timer=setInterval(function(){
     var overlay=document.getElementById("chat-overlay");
-    if(overlay && !overlay.classList.contains("open") && window.chatKey){
+    if(overlay && !overlay.classList.contains("open") && window.chatKey && window.chatMessages && window.chatMessages.length>0){
+      console.log("[HIST] poll: chat closed, saving...")
       save();
     }
   }, 500);
   show();
-  console.log("[HIST] ready, closeChat:",typeof window.closeChat,"openChat:",typeof window.openChat);
 })();</body></html<script>
-console.log("[HIST] init");
-(function(){
-  function save(){
-    var k=window.chatKey, m=window.chatMessages;
-    console.log("[HIST] save called", k, m?m.length:0);
-    if(!k||!m||!m.length){console.log("[HIST] skip: no key or msgs");return;}
-    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}
-    d[k]=m.slice(0); localStorage.setItem("fh",JSON.stringify(d));
-    console.log("[HIST] saved",k,d[k].length);
-    show();
-  }
-  function show(){
-    var el=document.getElementById("history-list"); if(!el)return;
-    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}
-    var keys=Object.keys(d);
-    console.log("[HIST] show",keys.length,"keys:",keys);
-    el.innerHTML=keys.map(function(k,i){
-      return "<div onclick=\"window._hopen("+i+")\" style=\"cursor:pointer;padding:6px 8px;margin:2px 0;border:1px solid var(--border-glow);border-radius:4px;font-size:11px;color:var(--text-secondary)\">"+k+" ("+d[k].length+"条)</div>";
-    }).join("")||"<div style=\"font-size:10px;color:var(--text-muted);padding:4px\">暂无</div>";
-    window._hkeys=keys; window._hdata=d;
-  }
-  window._hopen=function(i){
-    var keys=window._hkeys||[], d=window._hdata||{}, k=keys[i], msgs=d[k];
-    if(!msgs)return;
-    var p=k.split("-"), s=parseInt(p[0]), m=parseInt(p[1]);
-    if(window.currentSection!==s){document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active")});var nav=document.querySelector('.nav-item[data-section="'+s+'"]');if(nav)nav.classList.add("active")}
-    window.currentSection=s; window.currentMode=m;
-    window.sectionModes=window.sectionModes||[-1,-1,-1]; window.sectionModes[s]=m;
-    if(window.chatOpen)window.closeChat();
-    window.sectionSavedKey=window.sectionSavedKey||["","",""]; window.sectionSavedKey[s]=k;
-    window.openChat(s,m);
-    setTimeout(function(){window.chatMessages=msgs;var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML="<div class=chat-avatar>"+(m.role==="user"?"U":"A")+"</div><div class=chat-bubble>"+m.content+"</div>";el.appendChild(d)})}},300);
-  };
-  // Intercept closeChat
-  var origClose = window.closeChat;
-  window.closeChat = function(){ console.log("[HIST] closeChat intercepted"); save(); if(origClose) origClose(); };
-  console.log("[HIST] closeChat patched:", !!origClose);
-  show();
-})();
-</script></body></html<script>
 (function(){
   try{var s=localStorage.getItem("fp_history");if(s){window._history=JSON.parse(s)}}catch(e){}
   if(!window._history)window._history=[];

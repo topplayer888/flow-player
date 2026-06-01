@@ -345,7 +345,7 @@
     if(window.chatOpen)window.closeChat();
     window.sectionSavedKey=window.sectionSavedKey||["","",""]; window.sectionSavedKey[s]=k;
     window.openChat(s,m);
-    setTimeout(function(){window.chatMessages=msgs;var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML="<div class=chat-avatar>"+(m.role==="user"?"U":"A")+"</div><div class=chat-bubble>"+m.content+"</div>";el.appendChild(d)})}},300);
+    setTimeout(function(){console.log("[HIST] restoring msgs len="+msgs.length);window.chatMessages=msgs;var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML="<div class=chat-avatar>"+(m.role==="user"?"U":"A")+"</div><div class=chat-bubble>"+m.content+"</div>";el.appendChild(d)})}},300);
   };
   var btn=document.querySelector(".chat-close"); if(btn)btn.addEventListener("click",function(){setTimeout(save,100)});
   show();

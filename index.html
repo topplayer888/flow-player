@@ -395,13 +395,35 @@ console.log("[HIST] v6");
 })();
 <script>
 (function(){
-  var _origAlert = window.alert;
-  window.alert = function(msg) {
-    if (!window.apiConfig || !window.apiConfig.apikey || window.apiConfig.apikey.length < 10) {
-      _origAlert('⚠️ 尚未配置 API Key\n\n请在左下角 ⚙ 设置 → 🔑 API 配置 中设置');
-      return;
-    }
-    _origAlert(msg);
-  };
+  if (typeof sendMessage !== 'undefined') {
+    var _origSend = sendMessage;
+    sendMessage = function() {
+      if (!apiConfig || !apiConfig.apikey || apiConfig.apikey.length < 10) {
+        alert('⚠️ 尚未配置 API Key\n\n请在左下角 ⚙ 设置 → 🔑 API 配置 中设置');
+        return;
+      }
+      _origSend();
+    };
+  }
+  if (typeof xuehuiCallAPI !== 'undefined') {
+    var _origXH = xuehuiCallAPI;
+    xuehuiCallAPI = function(a,b,c,d) {
+      if (!apiConfig || !apiConfig.apikey || apiConfig.apikey.length < 10) {
+        alert('⚠️ 尚未配置 API Key\n\n请在左下角 ⚙ 设置 → 🔑 API 配置 中设置');
+        return;
+      }
+      _origXH(a,b,c,d);
+    };
+  }
+  if (typeof submitRewriteStep1 !== 'undefined') {
+    var _origRW = submitRewriteStep1;
+    submitRewriteStep1 = function() {
+      if (!apiConfig || !apiConfig.apikey || apiConfig.apikey.length < 10) {
+        alert('⚠️ 尚未配置 API Key\n\n请在左下角 ⚙ 设置 → 🔑 API 配置 中设置');
+        return;
+      }
+      _origRW();
+    };
+  }
 })();
 </script></body></html>

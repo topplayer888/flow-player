@@ -352,108 +352,58 @@
 })();
 </script></body></html<script>
 cons<script>
-console.log("[HIST] v4 init");
+console.log("[HIST] v5");
 (function(){
-  var timer=null;
   function save(){
     var k=window.chatKey, m=window.chatMessages;
+    console.log("[HIST] save:k="+k+" msgsLen="+(m?m.length:"null")+" type="+typeof m);
     if(!k||!m||!m.length)return;
     var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}
-    d[k]=m.slice(0); localStorage.setItem("fh",JSON.stringify(d));
+    var copy=m.slice(0);
+    console.log("[HIST] copy type="+typeof copy+" len="+copy.length+" firstRole="+(copy[0]?copy[0].role:"none"));
+    var json=JSON.stringify(copy);
+    console.log("[HIST] jsonLen="+json.length+" preview="+json.substring(0,80));
+    d[k]=copy;
+    var full=JSON.stringify(d);
+    console.log("[HIST] fullLen="+full.length);
+    try{localStorage.setItem("fh",full);console.log("[HIST] saved OK")}catch(e){console.error("[HIST] save err:",e);localStorage.setItem("fh","{}")}
     show();
   }
   function show(){
     var el=document.getElementById("history-list"); if(!el)return;
-    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}
+    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){console.error("[HIST] load err:",e)}
     var keys=Object.keys(d);
+    console.log("[HIST] show:keys="+JSON.stringify(keys)+" firstLen="+(keys[0]?d[keys[0]].length:"none"));
     el.innerHTML=keys.map(function(k,i){
-      return '<div onclick="window._hop('+i+')" style="cursor:pointer;padding:6px 8px;margin:2px 0;border:1px solid var(--border-glow);border-radius:4px;font-size:11px;color:var(--text-secondary)">'+k+' ('+d[k].length+'条)</div>';
+      return '<div onclick="window._hop('+i+')" style="cursor:pointer;padding:6px 8px;margin:2px 0;border:1px solid var(--border-glow);border-radius:4px;font-size:11px;color:var(--text-secondary)">'+k+' ('+(d[k]?d[k].length:"?")+'条)</div>';
     }).join("")||'<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无</div>';
     window._hkeys=keys; window._hdata=d;
-    console.log("[HIST] show done, keys:",keys);
   }
   window._hop=function(i){
-    console.log("[HIST] _hop called, i="+i);
     var keys=window._hkeys||[], d=window._hdata||{}, k=keys[i], msgs=d[k];
-    console.log("[HIST] _hop key="+k+" msgs="+(msgs?msgs.length:0));
-    if(!msgs){alert("该记录无内容");return}
-    if(typeof window.openChat !== "function"){alert("openChat未加载");return}
+    console.log("[HIST] hop:k="+k+" msgs="+typeof msgs+" len="+(msgs?msgs.length:"null"));
+    if(!msgs)return;
     var p=k.split("-"), s=parseInt(p[0]), m=parseInt(p[1]);
-    console.log("[HIST] _hop opening section="+s+" mode="+m);
-    if(window.chatOpen){window.closeChat();console.log("[HIST] _hop closed prev chat")}
+    if(window.chatOpen)window.closeChat();
     setTimeout(function(){
       window.currentSection=s; window.currentMode=m;
       window.sectionModes=window.sectionModes||[-1,-1,-1]; window.sectionModes[s]=m;
-      window.sectionSavedKey=window.sectionSavedKey||["","",""]; window.sectionSavedKey[s]=k;
       window.openChat(s,m);
-      console.log("[HIST] _hop openChat done, restoring msgs...");
       setTimeout(function(){
         window.chatMessages=msgs;
-        var el=document.getElementById("chat-messages");
-        if(el){
-          el.innerHTML="";
-          msgs.forEach(function(m){
-            var d=document.createElement("div");d.className="chat-msg "+m.role;
-            d.innerHTML='<div class=chat-avatar>'+(m.role==="user"?"U":"A")+'</div><div class=chat-bubble>'+m.content+'</div>';
-            el.appendChild(d)
-          });
-          console.log("[HIST] _hop restored "+msgs.length+" msgs");
-        }
+        var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(x){var d=document.createElement("div");d.className="chat-msg "+x.role;d.innerHTML='<div class=chat-avatar>'+(x.role==="user"?"U":"A")+'</div><div class=chat-bubble>'+x.content+'</div>';el.appendChild(d)})}
+        console.log("[HIST] restored");
       },300);
     },100);
   };
-  timer=setInterval(function(){
-    var overlay=document.getElementById("chat-overlay");
-    if(overlay && !overlay.classList.contains("open") && window.chatKey && window.chatMessages && window.chatMessages.length>0){
-      console.log("[HIST] poll: chat closed, saving...")
-      save();
+  var timer=setInterval(function(){
+    var ov=document.getElementById("chat-overlay");
+    if(ov&&!ov.classList.contains("open")&&window.chatKey&&window.chatMessages&&window.chatMessages.length>0){
+      save();clearInterval(timer);
     }
-  }, 500);
+  },500);
   show();
-})();</body></html<script>
-(function(){
-  try{var s=localStorage.getItem("fp_history");if(s){window._history=JSON.parse(s)}}catch(e){}
-  if(!window._history)window._history=[];
-
-  function updateUI(){
-    var list=document.getElementById("history-list");
-    if(!list)return;
-    var h=window._history;
-    list.innerHTML=h.map(function(x){
-      return '<div class="history-item" style="cursor:pointer;padding:8px 10px;border-radius:6px;margin:2px 0;font-size:12px;color:var(--text-secondary);border:1px solid transparent" onmouseover="this.style.background=\'var(--bg-card)\';this.style.borderColor=\'var(--border-glow)\'" onmouseout="this.style.background=\'\';this.style.borderColor=\'transparent\'" onclick="window._restore(\''+x.key+'\')">'+x.icon+' '+x.name+' <span style="font-size:10px;color:var(--text-muted)">'+(x.msgs?x.msgs.length:0)+'?</span></div>';
-    }).join("")||'<div style="font-size:10px;color:var(--text-muted);padding:4px">????</div>';
-  }
-
-  window.renderHistory=function(){updateUI()};
-
-  var _origClose=window.closeChat;
-  window.closeChat=function(){
-    var key=window.chatKey;var msgs=window.chatMessages;
-    if(key&&msgs&&msgs.length>0){
-      var h=window._history.filter(function(x){return x.key!==key});
-      var iE=document.getElementById("chat-agent-icon");var nE=document.getElementById("chat-agent-name");
-      h.unshift({key:key,section:window.currentSection,mode:window.currentMode,name:nE?nE.textContent:"",icon:iE?iE.textContent:"",msgs:msgs.slice(0)});
-      if(h.length>5)h.pop();window._history=h;
-      try{localStorage.setItem("fp_history",JSON.stringify(h))}catch(e){}
-    }
-    _origClose();updateUI();
-  };
-
-  window._restore=function(key){
-    var e=(window._history||[]).find(function(x){return x.key===key});
-    var parts=key.split("-");var s=parseInt(parts[0]),m=parseInt(parts[1]);
-    if(isNaN(s)||isNaN(m))return;
-    if(window.currentSection!==s){document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active")});var nav=document.querySelector(".nav-item[data-section=\""+s+"\"]");if(nav)nav.classList.add("active")}
-    window.currentSection=s;window.currentMode=m;
-    window.sectionModes=window.sectionModes||[-1,-1,-1];window.sectionModes[s]=m;
-    if(window.chatOpen)window.closeChat();
-    window.sectionSavedKey=window.sectionSavedKey||["","",""];window.sectionSavedKey[s]=key;
-    window.openChat(s,m);
-    if(e&&e.msgs&&e.msgs.length>0){setTimeout(function(){window.chatMessages=e.msgs;var el=document.getElementById("chat-messages");if(el){el.innerHTML="";e.msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML="<div class=\"chat-avatar\">"+(m.role==="user"?"U":"A")+"</div><div class=\"chat-bubble\">"+m.content+"</div>";el.appendChild(d)})}},300)}
-  };
-  updateUI();
-})();
-</script><script>
+})();<script>
 // 简单历史记录测试
 (function(){
   // 绑定关闭按钮

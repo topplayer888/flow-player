@@ -666,7 +666,7 @@ function callAgent(userMsg){
 var agent=agents[chatKey];if(!agent)return;
 if(!apiConfig.apikey||apiConfig.apikey.length<10){
 hideTyping();
-addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span><br><br>也可以在右侧栏 ⚙ API 配置 中设置。");
+addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span><br><br>也可以在左侧栏 ⚙ API 配置 中设置。");
 return;
 }
 var msgs=[{role:"system",content:agent.systemPrompt}];

@@ -395,7 +395,7 @@ console.log("[HIST] v6");
       window.openChat(s,m);
       setTimeout(function(){
         window.chatMessages=msgs;
-        var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(x){var d=document.createElement("div");d.className="chat-msg "+x.role;d.innerHTML='<div class=chat-avatar>'+(x.role==="user"?"U":"A")+'</div><div class=chat-bubble>'+x.content+'</div>';el.appendChild(d)})}
+        var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(x){var d=document.createElement("div");d.className="chat-msg "+x.role;d.className='chat-msg '+x.role;d.innerHTML=x.content;el.appendChild(d);console.log('[HIST] rendered')})}
       },300);
     },100);
   };

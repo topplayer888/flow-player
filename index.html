@@ -394,20 +394,18 @@ console.log("[HIST] v6");
   show();
 })();
 <script>
-// API未配置时自动打开设置面板
 (function(){
   var _origAlert = window.alert;
   window.alert = function(msg) {
-    var isApiConfig = typeof msg === 'string' && /api.*(?:配置|key|设置)|(?:配置|设置).*api/i.test(msg) && !msg.includes('error') && !msg.includes('失败') && !msg.includes('没有找到');
     _origAlert(msg);
-    if (isApiConfig && typeof openSettings === 'function') {
+    if (!window.apiConfig || !window.apiConfig.apikey || window.apiConfig.apikey.length < 10) {
       setTimeout(function(){
-        openSettings();
-        var tab = document.querySelector('.settings-tab');
-        if (tab && typeof switchSettingsTab === 'function') {
-          switchSettingsTab('api', tab);
+        if (typeof openSettings === 'function') {
+          openSettings();
+          var t = document.querySelector('.settings-tab');
+          if (t && typeof switchSettingsTab === 'function') switchSettingsTab('api', t);
         }
-      }, 200);
+      }, 300);
     }
   };
 })();

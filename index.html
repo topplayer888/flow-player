@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
-<link rel="stylesheet" href="style.css?v=15"></head><body>
+<link rel="stylesheet" href="style.css?v=10"></head><body>
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="app-container">
 <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
@@ -225,7 +225,7 @@
 
 </aside>
 </div>
-<script src="app.js?v=15"></script>
+<script src="app.js?v=10"></script>
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
 <div class="settings-panel" onclick="event.stopPropagation()">
@@ -242,7 +242,7 @@
 <div class="settings-tab-content active" id="settings-tab-api">
 <input id="set-endpoint" placeholder="API 端点 (默认 OpenAI)">
 <input id="set-apikey" placeholder="API Key (sk-...)" type="password">
-<input id="set-model" placeholder="模型名称 (默认 gpt-4o)"><input id="set-userid" placeholder="用户ID (同步历史记录)" style="margin-top:6px"><input id="set-userid" placeholder="用户ID (同步历史记录)" style="margin-top:6px">
+<input id="set-model" placeholder="模型名称 (默认 gpt-4o)">
 <button class="sidebar-api-save" onclick="saveSettingsApi()">保存配置</button>
 </div>
 <div class="settings-tab-content" id="settings-tab-sound">

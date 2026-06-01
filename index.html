@@ -351,6 +351,55 @@
   show();
 })();
 </script></body></html<script>
+cons<script>
+console.log("[HIST] v2 init");
+(function(){
+  var timer=null;
+  function save(){
+    var k=window.chatKey, m=window.chatMessages;
+    console.log("[HIST] save", k, m?m.length:0);
+    if(!k||!m||!m.length)return;
+    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}
+    d[k]=m.slice(0); localStorage.setItem("fh",JSON.stringify(d));
+    console.log("[HIST] saved", k, d[k].length);
+    show();
+  }
+  function show(){
+    var el=document.getElementById("history-list"); if(!el)return;
+    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}
+    var keys=Object.keys(d);
+    console.log("[HIST] show", keys.length, keys);
+    el.innerHTML=keys.map(function(k,i){
+      return '<div onclick="window._hop('+i+')" style="cursor:pointer;padding:6px 8px;margin:2px 0;border:1px solid var(--border-glow);border-radius:4px;font-size:11px;color:var(--text-secondary)">'+k+' ('+d[k].length+'条)</div>';
+    }).join("")||'<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无</div>';
+    window._hkeys=keys; window._hdata=d;
+  }
+  window._hop=function(i){
+    var keys=window._hkeys||[], d=window._hdata||{}, k=keys[i], msgs=d[k];
+    if(!msgs)return;
+    var p=k.split("-"), s=parseInt(p[0]), m=parseInt(p[1]);
+    if(window.chatOpen)window.closeChat();
+    setTimeout(function(){
+      window.currentSection=s; window.currentMode=m;
+      window.sectionModes=window.sectionModes||[-1,-1,-1]; window.sectionModes[s]=m;
+      window.sectionSavedKey=window.sectionSavedKey||["","",""]; window.sectionSavedKey[s]=k;
+      window.openChat(s,m);
+      setTimeout(function(){window.chatMessages=msgs;var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML='<div class=chat-avatar>'+(m.role==="user"?"U":"A")+'</div><div class=chat-bubble>'+m.content+'</div>';el.appendChild(d)})}},300);
+    },100);
+  };
+
+  // Watch for chat close - poll every 500ms
+  timer=setInterval(function(){
+    var overlay=document.getElementById("chat-overlay");
+    if(overlay && !overlay.classList.contains("open") && window.chatKey){
+      // Chat was just closed
+      save();
+    }
+  }, 500);
+
+  show();
+})();
+</script></body></html<script>
 console.log("[HIST] init");
 (function(){
   function save(){

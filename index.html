@@ -262,76 +262,59 @@
 <script>
 // === 历史记录 ===
 (function(){
-  // 页面加载时读取历史
   try{var s=localStorage.getItem("fp_history");if(s){window._history=JSON.parse(s)}}catch(e){}
   if(!window._history)window._history=[];
-  if(typeof renderHistory==="function"){var oldRH=renderHistory;renderHistory=function(){oldRH();updateHistoryUI()}}
+
+  function saveHistory(){
+    var key=window.chatKey;
+    var msgs=window.chatMessages;
+    if(!key||!msgs||msgs.length===0)return;
+    var h=window._history.filter(function(x){return x.key!==key});
+    var iconEl=document.getElementById("chat-agent-icon");
+    var nameEl=document.getElementById("chat-agent-name");
+    h.unshift({key:key,section:window.currentSection,mode:window.currentMode,name:nameEl?nameEl.textContent:"",icon:iconEl?iconEl.textContent:"",msgs:msgs.slice(0)});
+    if(h.length>5)h.pop();
+    window._history=h;
+    try{localStorage.setItem("fp_history",JSON.stringify(h))}catch(e){}
+    updateHistoryUI();
+  }
 
   function updateHistoryUI(){
     var list=document.getElementById("history-list");
     if(!list)return;
-    var hs=window._history||[];
-    list.innerHTML=hs.map(function(h,i){
-      return '<div class="history-item" style="cursor:pointer;padding:8px 10px;border-radius:6px;margin:2px 0;font-size:12px;color:var(--text-secondary);border:1px solid transparent;transition:all .2s" onmouseover="this.style.background=\"var(--bg-card)\";this.style.borderColor=\"var(--border-glow)\"" onmouseout="this.style.background=\"\";this.style.borderColor=\"transparent\"" onclick="goHistoryFromList('+h.section+','+h.mode+')">'+h.icon+' '+h.name+' <span style="font-size:10px;color:var(--text-muted)">'+(h.msgs?h.msgs.length:0)+'条</span></div>';
+    var h=window._history;
+    list.innerHTML=h.map(function(x){
+      return '<div class="history-item" style="cursor:pointer;padding:8px 10px;border-radius:6px;margin:2px 0;font-size:12px;color:var(--text-secondary);border:1px solid transparent" onmouseover="this.style.background=\'var(--bg-card)\';this.style.borderColor=\'var(--border-glow)\'" onmouseout="this.style.background=\'\';this.style.borderColor=\'transparent\'" onclick="window._restoreHistory(\''+x.key+'\')">'+x.icon+' '+x.name+' <span style="font-size:10px;color:var(--text-muted)">'+(x.msgs?x.msgs.length:0)+'条</span></div>';
     }).join("")||'<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无记录</div>';
   }
 
-  // 拦截 closeChat
   var _origClose=window.closeChat;
-  window.closeChat=function(){
-    var key=window.chatKey;
-    var msgs=window.chatMessages;
-    if(key&&msgs&&msgs.length>0){
-      var hs=window._history||[];
-      hs=hs.filter(function(h){return h.key!==key});
-      var icon=document.getElementById("chat-agent-icon");
-      var name=document.getElementById("chat-agent-name");
-      hs.unshift({key:key,section:window.currentSection,mode:window.currentMode,name:name?name.textContent:"",icon:icon?icon.textContent:"",msgs:msgs.slice(0)});
-      if(hs.length>5)hs.pop();
-      window._history=hs;
-      try{localStorage.setItem("fp_history",JSON.stringify(hs))}catch(e){}
-      updateHistoryUI();
-    }
-    _origClose();
-  };
+  window.closeChat=function(){saveHistory();_origClose();};
 
-  // 恢复消息
-  window.goHistoryFromList=function(section,mode){
-    var key=section+"-"+mode;
-    var hs=window._history||[];
-    var e=hs.find(function(h){return h.key===key});
-    // 先正常打开
+  window._restoreHistory=function(key){
+    var e=(window._history||[]).find(function(x){return x.key===key});
+    var parts=key.split("-");
+    var section=parseInt(parts[0]),mode=parseInt(parts[1]);
+    if(isNaN(section)||isNaN(mode))return;
     if(window.currentSection!==section){
       document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active")});
       var nav=document.querySelector('.nav-item[data-section="'+section+'"]');
       if(nav)nav.classList.add("active");
     }
-    window.currentSection=section;
+    window.currentSection=section;window.currentMode=mode;
     window.sectionModes=window.sectionModes||[-1,-1,-1];
     window.sectionModes[section]=mode;
-    window.currentMode=mode;
     if(window.chatOpen)window.closeChat();
     window.sectionSavedKey=window.sectionSavedKey||["","",""];
     window.sectionSavedKey[section]=key;
     window.openChat(section,mode);
-    // 恢复消息
     if(e&&e.msgs&&e.msgs.length>0){
       setTimeout(function(){
         window.chatMessages=e.msgs;
         var el=document.getElementById("chat-messages");
-        if(el){
-          el.innerHTML="";
-          e.msgs.forEach(function(m){
-            var d=document.createElement("div");
-            d.className="chat-msg "+m.role;
-            d.innerHTML='<div class="chat-avatar">'+(m.role==="user"?"U":"A")+'</div><div class="chat-bubble">'+m.content+'</div>';
-            el.appendChild(d);
-          });
-        }
+        if(el){el.innerHTML="";e.msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML='<div class="chat-avatar">'+(m.role==="user"?"U":"A")+'</div><div class="chat-bubble">'+m.content+'</div>';el.appendChild(d)})}
       },300);
     }
   };
-
   updateHistoryUI();
-})();
-</script></body></html>
+})();</body></html>

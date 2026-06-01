@@ -382,23 +382,7 @@ console.log("[HIST] v6");
     }).join("")||'<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无</div>';
     window._hkeys=keys; window._hdata=d;
   }
-  window._hop=function(i){
-    var keys=window._hkeys||[], d=window._hdata||{}, k=keys[i];
-    if(!k||!d[k])return;
-    var msgs=d[k];
-    console.log("[HIST] hop: k="+k+" isArr="+Array.isArray(msgs)+" len="+msgs.length);
-    var p=k.split("-"), s=parseInt(p[0]), m=parseInt(p[1]);
-    if(window.chatOpen)window.closeChat();
-    setTimeout(function(){
-      window.currentSection=s; window.currentMode=m;
-      window.sectionModes=window.sectionModes||[-1,-1,-1]; window.sectionModes[s]=m;
-      window.openChat(s,m);
-      setTimeout(function(){
-        window.chatMessages=msgs;
-        var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(x){var d=document.createElement("div");d.className="chat-msg "+x.role;d.className='chat-msg '+x.role;d.innerHTML=x.content;el.appendChild(d);console.log('[HIST] rendered')})}
-      },300);
-    },100);
-  };
+  window._hop=function(i){var keys=window._hkeys||[],d=window._hdata||{},k=keys[i],msgs=d[k];if(!msgs){alert("???");return}var p=k.split("-"),s=parseInt(p[0]),m=parseInt(p[1]);if(window.chatOpen)window.closeChat();setTimeout(function(){window.currentSection=s;window.currentMode=m;window.sectionModes=window.sectionModes||[-1,-1,-1];window.sectionModes[s]=m;window.sectionSavedKey=window.sectionSavedKey||["","",""];window.sectionSavedKey[s]=k;window.openChat(s,m);window.chatMessages=msgs;var el=document.getElementById("chat-messages");if(el)el.innerHTML=msgs.map(function(x){return "<div class=chat-msg "+x.role+">"+x.content+"</div>"}).join("");},300);};
   var done=false;
   var timer=setInterval(function(){
     var ov=document.getElementById("chat-overlay");

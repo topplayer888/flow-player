@@ -56,7 +56,7 @@ html,body{margin:0;padding:0;height:100%}
 .theme-pureblack .nav-item:hover{background:rgba(255,255,255,.04)}
 .theme-pureblack .nav-item.active{background:rgba(255,255,255,.06);border-left-color:#fff}
 .theme-pureblack .nav-item.active::before{background:#fff;box-shadow:0 0 6px rgba(255,255,255,.2)}
-.theme-pureblack .mode-card{background:#161616;border:1px solid #1a1a1a;box-shadow:none}
+.theme-pureblack .mode-card{background:#161616;border:1px solid #333;box-shadow:none}
 .theme-pureblack .mode-card:hover{border-color:#444;box-shadow:0 4px 16px rgba(255,255,255,.04)}
 .theme-pureblack .mode-card.active-agent{border-color:#1a1a1a!important}
 .theme-pureblack .mode-card.active-agent:hover{border-color:#444!important;box-shadow:0 4px 16px rgba(255,255,255,.04)!important}

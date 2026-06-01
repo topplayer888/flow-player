@@ -317,7 +317,45 @@
     }
   };
   updateHistoryUI();
-})();</body></html<script>
+})();<script>
+// 简单历史记录测试
+(function(){
+  // 绑定关闭按钮
+  var btn = document.querySelector('.chat-close');
+  if(btn){
+    var origClick = btn.onclick;
+    btn.addEventListener('click', function(e){
+      setTimeout(function(){
+        var key = window.chatKey;
+        var msgs = window.chatMessages;
+        console.log('SAVING', key, msgs ? msgs.length : 0);
+        if(key && msgs && msgs.length > 0){
+          var d = {};
+          try{ d = JSON.parse(localStorage.getItem('fp_history')||'{}'); }catch(e){}
+          d[key] = msgs.slice(0);
+          localStorage.setItem('fp_history', JSON.stringify(d));
+          console.log('SAVED', key, d[key].length);
+        }
+        showHistory();
+      }, 200);
+    });
+  }
+
+  function showHistory(){
+    var list = document.getElementById('history-list');
+    if(!list) return;
+    var d = {};
+    try{ d = JSON.parse(localStorage.getItem('fp_history')||'{}'); }catch(e){}
+    var keys = Object.keys(d);
+    console.log('HISTORY KEYS:', keys);
+    list.innerHTML = keys.map(function(k){
+      return '<div style="cursor:pointer;padding:6px 8px;margin:2px 0;font-size:11px;color:var(--text-secondary);border:1px solid var(--border-glow);border-radius:4px" onclick="(function(){window.chatOpen=false;window.openChat('+k.split('-')[0]+','+k.split('-')[1]+');setTimeout(function(){window.chatMessages=d[\''+k+'\'];var el=document.getElementById(\'chat-messages\');if(el){el.innerHTML=\'\';d[\''+k+'\'].forEach(function(m){var div=document.createElement(\'div\');div.className=\'chat-msg \'+m.role;div.innerHTML=\'<div class=chat-avatar>\'+(m.role===\'user\'?\'U\':\'A\')+\'</div><div class=chat-bubble>\'+m.content+\'</div>\';el.appendChild(div)})}},300)})()">'+k+' ('+d[k].length+'条)</div>';
+    }).join('') || '<div style="font-size:10px;color:var(--text-muted)">暂无</div>';
+  }
+
+  showHistory();
+})();
+</script></body></html<script>
 (function(){
   try{var s=localStorage.getItem("fp_history");if(s){window._history=JSON.parse(s)}}catch(e){}
   if(!window._history)window._history=[];
@@ -359,5 +397,43 @@
     if(e&&e.msgs&&e.msgs.length>0){setTimeout(function(){window.chatMessages=e.msgs;var el=document.getElementById("chat-messages");if(el){el.innerHTML="";e.msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML="<div class=\"chat-avatar\">"+(m.role==="user"?"U":"A")+"</div><div class=\"chat-bubble\">"+m.content+"</div>";el.appendChild(d)})}},300)}
   };
   updateUI();
+})();
+</script><script>
+// 简单历史记录测试
+(function(){
+  // 绑定关闭按钮
+  var btn = document.querySelector('.chat-close');
+  if(btn){
+    var origClick = btn.onclick;
+    btn.addEventListener('click', function(e){
+      setTimeout(function(){
+        var key = window.chatKey;
+        var msgs = window.chatMessages;
+        console.log('SAVING', key, msgs ? msgs.length : 0);
+        if(key && msgs && msgs.length > 0){
+          var d = {};
+          try{ d = JSON.parse(localStorage.getItem('fp_history')||'{}'); }catch(e){}
+          d[key] = msgs.slice(0);
+          localStorage.setItem('fp_history', JSON.stringify(d));
+          console.log('SAVED', key, d[key].length);
+        }
+        showHistory();
+      }, 200);
+    });
+  }
+
+  function showHistory(){
+    var list = document.getElementById('history-list');
+    if(!list) return;
+    var d = {};
+    try{ d = JSON.parse(localStorage.getItem('fp_history')||'{}'); }catch(e){}
+    var keys = Object.keys(d);
+    console.log('HISTORY KEYS:', keys);
+    list.innerHTML = keys.map(function(k){
+      return '<div style="cursor:pointer;padding:6px 8px;margin:2px 0;font-size:11px;color:var(--text-secondary);border:1px solid var(--border-glow);border-radius:4px" onclick="(function(){window.chatOpen=false;window.openChat('+k.split('-')[0]+','+k.split('-')[1]+');setTimeout(function(){window.chatMessages=d[\''+k+'\'];var el=document.getElementById(\'chat-messages\');if(el){el.innerHTML=\'\';d[\''+k+'\'].forEach(function(m){var div=document.createElement(\'div\');div.className=\'chat-msg \'+m.role;div.innerHTML=\'<div class=chat-avatar>\'+(m.role===\'user\'?\'U\':\'A\')+\'</div><div class=chat-bubble>\'+m.content+\'</div>\';el.appendChild(div)})}},300)})()">'+k+' ('+d[k].length+'条)</div>';
+    }).join('') || '<div style="font-size:10px;color:var(--text-muted)">暂无</div>';
+  }
+
+  showHistory();
 })();
 </script></body></html>

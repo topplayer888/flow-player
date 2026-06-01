@@ -352,37 +352,41 @@
 })();
 </script></body></html<script>
 cons<script>
-console.log("[HIST] v5");
+console.log("[HIST] v6");
 (function(){
   function save(){
     var k=window.chatKey, m=window.chatMessages;
-    console.log("[HIST] save:k="+k+" msgsLen="+(m?m.length:"null")+" type="+typeof m);
     if(!k||!m||!m.length)return;
-    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}
     var copy=m.slice(0);
-    console.log("[HIST] copy type="+typeof copy+" len="+copy.length+" firstRole="+(copy[0]?copy[0].role:"none"));
-    var json=JSON.stringify(copy);
-    console.log("[HIST] jsonLen="+json.length+" preview="+json.substring(0,80));
+    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}
     d[k]=copy;
     var full=JSON.stringify(d);
-    console.log("[HIST] fullLen="+full.length);
-    try{localStorage.setItem("fh",full);console.log("[HIST] saved OK")}catch(e){console.error("[HIST] save err:",e);localStorage.setItem("fh","{}")}
+    console.log("[HIST] saving key="+k+" full="+full.substring(0,100));
+    localStorage.setItem("fh",full);
+    // verify immediately
+    var vfy=localStorage.getItem("fh");
+    var pd=JSON.parse(vfy);
+    console.log("[HIST] verify: keys="+JSON.stringify(Object.keys(pd))+" hasArr="+Array.isArray(pd[k])+" len="+(pd[k]?pd[k].length:"?"));
     show();
   }
   function show(){
     var el=document.getElementById("history-list"); if(!el)return;
-    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){console.error("[HIST] load err:",e)}
+    var raw=localStorage.getItem("fh")||"{}";
+    console.log("[HIST] show rawLen="+raw.length+" preview="+raw.substring(0,80));
+    var d={}; try{d=JSON.parse(raw)}catch(e){console.error(e)}
     var keys=Object.keys(d);
-    console.log("[HIST] show:keys="+JSON.stringify(keys)+" firstLen="+(keys[0]?d[keys[0]].length:"none"));
+    console.log("[HIST] show parsed: type="+typeof d+" isArr="+Array.isArray(d)+" keys="+JSON.stringify(keys));
+    if(keys.length>0) console.log("[HIST] firstVal type="+typeof d[keys[0]]+" isArr="+Array.isArray(d[keys[0]])+" len="+(d[keys[0]]?d[keys[0]].length:"?"));
     el.innerHTML=keys.map(function(k,i){
-      return '<div onclick="window._hop('+i+')" style="cursor:pointer;padding:6px 8px;margin:2px 0;border:1px solid var(--border-glow);border-radius:4px;font-size:11px;color:var(--text-secondary)">'+k+' ('+(d[k]?d[k].length:"?")+'条)</div>';
+      return '<div onclick="window._hop('+i+')" style="cursor:pointer;padding:6px 8px;margin:2px 0;border:1px solid var(--border-glow);border-radius:4px;font-size:11px;color:var(--text-secondary)">'+k+' ('+(Array.isArray(d[k])?d[k].length:"?")+'条)</div>';
     }).join("")||'<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无</div>';
     window._hkeys=keys; window._hdata=d;
   }
   window._hop=function(i){
-    var keys=window._hkeys||[], d=window._hdata||{}, k=keys[i], msgs=d[k];
-    console.log("[HIST] hop:k="+k+" msgs="+typeof msgs+" len="+(msgs?msgs.length:"null"));
-    if(!msgs)return;
+    var keys=window._hkeys||[], d=window._hdata||{}, k=keys[i];
+    if(!k||!d[k])return;
+    var msgs=d[k];
+    console.log("[HIST] hop: k="+k+" isArr="+Array.isArray(msgs)+" len="+msgs.length);
     var p=k.split("-"), s=parseInt(p[0]), m=parseInt(p[1]);
     if(window.chatOpen)window.closeChat();
     setTimeout(function(){
@@ -392,53 +396,15 @@ console.log("[HIST] v5");
       setTimeout(function(){
         window.chatMessages=msgs;
         var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(x){var d=document.createElement("div");d.className="chat-msg "+x.role;d.innerHTML='<div class=chat-avatar>'+(x.role==="user"?"U":"A")+'</div><div class=chat-bubble>'+x.content+'</div>';el.appendChild(d)})}
-        console.log("[HIST] restored");
       },300);
     },100);
   };
+  var done=false;
   var timer=setInterval(function(){
     var ov=document.getElementById("chat-overlay");
-    if(ov&&!ov.classList.contains("open")&&window.chatKey&&window.chatMessages&&window.chatMessages.length>0){
-      save();clearInterval(timer);
+    if(!done&&ov&&!ov.classList.contains("open")&&window.chatKey&&window.chatMessages&&window.chatMessages.length>0){
+      done=true; save(); clearInterval(timer);
     }
   },500);
   show();
-})();<script>
-// 简单历史记录测试
-(function(){
-  // 绑定关闭按钮
-  var btn = document.querySelector('.chat-close');
-  if(btn){
-    var origClick = btn.onclick;
-    btn.addEventListener('click', function(e){
-      setTimeout(function(){
-        var key = window.chatKey;
-        var msgs = window.chatMessages;
-        console.log('SAVING', key, msgs ? msgs.length : 0);
-        if(key && msgs && msgs.length > 0){
-          var d = {};
-          try{ d = JSON.parse(localStorage.getItem('fp_history')||'{}'); }catch(e){}
-          d[key] = msgs.slice(0);
-          localStorage.setItem('fp_history', JSON.stringify(d));
-          console.log('SAVED', key, d[key].length);
-        }
-        showHistory();
-      }, 200);
-    });
-  }
-
-  function showHistory(){
-    var list = document.getElementById('history-list');
-    if(!list) return;
-    var d = {};
-    try{ d = JSON.parse(localStorage.getItem('fp_history')||'{}'); }catch(e){}
-    var keys = Object.keys(d);
-    console.log('HISTORY KEYS:', keys);
-    list.innerHTML = keys.map(function(k){
-      return '<div style="cursor:pointer;padding:6px 8px;margin:2px 0;font-size:11px;color:var(--text-secondary);border:1px solid var(--border-glow);border-radius:4px" onclick="(function(){window.chatOpen=false;window.openChat('+k.split('-')[0]+','+k.split('-')[1]+');setTimeout(function(){window.chatMessages=d[\''+k+'\'];var el=document.getElementById(\'chat-messages\');if(el){el.innerHTML=\'\';d[\''+k+'\'].forEach(function(m){var div=document.createElement(\'div\');div.className=\'chat-msg \'+m.role;div.innerHTML=\'<div class=chat-avatar>\'+(m.role===\'user\'?\'U\':\'A\')+\'</div><div class=chat-bubble>\'+m.content+\'</div>\';el.appendChild(div)})}},300)})()">'+k+' ('+d[k].length+'条)</div>';
-    }).join('') || '<div style="font-size:10px;color:var(--text-muted)">暂无</div>';
-  }
-
-  showHistory();
-})();
-</script></body></html>
+})();</body></html>

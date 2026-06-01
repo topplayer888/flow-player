@@ -262,137 +262,87 @@
 <script>
 // === 历史记录 ===
 (function(){
-  try{var s=localStorage.getItem("fp_history");if(s){window._history=JSON.parse(s)}}catch(e){}
-  if(!window._history)window._history=[];
+  var STORAGE_KEY = 'fp_chat_history';
 
-  function saveHistory(){
-    var key=window.chatKey;
-    var msgs=window.chatMessages;
-    if(!key||!msgs||msgs.length===0)return;
-    var h=window._history.filter(function(x){return x.key!==key});
-    var iconEl=document.getElementById("chat-agent-icon");
-    var nameEl=document.getElementById("chat-agent-name");
-    h.unshift({key:key,section:window.currentSection,mode:window.currentMode,name:nameEl?nameEl.textContent:"",icon:iconEl?iconEl.textContent:"",msgs:msgs.slice(0)});
-    if(h.length>5)h.pop();
-    window._history=h;
-    try{localStorage.setItem("fp_history",JSON.stringify(h))}catch(e){}try{var fhd={};try{fhd=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}fhd[key]=msgs.slice(0);localStorage.setItem("fh",JSON.stringify(fhd))}catch(e){}
-    updateHistoryUI();
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    catch(e) { return []; }
   }
 
-  function updateHistoryUI(){
-    var list=document.getElementById("history-list");
-    if(!list)return;
-    var h=window._history;
-    list.innerHTML=h.map(function(x){
-      return '<div class="history-item" style="cursor:pointer;padding:8px 10px;border-radius:6px;margin:2px 0;font-size:12px;color:var(--text-secondary);border:1px solid transparent" onmouseover="this.style.background=\'var(--bg-card)\';this.style.borderColor=\'var(--border-glow)\'" onmouseout="this.style.background=\'\';this.style.borderColor=\'transparent\'" onclick="window._restoreHistory(\''+x.key+'\')">'+x.icon+' '+x.name+' <span style="font-size:10px;color:var(--text-muted)">'+(x.msgs?x.msgs.length:0)+'条</span></div>';
-    }).join("")||'<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无记录</div>';
+  function saveHistory() {
+    var items = loadHistory();
+    var key = window.chatKey;
+    var msgs = window.chatMessages;
+    if (!key || !msgs || msgs.length === 0) return;
+    items = items.filter(function(h) { return h.key !== key; });
+    var nameEl = document.getElementById('chat-agent-name');
+    var iconEl = document.getElementById('chat-agent-icon');
+    items.unshift({
+      key: key, section: window.currentSection, mode: window.currentMode,
+      name: nameEl ? nameEl.textContent : '',
+      icon: iconEl ? iconEl.textContent : '',
+      msgs: msgs.slice(0), time: Date.now()
+    });
+    if (items.length > 10) items = items.slice(0, 10);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    renderHistory();
   }
 
-  var _origClose=window.closeChat;
-  window.closeChat=function(){saveHistory();_origClose();};
+  function renderHistory() {
+    var list = document.getElementById('history-list');
+    if (!list) return;
+    var items = loadHistory();
+    if (items.length === 0) {
+      list.innerHTML = '<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无记录</div>';
+      return;
+    }
+    list.innerHTML = items.map(function(h) {
+      return '<div class="history-item" onclick="window._restoreHistory(\'' + h.key + '\')" style="cursor:pointer;padding:8px 10px;border-radius:6px;margin:2px 0;font-size:12px;color:var(--text-secondary);border:1px solid transparent" onmouseover="this.style.background=\'var(--bg-card)\';this.style.borderColor=\'var(--border-glow)\'" onmouseout="this.style.background=\'\';this.style.borderColor=\'transparent\'">' +
+        h.icon + ' ' + h.name + ' <span style="font-size:10px;color:var(--text-muted)">' + h.msgs.length + '条</span></div>';
+    }).join('');
+  }
 
-  window._restoreHistory=function(key){
-    var e=(window._history||[]).find(function(x){return x.key===key});
-    var parts=key.split("-");
-    var section=parseInt(parts[0]),mode=parseInt(parts[1]);
-    if(isNaN(section)||isNaN(mode))return;
-    if(window.currentSection!==section){
-      document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active")});
-      var nav=document.querySelector('.nav-item[data-section="'+section+'"]');
-      if(nav)nav.classList.add("active");
-    }
-    window.currentSection=section;window.currentMode=mode;
-    window.sectionModes=window.sectionModes||[-1,-1,-1];
-    window.sectionModes[section]=mode;
-    if(window.chatOpen)window.closeChat();
-    window.sectionSavedKey=window.sectionSavedKey||["","",""];
-    window.sectionSavedKey[section]=key;
-    window.openChat(section,mode);
-    if(e&&e.msgs&&e.msgs.length>0){
-      setTimeout(function(){
-        window.chatMessages=e.msgs;
-        var el=document.getElementById("chat-messages");
-        if(el){el.innerHTML="";e.msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML='<div class="chat-avatar">'+(m.role==="user"?"👤":"🤖")+'</div><div class="chat-bubble">'+m.content.replace(/\\n/g,'<br>')+'</div>';el.appendChild(d)})}
-      },300);
-    }
+  window._restoreHistory = function(key) {
+    var items = loadHistory();
+    var item = items.find(function(h) { return h.key === key; });
+    if (!item) return;
+    window.currentSection = item.section; window.currentMode = item.mode;
+    window.sectionModes = window.sectionModes || [-1, -1, -1];
+    window.sectionModes[item.section] = item.mode;
+    window.sectionSavedKey = window.sectionSavedKey || ['', '', ''];
+    window.sectionSavedKey[item.section] = item.key;
+    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+    var nav = document.querySelector('.nav-item[data-section="' + item.section + '"]');
+    if (nav) nav.classList.add('active');
+    if (window.chatOpen) window.closeChat();
+    window.openChat(item.section, item.mode);
+    window.chatMessages = item.msgs;
+    setTimeout(function() {
+      var el = document.getElementById('chat-messages');
+      if (el && item.msgs) {
+        el.innerHTML = '';
+        item.msgs.forEach(function(m) {
+          var avatar = m.role === 'assistant' ? '🤖' : '👤';
+          var content = m.content;
+          if (content.indexOf('chat-bubble') === -1) {
+            content = '<div class="chat-avatar">' + avatar + '</div><div class="chat-bubble">' + content.replace(/\n/g, '<br>') + '</div>';
+          }
+          var d = document.createElement('div');
+          d.className = 'chat-msg ' + m.role;
+          d.innerHTML = content;
+          el.appendChild(d);
+        });
+        el.scrollTop = el.scrollHeight;
+      }
+    }, 100);
   };
-  updateHistoryUI();
-})();<script>
-(function(){
-  function save(){
-    var k=window.chatKey, m=window.chatMessages;
-    if(!k||!m||!m.length)return;
-    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}
-    d[k]=m.slice(0); localStorage.setItem("fh",JSON.stringify(d));
-    show();
-  }
-  function show(){
-    var el=document.getElementById("history-list"); if(!el)return;
-    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}
-    var keys=Object.keys(d);
-    el.innerHTML=keys.map(function(k,i){
-      return "<div onclick=\"window._hopen("+i+")\" style=\"cursor:pointer;padding:6px 8px;margin:2px 0;border:1px solid var(--border-glow);border-radius:4px;font-size:11px;color:var(--text-secondary)\">"+k+" ("+d[k].length+"条)</div>";
-    }).join("")||"<div style=\"font-size:10px;color:var(--text-muted);padding:4px\">暂无</div>";
-    window._hkeys=keys; window._hdata=d;
-  }
-  window._hopen=function(i){
-    var keys=window._hkeys||[], d=window._hdata||{}, k=keys[i], msgs=d[k];
-    if(!msgs)return;
-    var p=k.split("-"), s=parseInt(p[0]), m=parseInt(p[1]);
-    if(window.currentSection!==s){document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active")});var nav=document.querySelector('.nav-item[data-section="'+s+'"]');if(nav)nav.classList.add("active")}
-    window.currentSection=s; window.currentMode=m;
-    window.sectionModes=window.sectionModes||[-1,-1,-1]; window.sectionModes[s]=m;
-    if(window.chatOpen)window.closeChat();
-    window.sectionSavedKey=window.sectionSavedKey||["","",""]; window.sectionSavedKey[s]=k;
-    window.openChat(s,m);
-    setTimeout(function(){console.log("[HIST] restoring msgs len="+msgs.length);window.chatMessages=msgs;var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(m){var a=m.role==="user"?"??":"??";var b=m.content;if(b.indexOf("chat-bubble")===-1){b="<div class=chat-avatar>"+a+"</div><div class=chat-bubble>"+b.replace(/
-/g,"<br>")+"</div>"}var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML=b;el.appendChild(d)});el.scrollTop=el.scrollHeight}},500);
-  };
-  var btn=document.querySelector(".chat-close"); if(btn)btn.addEventListener("click",function(){setTimeout(save,100)});
-  show();
+
+  var _origClose = window.closeChat;
+  window.closeChat = function() { saveHistory(); _origClose(); };
+
+  renderHistory();
 })();
-</script></body></html<script>
-cons<script>
-console.log("[HIST] v6");
-(function(){
-  function save(){
-    var k=window.chatKey, m=window.chatMessages;
-    if(!k||!m||!m.length)return;
-    var copy=m.slice(0);
-    var d={}; try{d=JSON.parse(localStorage.getItem("fh")||"{}")}catch(e){}
-    d[k]=copy;
-    var full=JSON.stringify(d);
-    console.log("[HIST] saving key="+k+" full="+full.substring(0,100));
-    localStorage.setItem("fh",full);
-    // verify immediately
-    var vfy=localStorage.getItem("fh");
-    var pd=JSON.parse(vfy);
-    console.log("[HIST] verify: keys="+JSON.stringify(Object.keys(pd))+" hasArr="+Array.isArray(pd[k])+" len="+(pd[k]?pd[k].length:"?"));
-    show();
-  }
-  function show(){
-    var el=document.getElementById("history-list"); if(!el)return;
-    var raw=localStorage.getItem("fh")||"{}";
-    console.log("[HIST] show rawLen="+raw.length+" preview="+raw.substring(0,80));
-    var d={}; try{d=JSON.parse(raw)}catch(e){console.error(e)}
-    var keys=Object.keys(d);
-    console.log("[HIST] show parsed: type="+typeof d+" isArr="+Array.isArray(d)+" keys="+JSON.stringify(keys));
-    if(keys.length>0) console.log("[HIST] firstVal type="+typeof d[keys[0]]+" isArr="+Array.isArray(d[keys[0]])+" len="+(d[keys[0]]?d[keys[0]].length:"?"));
-    el.innerHTML=keys.map(function(k,i){
-      return '<div onclick="window._hop('+i+')" style="cursor:pointer;padding:6px 8px;margin:2px 0;border:1px solid var(--border-glow);border-radius:4px;font-size:11px;color:var(--text-secondary)">'+k+' ('+(Array.isArray(d[k])?d[k].length:"?")+'条)</div>';
-    }).join("")||'<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无</div>';
-    window._hkeys=keys; window._hdata=d;
-  }
-  window._hop=function(i){var keys=window._hkeys||[],d=window._hdata||{},k=keys[i],msgs=d[k];if(!msgs){alert("没有找到历史记录");return}var p=k.split("-"),s=parseInt(p[0]),m=parseInt(p[1]);if(window.chatOpen)window.closeChat();setTimeout(function(){window.currentSection=s;window.currentMode=m;window.sectionModes=window.sectionModes||[-1,-1,-1];window.sectionModes[s]=m;window.sectionSavedKey=window.sectionSavedKey||["","",""];window.sectionSavedKey[s]=k;window.openChat(s,m);window.chatMessages=msgs;requestAnimationFrame(function(){var el=document.getElementById("chat-messages");if(el){el.innerHTML=msgs.map(function(x){var a=x.role==="assistant"?"🤖":"👤";var b=x.content;if(b.indexOf("chat-bubble")===-1){b="<div class=chat-avatar>"+a+"</div><div class=chat-bubble>"+b.replace(/\n/g,"<br>")+"</div>"}return "<div class=chat-msg "+x.role+">"+b+"</div>"}).join("");el.scrollTop=el.scrollHeight}});},500);};
-  var _pollDone=false;
-  var timer=setInterval(function(){
-    var ov=document.getElementById("chat-overlay");
-    if(!_pollDone&&ov&&!ov.classList.contains("open")&&window.chatKey){
-      _pollDone=true; save(); clearInterval(timer);
-    }
-  },500);
-  show();
-})();
+</script>
 <script>
 (function(){
   if (typeof sendMessage !== 'undefined') {

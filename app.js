@@ -192,7 +192,7 @@ var extra=document.getElementById("form-extra").value.trim();
 if(!product||!usp||!audience){alert("请至少填写产品信息、核心卖点和目标人群");return}
 var agent=agents[chatKey];if(!agent)return;
 if(!apiConfig.apikey||apiConfig.apikey.length<10){
-alert("请先在左侧栏 ⚙ API 配置 中设置 API Key");return
+showApiConfigPrompt();return
 }
 var prompt="请根据以下信息生成引流脚本\n\n视频时长范围："+duration+"\n"+(duration==="30秒以内"?"（紧凑聚焦，15-30秒，主打1个脚本手法）":duration==="60秒以上"?"（深度展开，45-60秒，可用2个脚本手法+详细视觉）":"（标准结构，30-45秒，1主1辅手法）")+"\n\n## 产品信息\n"+product+"\n\n## 核心卖点\n"+usp+"\n\n## 目标人群\n"+audience+"\n\n## 营销目标\n"+goal;prompt+="\n\n## 脚本手法\n"+scriptMethods;prompt+="\n\n## 视觉手法\n"+visualMethods;
 if(extra)prompt+="\n\n## 补充信息\n"+extra;
@@ -299,7 +299,7 @@ var xhTemplateDetails={
 
 function xuehuiUpdateStatus(){var s=document.getElementById("form-xh-status");var m=document.getElementById("form-xh-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 - "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key"}}
 function xuehuiCallAPI(systemPrompt,userPrompt,callback,opts){
-if(!apiConfig.apikey||apiConfig.apikey.length<10){alert("请先配置 API Key");return}
+if(!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
 var msgs=[{role:"system",content:systemPrompt},{role:"user",content:userPrompt}];
 opts=opts||{};
 fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:opts.temperature||0.8,max_tokens:opts.max_tokens||4000,response_format:opts.response_format||void 0})})
@@ -562,7 +562,7 @@ chatOpen=false;chatMessages=[];
 function selectRewriteMode(el){document.querySelectorAll("#rw-mode-chips .select-chip").forEach(function(c){c.classList.remove("selected")});el.classList.add("selected");rwMode=el.dataset.val;document.getElementById("rw-custom-group2").style.display=rwMode==="B"?"":"none"}function selectRewriteModeBtn(el,mode){document.querySelectorAll(".rw-mode-btn").forEach(function(b){b.classList.remove("selected");b.style.borderColor="var(--border-glow)";b.style.background="var(--bg-card)"});el.classList.add("selected");el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";rwMode=mode;document.getElementById("rw-custom-group2").style.display=mode==="B"?"":"none"}
 function updateRewriteApiStatus(){var s=document.getElementById("form-rw-status");var m=document.getElementById("form-rw-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置"}}
 function goBackRewriteStep1(){document.getElementById("rw-step2").style.display="none";document.getElementById("rw-step1").style.display=""}
-function submitRewriteStep1(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10){alert("请先在左侧栏 API 配置中设置 API Key");return}
+function submitRewriteStep1(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
 var content=document.getElementById("rw-text").value.trim();
 if(!content){alert("请输入文案内容");return}
 switchChatMode("qa");document.getElementById("chat-back-row").style.display="";addMessage("user","[提交文案]\n"+content.substring(0,300)+(content.length>300?"...":""));showTyping();
@@ -585,11 +585,17 @@ div.className="chat-msg "+role;
 div.innerHTML='<div class="chat-avatar">'+(role==="assistant"?"🤖":"👤")+'</div><div class="chat-bubble">'+html+"</div>";
 msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
 }
+function showApiConfigPrompt(){
+openSettings();
+var apiTab=document.querySelector(".settings-tab");
+if(apiTab)switchSettingsTab("api",apiTab);
+}
 function openSettingsFromChat(){
 closeChat();
 setTimeout(function(){
-document.getElementById("sidebar-api-body").classList.add("open");
-document.getElementById("sb-apikey").focus();
+openSettings();
+var apiTab=document.querySelector(".settings-tab");
+if(apiTab)switchSettingsTab("api",apiTab);
 },400);
 }
 function addMessage(role,content){

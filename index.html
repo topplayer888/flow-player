@@ -399,7 +399,7 @@ console.log("[HIST] v6");
     var _origSend = sendMessage;
     sendMessage = function() {
       if (!apiConfig || !apiConfig.apikey || apiConfig.apikey.length < 10) {
-        alert('尚未配置API Key，请在左下角设置的API配置中设置');
+        showApiConfigPrompt();
         return;
       }
       _origSend();
@@ -409,7 +409,7 @@ console.log("[HIST] v6");
     var _origXH = xuehuiCallAPI;
     xuehuiCallAPI = function(a,b,c,d) {
       if (!apiConfig || !apiConfig.apikey || apiConfig.apikey.length < 10) {
-        alert('尚未配置API Key，请在左下角设置的API配置中设置');
+        showApiConfigPrompt();
         return;
       }
       _origXH(a,b,c,d);
@@ -419,7 +419,7 @@ console.log("[HIST] v6");
     var _origRW = submitRewriteStep1;
     submitRewriteStep1 = function() {
       if (!apiConfig || !apiConfig.apikey || apiConfig.apikey.length < 10) {
-        alert('尚未配置API Key，请在左下角设置的API配置中设置');
+        showApiConfigPrompt();
         return;
       }
       _origRW();

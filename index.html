@@ -401,12 +401,12 @@ console.log("[HIST] v6");
     var isApiConfig = typeof msg === 'string' && /api.*(?:配置|key|设置)|(?:配置|设置).*api/i.test(msg) && !msg.includes('error') && !msg.includes('失败') && !msg.includes('没有找到');
     if (isApiConfig && typeof openSettings === 'function') {
       openSettings();
-      setTimeout(function() {
-        var tab = document.querySelector('.settings-tab');
-        if (tab && typeof switchSettingsTab === 'function') {
-          switchSettingsTab('api', tab);
-        }
-      }, 100);
+      var tab = document.querySelector('.settings-tab');
+      if (tab && typeof switchSettingsTab === 'function') {
+        switchSettingsTab('api', tab);
+      }
+      setTimeout(function(){ _origAlert(msg); }, 80);
+      return;
     }
     _origAlert(msg);
   };

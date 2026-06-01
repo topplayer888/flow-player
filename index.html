@@ -398,17 +398,15 @@ console.log("[HIST] v6");
 (function(){
   var _origAlert = window.alert;
   window.alert = function(msg) {
-    if (typeof msg === 'string' && /api.*(?:配置|key|设置)|(?:配置|设置).*api/i.test(msg) && !msg.includes('error') && !msg.includes('失败') && !msg.includes('没有找到')) {
-      if (typeof openSettings === 'function') {
-        openSettings();
-        setTimeout(function() {
-          var tab = document.querySelector('.settings-tab');
-          if (tab && typeof switchSettingsTab === 'function') {
-            switchSettingsTab('api', tab);
-          }
-        }, 100);
-        return;
-      }
+    var isApiConfig = typeof msg === 'string' && /api.*(?:配置|key|设置)|(?:配置|设置).*api/i.test(msg) && !msg.includes('error') && !msg.includes('失败') && !msg.includes('没有找到');
+    if (isApiConfig && typeof openSettings === 'function') {
+      openSettings();
+      setTimeout(function() {
+        var tab = document.querySelector('.settings-tab');
+        if (tab && typeof switchSettingsTab === 'function') {
+          switchSettingsTab('api', tab);
+        }
+      }, 100);
     }
     _origAlert(msg);
   };

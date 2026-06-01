@@ -1,18 +1,18 @@
 html,body{margin:0;padding:0;height:100%}
 :root{--bg-deep:#0a0c14;--bg-panel:#0f121e;--bg-card:#141828;--border-glow:#1a1f35;--cyan:#00e5ff;--cyan-dim:rgba(0,229,255,.15);--purple:#a855f7;--purple-dim:rgba(168,85,247,.15);--gold:#f59e0b;--gold-dim:rgba(245,158,11,.15);--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--radius:12px;--radius-sm:8px}
-.theme-light{--bg-deep:#f8f9fa;--bg-panel:#ffffff;--bg-card:#f1f3f5;--border-glow:#dee2e6;--cyan:#3b82f6;--cyan-dim:rgba(59,130,246,.12);--purple:#6366f1;--purple-dim:rgba(99,102,241,.12);--gold:#f59e0b;--gold-dim:rgba(245,158,11,.12);--text-primary:#212529;--text-secondary:#495057;--text-muted:#868e96;--radius:12px;--radius-sm:8px}
+.theme-light{--bg-deep:#f8f9fa;--bg-panel:#ffffff;--bg-card:#f1f3f5;--border-glow:#c0c5cb;--cyan:#3b82f6;--cyan-dim:rgba(59,130,246,.12);--purple:#6366f1;--purple-dim:rgba(99,102,241,.12);--gold:#f59e0b;--gold-dim:rgba(245,158,11,.12);--text-primary:#212529;--text-secondary:#495057;--text-muted:#868e96;--radius:12px;--radius-sm:8px}
 .theme-light body{background:var(--bg-deep)}
 .theme-light .app-container{background:var(--bg-deep)}
-.theme-light .sidebar-left{background:var(--bg-panel);border-right:1px solid var(--border-glow);box-shadow:1px 0 8px rgba(0,0,0,.04)}
-.theme-light .sidebar-right{background:var(--bg-panel);border-left:1px solid var(--border-glow);box-shadow:-1px 0 8px rgba(0,0,0,.04)}
+.theme-light .sidebar-left{background:var(--bg-panel);border-right:1px solid #adb5bd;box-shadow:1px 0 8px rgba(0,0,0,.04)}
+.theme-light .sidebar-right{background:var(--bg-panel);border-left:1px solid #adb5bd;box-shadow:-1px 0 8px rgba(0,0,0,.04)}
 .theme-light .logo-area{border-bottom:1px solid var(--border-glow)}
 .theme-light .logo-icon{background:linear-gradient(135deg,#3b82f6,#6366f1);box-shadow:0 0 16px rgba(59,130,246,.15);color:#fff}
 .theme-light .nav-item:hover{background:rgba(59,130,246,.06)}
 .theme-light .nav-item.active{background:rgba(59,130,246,.1);border-left-color:#3b82f6}
 .theme-light .nav-item.active::before{background:#3b82f6;box-shadow:0 0 8px rgba(59,130,246,.3)}
-.theme-light .mode-card{background:#fff;border:1px solid #e9ecef;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.theme-light .mode-card{background:#fff;border:1px solid #adb5bd;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .theme-light .mode-card:hover{border-color:#3b82f6;box-shadow:0 4px 20px rgba(59,130,246,.12)}
-.theme-light .mode-card.active-agent{border-color:#e9ecef!important}
+.theme-light .mode-card.active-agent{border-color:#adb5bd!important}
 .theme-light .mode-card.active-agent:hover{border-color:#3b82f6!important;box-shadow:0 4px 20px rgba(59,130,246,.12)!important}
 .theme-light .mode-card-status.active{color:#3b82f6!important}
 .theme-light .mode-card-dot.active{background:#3b82f6!important;box-shadow:0 0 6px rgba(59,130,246,.3)!important}
@@ -28,15 +28,15 @@ html,body{margin:0;padding:0;height:100%}
 .theme-light .chat-modal{border:1px solid var(--border-glow);box-shadow:0 12px 48px rgba(0,0,0,.08)}
 .theme-light .chat-header,.theme-light .settings-header{border-bottom:1px solid var(--border-glow);background:var(--bg-panel)}
 .theme-light .chat-input-area{border-top:1px solid var(--border-glow);background:#f8f9fa}
-.theme-light .chat-input{background:#fff;border:1px solid #dee2e6;color:var(--text-primary)}
+.theme-light .chat-input{background:#fff;border:1px solid #adb5bd;color:var(--text-primary)}
 .theme-light .chat-input:focus{border-color:#3b82f6}
 .theme-light .chat-send{background:linear-gradient(135deg,#3b82f6,#6366f1)}
 .theme-light .chat-send:hover{box-shadow:0 0 12px rgba(59,130,246,.3)}
-.theme-light input,.theme-light textarea,.theme-light select{background:#fff;border-color:#dee2e6;color:var(--text-primary)}
+.theme-light input,.theme-light textarea,.theme-light select{background:#fff;border-color:#adb5bd;color:var(--text-primary)}
 .theme-light input:focus,.theme-light textarea:focus,.theme-light select:focus{border-color:#3b82f6}
 .theme-light .settings-tab.active{color:#3b82f6;border-bottom-color:#3b82f6}
 .theme-light .settings-tab:hover{color:var(--text-primary)}
-.theme-light .select-chip{background:rgba(59,130,246,.06);border-color:#dee2e6;color:var(--text-secondary)}
+.theme-light .select-chip{background:rgba(59,130,246,.06);border-color:#adb5bd;color:var(--text-secondary)}
 .theme-light .select-chip.selected{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#3b82f6}
 .theme-light .sidebar-footer{border-top:1px solid var(--border-glow)}
 .theme-light .right-header{border-bottom:1px solid var(--border-glow)}

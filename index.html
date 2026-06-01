@@ -312,7 +312,7 @@
       setTimeout(function(){
         window.chatMessages=e.msgs;
         var el=document.getElementById("chat-messages");
-        if(el){el.innerHTML="";e.msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML='<div class="chat-avatar">'+(m.role==="user"?"U":"A")+'</div><div class="chat-bubble">'+m.content+'</div>';el.appendChild(d)})}
+        if(el){el.innerHTML="";e.msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML='<div class="chat-avatar">'+(m.role==="user"?"👤":"🤖")+'</div><div class="chat-bubble">'+m.content.replace(/\\n/g,'<br>')+'</div>';el.appendChild(d)})}
       },300);
     }
   };
@@ -345,7 +345,8 @@
     if(window.chatOpen)window.closeChat();
     window.sectionSavedKey=window.sectionSavedKey||["","",""]; window.sectionSavedKey[s]=k;
     window.openChat(s,m);
-    setTimeout(function(){console.log("[HIST] restoring msgs len="+msgs.length);window.chatMessages=msgs;var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(m){var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML="<div class=chat-avatar>"+(m.role==="user"?"U":"A")+"</div><div class=chat-bubble>"+m.content+"</div>";el.appendChild(d)})}},300);
+    setTimeout(function(){console.log("[HIST] restoring msgs len="+msgs.length);window.chatMessages=msgs;var el=document.getElementById("chat-messages");if(el){el.innerHTML="";msgs.forEach(function(m){var a=m.role==="user"?"??":"??";var b=m.content;if(b.indexOf("chat-bubble")===-1){b="<div class=chat-avatar>"+a+"</div><div class=chat-bubble>"+b.replace(/
+/g,"<br>")+"</div>"}var d=document.createElement("div");d.className="chat-msg "+m.role;d.innerHTML=b;el.appendChild(d)});el.scrollTop=el.scrollHeight}},500);
   };
   var btn=document.querySelector(".chat-close"); if(btn)btn.addEventListener("click",function(){setTimeout(save,100)});
   show();
@@ -382,7 +383,7 @@ console.log("[HIST] v6");
     }).join("")||'<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无</div>';
     window._hkeys=keys; window._hdata=d;
   }
-  window._hop=function(i){var keys=window._hkeys||[],d=window._hdata||{},k=keys[i],msgs=d[k];if(!msgs){alert("???");return}var p=k.split("-"),s=parseInt(p[0]),m=parseInt(p[1]);if(window.chatOpen)window.closeChat();setTimeout(function(){window.currentSection=s;window.currentMode=m;window.sectionModes=window.sectionModes||[-1,-1,-1];window.sectionModes[s]=m;window.sectionSavedKey=window.sectionSavedKey||["","",""];window.sectionSavedKey[s]=k;window.openChat(s,m);window.chatMessages=msgs;var el=document.getElementById("chat-messages");if(el)el.innerHTML=msgs.map(function(x){return "<div class=chat-msg "+x.role+">"+x.content+"</div>"}).join("");},300);};
+  window._hop=function(i){var keys=window._hkeys||[],d=window._hdata||{},k=keys[i],msgs=d[k];if(!msgs){alert("没有找到历史记录");return}var p=k.split("-"),s=parseInt(p[0]),m=parseInt(p[1]);if(window.chatOpen)window.closeChat();setTimeout(function(){window.currentSection=s;window.currentMode=m;window.sectionModes=window.sectionModes||[-1,-1,-1];window.sectionModes[s]=m;window.sectionSavedKey=window.sectionSavedKey||["","",""];window.sectionSavedKey[s]=k;window.openChat(s,m);window.chatMessages=msgs;requestAnimationFrame(function(){var el=document.getElementById("chat-messages");if(el){el.innerHTML=msgs.map(function(x){var a=x.role==="assistant"?"🤖":"👤";var b=x.content;if(b.indexOf("chat-bubble")===-1){b="<div class=chat-avatar>"+a+"</div><div class=chat-bubble>"+b.replace(/\n/g,"<br>")+"</div>"}return "<div class=chat-msg "+x.role+">"+b+"</div>"}).join("");el.scrollTop=el.scrollHeight}});},500);};
   var done=false;
   var timer=setInterval(function(){
     var ov=document.getElementById("chat-overlay");

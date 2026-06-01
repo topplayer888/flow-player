@@ -556,6 +556,7 @@ resultDiv.appendChild(countSpan);
 },{temperature:0.3,max_tokens:8000});
 }
 function closeChat(){
+if(chatMessages.length>0&&historyStack.length>0){historyStack[0].msgs=chatMessages.slice(0);try{localStorage.setItem("fp_history",JSON.stringify(historyStack))}catch(e){}}
 document.getElementById("chat-overlay").classList.remove("open");
 chatOpen=false;chatMessages=[];
 }

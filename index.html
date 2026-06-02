@@ -350,7 +350,7 @@ function syncHistoryFromCloud() {
     renderHistory();
   }
 
-  function clearAllHistory() {
+  window.clearAllHistory = function() {
     if (!confirm("确定清空所有历史记录？此操作不可撤销。")) return;
     localStorage.removeItem("fp_chat_history");
     var uid = getHistoryUserId();

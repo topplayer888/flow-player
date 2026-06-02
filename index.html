@@ -117,8 +117,8 @@
 <span class="select-chip" data-val="学生" onclick="tjPick(this,'tj-audience',1)">🎒 学生</span>
 <span class="select-chip" data-val="其他" onclick="tjPick(this,'tj-audience',1)">📋 其他</span>
 </div></div>
-<div class="chat-form-field"><label><span class="field-icon">💎</span> 核心卖点（1-3个）</label><textarea id="tj-selling-points" placeholder="产品最突出的优势，每个卖点一行..." rows="3"></textarea></div>
-<div class="chat-form-field"><label><span class="field-icon">😣</span> 核心痛点（1-3个）</label><textarea id="tj-pain-points" placeholder="用户最大的困扰，每个痛点一行..." rows="3"></textarea></div>
+<div class="chat-form-field"><label><span class="field-icon">💎</span> 核心卖点（1-3个）</label><textarea id="tj-selling-points" placeholder="产品最突出的优势，每个卖点一行..." rows="3" oninput="tjCheckStep1Auto()"></textarea></div>
+<div class="chat-form-field"><label><span class="field-icon">😣</span> 核心痛点（1-3个）</label><textarea id="tj-pain-points" placeholder="用户最大的困扰，每个痛点一行..." rows="3" oninput="tjCheckStep1Auto()"></textarea></div>
 <div class="chat-form-field"><label><span class="field-icon">🎯</span> 使用场景</label>
 <div class="select-chips" id="tj-scene" style="display:flex;flex-wrap:wrap;gap:8px">
 <span class="select-chip" data-val="引流吸粉" onclick="tjPick(this,'tj-scene',1)">📈 引流吸粉</span>
@@ -133,7 +133,6 @@
 <span class="select-chip" data-val="中端" onclick="tjPick(this,'tj-price',1)">💵 中端（100-999）</span>
 <span class="select-chip" data-val="高端" onclick="tjPick(this,'tj-price',1)">💎 高端（1000+）</span>
 </div></div>
-<button class="chat-form-submit" onclick="tjStep1()">🎣 智能推荐钩子类型</button>
 </div>
 
 <div id="tj-step2">
@@ -154,7 +153,6 @@
 <span class="select-chip" data-val="悬念好奇" onclick="tjPick(this,'tj-hooks',3)">🔮 悬念好奇</span>
 <span class="select-chip" data-val="正话反说" onclick="tjPick(this,'tj-hooks',3)">🔄 正话反说</span>
 </div></div>
-<button class="chat-form-submit" onclick="tjStep2()" style="margin-top:12px">➡️ 下一步：选择文案视角</button>
 </div>
 
 <div id="tj-step3">

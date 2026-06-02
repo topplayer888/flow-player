@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
-<link rel="stylesheet" href="style.css?v=144"></head><body>
+<link rel="stylesheet" href="style.css?v=145"></head><body>
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="app-container">
 <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
@@ -225,7 +225,7 @@
 
 </aside>
 </div>
-<script src="app.js?v=22"></script>
+<script src="app.js?v=23"></script>
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
 <div class="settings-panel" onclick="event.stopPropagation()">
@@ -363,7 +363,7 @@ function syncHistoryFromCloud() {
   function renderHistory() {
     var list = document.getElementById('history-list');
     if (!list) return;
-    var items = loadHistory();
+    var items = loadHistory().filter(function(h) { return h.msgs && h.msgs.length > 0; });
     if (items.length === 0) {
       list.innerHTML = '<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无记录</div>';
       return;
@@ -414,6 +414,16 @@ function syncHistoryFromCloud() {
 
   renderHistory();
   setTimeout(syncHistoryFromCloud, 800);
+  // Clean corrupted entries on load
+  setTimeout(function() {
+    var items = loadHistory();
+    var cleaned = items.filter(function(h) { return h.msgs && h.msgs.length > 0; });
+    if (cleaned.length !== items.length) {
+      localStorage.setItem("fp_chat_history", JSON.stringify(cleaned));
+      syncHistoryToCloud(cleaned);
+      renderHistory();
+    }
+  }, 2000);
 })();
 </script>
 <script>

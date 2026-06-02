@@ -225,7 +225,7 @@
 
 </aside>
 </div>
-<script src="app.js?v=23"></script>
+<script src="app.js?v=24"></script>
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
 <div class="settings-panel" onclick="event.stopPropagation()">
@@ -309,7 +309,7 @@ function syncHistoryFromCloud() {
   if (!uid || typeof firestoreDB === "undefined") return;
   firestoreDB.collection("chat_history").doc(uid).get().then(function(doc) {
     if (!doc.exists) return;
-    var remote = doc.data().items || [];
+    var remote = (doc.data().items || []).filter(function(h) { return h.msgs && h.msgs.length > 0; });
     var local = JSON.parse(localStorage.getItem("fp_chat_history") || "[]");
     var merged = mergeHistories(local, remote);
     if (JSON.stringify(merged) !== JSON.stringify(local)) {
@@ -355,7 +355,7 @@ function syncHistoryFromCloud() {
     localStorage.removeItem("fp_chat_history");
     var uid = getHistoryUserId();
     if (uid && typeof firestoreDB !== "undefined") {
-      firestoreDB.collection("chat_history").doc(uid).delete().catch(function(){});
+      firestoreDB.collection("chat_history").doc(uid).set({ items: [], updated: Date.now() }).catch(function(){});
     }
     renderHistory();
   }

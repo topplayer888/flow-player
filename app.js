@@ -204,7 +204,7 @@ var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt
 fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:16000})}).then(function(r){return r.json()}).then(function(data){
 if(data.error){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ API 错误：'+data.error.message+'</div>';return}
 var c=data.choices[0].message.content;
-fa.innerHTML='<div style="background:var(--bg-card);border:1px solid var(--border-glow);border-radius:10px;padding:16px"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:10px">📝 生成结果</div><div style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap">'+c.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div><div style="margin-top:12px;display:flex;gap:8px"><button onclick="copyFormResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">📋 复制</button><button onclick="this.parentElement.parentElement.parentElement.style.display=\'none\'" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">✕ 关闭</button></div></div>'
+fa.innerHTML='<div style="background:var(--bg-card);border:1px solid var(--border-glow);border-radius:10px;padding:16px"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:10px">📝 生成结果</div><div style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap">'+c.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div><div style="margin-top:12px;display:flex;gap:8px"><button onclick="copyFormResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">📋 复制</button><button onclick="this.parentElement.parentElement.parentElement.style.display=\'none\'" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">✕ 关闭</button></div></div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 纯口播文案</span><button onclick="copyVoiceoverForm(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="form-voiceover-text" style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-panel);border-radius:8px">'+c.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div></div>'
 }).catch(function(e){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ 请求失败：'+e.message+'</div>'}).catch(function(e){hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})
 }
 var xhState={industry:"",audience:"",elements:[],topics:[],selectedTopic:null,templates:[],openings:[],selectedOpenings:[],results:[]};
@@ -561,6 +561,15 @@ document.getElementById("xh-results-content").innerHTML="";
 document.getElementById("xh-industry").value="";document.getElementById("xh-audience").value="";
 document.querySelectorAll("#xh-elements .select-chip.selected,#xh-templates .select-chip.selected,#xh-openings .select-chip.selected").forEach(function(c){c.classList.remove("selected")});
 xhState={industry:"",audience:"",elements:[],topics:[],selectedTopic:null,templates:[],openings:[],selectedOpenings:[],results:[]};
+}
+function copyVoiceoverForm(btn){
+ var el=btn.parentElement.parentElement.querySelector(".form-voiceover-text");
+ var t=el.textContent.trim();
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(t).then(function(){
+   btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 一键复制"},2000);
+  }).catch(function(){fallbackCopy(t)})
+ }else{fallbackCopy(t)}
 }
 function copyFormResult(btn){
  var area=document.getElementById("form-result-area");

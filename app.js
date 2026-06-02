@@ -196,7 +196,7 @@ showApiConfigPrompt();return
 }
 var prompt="请根据以下信息生成引流脚本\n\n视频时长范围："+duration+"\n"+(duration==="30秒以内"?"（紧凑聚焦，15-30秒，主打1个脚本手法）":duration==="60秒以上"?"（深度展开，45-60秒，可用2个脚本手法+详细视觉）":"（标准结构，30-45秒，1主1辅手法）")+"\n\n## 产品信息\n"+product+"\n\n## 核心卖点\n"+usp+"\n\n## 目标人群\n"+audience+"\n\n## 营销目标\n"+goal;prompt+="\n\n## 脚本手法\n"+scriptMethods;prompt+="\n\n## 视觉手法\n"+visualMethods;
 if(extra)prompt+="\n\n## 补充信息\n"+extra;
-prompt+="\n\n请严格按照马源内容体系工作流程输出：\n1. 策略分析\n2. 脚本手法选择\n3. 视觉手法匹配\n4. 完整脚本（必须标注口播标记：每句口播前加【开场】/【主体】/【结尾】+预估秒数，示例：【开场·0-5s】大家好我是...）\n5. 专项建议";
+prompt+="\n\n请严格按照马源内容体系工作流程输出：\n1. 策略分析\n2. 脚本手法选择\n3. 视觉手法匹配\n4. 完整脚本（每条口播文案前必须加【🎙口播】前缀，分镜描述前加【📷分镜】前缀，便于区分）\n5. 专项建议";
 var fa=document.getElementById("form-result-area");
 fa.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:20px">⏳ 生成中...</div>';
 fa.style.display="";
@@ -582,7 +582,7 @@ function copyVoiceoverForm(btn){
 }
 function formatScript(t){
  return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-  .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+  .replace(/【🎙口播】/g,"<span style=\"color:#10b981;font-weight:600\">🎙 口播：</span>").replace(/【📷分镜】/g,"<span style=\"color:#60a5fa;font-weight:600\">📷 分镜：</span>").replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
   .replace(/^### (.+)$/gm,"<h4 style=\"margin:12px 0 4px;font-size:13px;color:var(--purple)\">$1</h4>")
   .replace(/^## (.+)$/gm,"<h3 style=\"margin:14px 0 6px;font-size:14px;color:var(--cyan)\">$1</h3>")
   .replace(/^# (.+)$/gm,"<h2 style=\"margin:16px 0 8px;font-size:15px;color:var(--cyan)\">$1</h2>")

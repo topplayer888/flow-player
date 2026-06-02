@@ -204,7 +204,7 @@ var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt
 fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:16000})}).then(function(r){return r.json()}).then(function(data){
 if(data.error){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ API 错误：'+data.error.message+'</div>';return}
 var c=data.choices[0].message.content;
-fa.innerHTML='<div style="background:var(--bg-card);border:1px solid var(--border-glow);border-radius:10px;padding:16px"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:10px">📝 生成结果</div><div style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap">'+c.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div><div style="margin-top:12px;display:flex;gap:8px"><button onclick="copyFormResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">📋 复制</button><button onclick="this.parentElement.parentElement.parentElement.style.display=\'none\'" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">✕ 关闭</button></div></div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 纯口播文案</span><button onclick="copyVoiceoverForm(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="form-voiceover-text" style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-panel);border-radius:8px">'+c.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div></div>'
+fa.innerHTML='<div style="background:var(--bg-card);border:1px solid var(--border-glow);border-radius:10px;padding:16px"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:10px">📝 生成结果</div><div style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap">'+c.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div><div style="margin-top:12px;display:flex;gap:8px"><button onclick="copyFormResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">📋 复制</button><button onclick="this.parentElement.parentElement.parentElement.style.display=\'none\'" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">✕ 关闭</button></div></div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 纯口播文案</span><button onclick="copyVoiceoverForm(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="form-voiceover-text" style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-panel);border-radius:8px">'+c.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div></div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="form-regen-input" placeholder="输入优化意见" style="width:100%;min-height:50px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button onclick="formRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="form-regen-result" style="margin-top:10px;display:none"></div><div id="form-regen-loading" style="display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:12px">重新生成中...</div></div>'
 }).catch(function(e){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ 请求失败：'+e.message+'</div>'}).catch(function(e){hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})
 }
 var xhState={industry:"",audience:"",elements:[],topics:[],selectedTopic:null,templates:[],openings:[],selectedOpenings:[],results:[]};
@@ -578,6 +578,35 @@ function copyFormResult(btn){
   navigator.clipboard.writeText(t).then(function(){
    btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 复制"},2000);
   }).catch(function(){fallbackCopy(t)})
+ }else{fallbackCopy(t)}
+}
+function formRegenerate(){
+ var fb=document.getElementById("form-regen-input").value.trim();
+ if(!fb){alert("请输入优化意见");return}
+ var orig=document.querySelector("#form-result-area .form-voiceover-text");
+ if(!orig){alert("没有可优化的内容");return}
+ var content=orig.textContent.trim();
+ var agent=agents[chatKey];if(!agent)return;
+ var sysPrompt="你是短视频文案优化专家，根据用户优化意见修改文案，直接返回优化后的纯文本。";
+ var userPrompt="优化意见："+fb+"\n\n原文案：\n"+content;
+ document.getElementById("form-regen-loading").style.display="";
+ document.getElementById("form-regen-result").style.display="none";
+ fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:sysPrompt},{role:"user",content:userPrompt}],temperature:.3,max_tokens:8000})}).then(function(r){return r.json()}).then(function(data){
+  document.getElementById("form-regen-loading").style.display="none";
+  if(data.error){document.getElementById("form-regen-result").innerHTML='<div style="color:#ef4444">❌ '+data.error.message+'</div>';document.getElementById("form-regen-result").style.display="";return}
+  var result=data.choices[0].message.content;
+  document.getElementById("form-regen-result").innerHTML='<div style="padding:12px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,229,255,.04)"><div style="font-size:11px;font-weight:600;color:var(--cyan);margin-bottom:6px">✅ 优化结果</div><div style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+result.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div><button onclick="copyFormRegenResult(this)" style="margin-top:8px;background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 复制</button></div>';
+  document.getElementById("form-regen-result").style.display="";
+ }).catch(function(e){
+  document.getElementById("form-regen-loading").style.display="none";
+  document.getElementById("form-regen-result").innerHTML='<div style="color:#ef4444">❌ '+e.message+'</div>';
+  document.getElementById("form-regen-result").style.display="";
+ })
+}
+function copyFormRegenResult(btn){
+ var t=btn.parentElement.textContent.replace("📋 复制","").trim();
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(t).then(function(){btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 复制"},2000)}).catch(function(){fallbackCopy(t)})
  }else{fallbackCopy(t)}
 }
 function copyXhResult(btn){var card=btn.closest("div").parentElement;var text=card.querySelector("div:last-child").textContent;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){btn.textContent="\u2705 已复制";var _copyColor=themeWasteland?"#d4a830":"#10b981";btn.style.color=_copyColor;setTimeout(function(){btn.textContent="\uD83D\uDCCB 复制";btn.style.color="var(--text-secondary)"},2000)}).catch(function(){fallbackCopy(btn,text)})}else{fallbackCopy(btn,text)}}function fallbackCopy(btn,text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");btn.textContent="\u2705 已复制";var _copyColor=themeWasteland?"#d4a830":"#10b981";btn.style.color=_copyColor;setTimeout(function(){btn.textContent="\uD83D\uDCCB 复制";btn.style.color="var(--text-secondary)"},2000)}catch(e){alert("复制失败，请手动选择复制")}document.body.removeChild(ta)}

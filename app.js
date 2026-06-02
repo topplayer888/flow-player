@@ -194,7 +194,7 @@ var agent=agents[chatKey];if(!agent)return;
 if(!apiConfig.apikey||apiConfig.apikey.length<10){
 showApiConfigPrompt();return
 }
-var prompt="请根据以下信息生成引流脚本\n\n视频时长范围："+duration+"\n"+(duration==="30秒以内"?"（紧凑聚焦，15-30秒，主打1个脚本手法）":duration==="60秒以上"?"（深度展开，45-60秒，可用2个脚本手法+详细视觉）":"（标准结构，30-45秒，1主1辅手法）")+"\n\n## 产品信息\n"+product+"\n\n## 核心卖点\n"+usp+"\n\n## 目标人群\n"+audience+"\n\n## 营销目标\n"+goal;prompt+="\n\n## 脚本手法\n"+scriptMethods;prompt+="\n\n## 视觉手法\n"+visualMethods;
+var durRule="";if(duration==="30秒以内")durRule="【强制字数限制】口播文案80-120字，5-8句，每句12-18字。开场1句3秒，主体3-5句20秒，结尾1-2句5秒。";else if(duration==="60秒以上")durRule="【强制字数限制】口播文案300-500字，15-25句。开场2-3句5秒，主体12-18句45秒，结尾3-4句10秒。信息密度高，有细节展开。";else durRule="【强制字数限制】口播文案150-250字，10-15句。开场1-2句5秒，主体7-10句30秒，结尾2-3句10秒。";var prompt="请根据以下信息生成引流脚本\n\n视频时长范围："+duration+"\n"+durRule+"\n\n## 产品信息\n"+product+"\n\n## 核心卖点\n"+usp+"\n\n## 目标人群\n"+audience+"\n\n## 营销目标\n"+goal;prompt+="\n\n## 脚本手法\n"+scriptMethods;prompt+="\n\n## 视觉手法\n"+visualMethods;
 if(extra)prompt+="\n\n## 补充信息\n"+extra;
 prompt+="\n\n请严格按照马源内容体系工作流程输出：\n1. 策略分析\n2. 脚本手法选择\n3. 视觉手法匹配\n4. 完整脚本（每条口播文案前必须加【🎙口播】前缀，分镜描述前加【📷分镜】前缀，便于区分）\n5. 专项建议";
 var fa=document.getElementById("form-result-area");

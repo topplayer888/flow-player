@@ -419,6 +419,9 @@ xuehuiRecommendOpenings();
   html+='</div>';
  }
  container.innerHTML=html;
+ // Add pure voiceover section
+ var voiceoverHTML="<div style=\"margin-top:16px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)\"><div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:6px\"><span style=\"font-size:12px;font-weight:600;color:var(--cyan)\">🎙 纯口播文案</span><button onclick=\"copyVoiceover(this)\" style=\"background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px\">📋 一键复制</button></div><div class=\"xh-voiceover-text\" style=\"font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-card);border-radius:8px\">"+xhState.results.map(function(r){return r.content||""}).join("\n\n---\n\n")+"</div></div>";
+ container.innerHTML+=voiceoverHTML;
  // Add regenerate section
  var regenHTML="<div style=\"margin-top:16px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)\"><div style=\"font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px\">🔄 优化意见后重新生成</div><textarea id=\"xh-regen-input\" placeholder=\"输入优化意见，例如：语气更活泼、增加产品功效描述、缩短到200字...\" style=\"width:100%;min-height:60px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit\"></textarea><button onclick=\"xhRegenerate()\" class=\"sidebar-api-save\" style=\"width:100%\">✨ 重新生成</button><div id=\"xh-regen-result\" style=\"margin-top:10px;display:none\"></div><div id=\"xh-regen-loading\" style=\"display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:12px\">重新生成中...</div></div>";
  container.innerHTML+=regenHTML;
@@ -444,6 +447,15 @@ document.getElementById("xh-industry").addEventListener("input",xhAutoRecElement
 document.getElementById("xh-audience").addEventListener("input",xhAutoRecElements);
 
 
+function copyVoiceover(btn){
+ var el=btn.parentElement.parentElement.querySelector(".xh-voiceover-text");
+ var t=el.textContent.trim();
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(t).then(function(){
+   btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 一键复制"},2000);
+  }).catch(function(){fallbackCopy(t)})
+ }else{fallbackCopy(t)}
+}
 function xhRegenerate(){
  var feedback=document.getElementById("xh-regen-input").value.trim();
  if(!feedback){alert("请输入优化意见");return}

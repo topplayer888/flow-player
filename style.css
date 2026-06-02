@@ -55,7 +55,7 @@ html,body{margin:0;padding:0;height:100%}
 .theme-pureblack .logo-icon{background:#56566a;box-shadow:0 0 24px rgba(255,255,255,.12);color:#fff}.theme-pureblack .logo-title{background:linear-gradient(90deg,#e0e0e0,#ffffff)!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;background-clip:text!important;text-shadow:none!important}
 .theme-pureblack .nav-item:hover{background:rgba(255,255,255,.05)}
 .theme-pureblack .nav-item.active{background:rgba(255,255,255,.08);border-left-color:#aaa}
-.theme-pureblack .nav-item.active::before{background:#aaa;box-shadow:0 0 6px rgba(255,255,255,.15)}.theme-pureblack body::before{display:none}.theme-pureblack body::after{display:none}
+.theme-pureblack .nav-item.active::before{background:#aaa;box-shadow:0 0 6px rgba(255,255,255,.15)}.theme-pureblack .nav-item.active{background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.08)!important;border-left-color:#aaa!important}.theme-pureblack .nav-item.active::before{background:#aaa!important;box-shadow:none!important}.theme-pureblack .nav-item.entering{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.1)!important;box-shadow:none!important}.theme-pureblack body::before{display:none}.theme-pureblack body::after{display:none}
 .theme-pureblack .mode-card{background:#242430;border:1px solid #3e3e4a;border-radius:var(--radius);box-shadow:none}
 .theme-pureblack .mode-card:hover{border-color:#555;box-shadow:0 4px 16px rgba(0,0,0,.2)}
 .theme-pureblack .mode-card.active-agent{border-color:#3e3e4a!important;border-radius:var(--radius)!important}

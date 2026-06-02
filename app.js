@@ -197,11 +197,15 @@ showApiConfigPrompt();return
 var prompt="请根据以下信息生成引流脚本\n\n视频时长范围："+duration+"\n"+(duration==="30秒以内"?"（紧凑聚焦，15-30秒，主打1个脚本手法）":duration==="60秒以上"?"（深度展开，45-60秒，可用2个脚本手法+详细视觉）":"（标准结构，30-45秒，1主1辅手法）")+"\n\n## 产品信息\n"+product+"\n\n## 核心卖点\n"+usp+"\n\n## 目标人群\n"+audience+"\n\n## 营销目标\n"+goal;prompt+="\n\n## 脚本手法\n"+scriptMethods;prompt+="\n\n## 视觉手法\n"+visualMethods;
 if(extra)prompt+="\n\n## 补充信息\n"+extra;
 prompt+="\n\n请严格按照马源内容体系工作流程输出：\n1. 策略分析\n2. 脚本手法选择\n3. 视觉手法匹配\n4. 完整脚本（开场+主体+结尾）\n5. 专项建议";
-switchChatMode("qa");
-addMessage("user","📋 [表单提交]\n产品："+product+"\n卖点："+usp+"\n人群："+audience+"\n目标："+goal+"\n时长："+duration+"\n脚本手法："+scriptMethods+"\n视觉手法："+visualMethods+(extra?"\n补充："+extra:""));
-showTyping();
+var fa=document.getElementById("form-result-area");
+fa.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:20px">⏳ 生成中...</div>';
+fa.style.display="";
 var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt}];
-fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:16000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return};addMessage("assistant",data.choices[0].message.content)}).catch(function(e){hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})
+fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:16000})}).then(function(r){return r.json()}).then(function(data){
+if(data.error){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ API 错误：'+data.error.message+'</div>';return}
+var c=data.choices[0].message.content;
+fa.innerHTML='<div style="background:var(--bg-card);border:1px solid var(--border-glow);border-radius:10px;padding:16px"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:10px">📝 生成结果</div><div style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap">'+c.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div><div style="margin-top:12px;display:flex;gap:8px"><button onclick="copyFormResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">📋 复制</button><button onclick="this.parentElement.parentElement.parentElement.style.display=\'none\'" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">✕ 关闭</button></div></div>'
+}).catch(function(e){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ 请求失败：'+e.message+'</div>'}).catch(function(e){hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})
 }
 var xhState={industry:"",audience:"",elements:[],topics:[],selectedTopic:null,templates:[],openings:[],selectedOpenings:[],results:[]};
 var xhOpenTypes=[
@@ -545,6 +549,15 @@ document.getElementById("xh-results-content").innerHTML="";
 document.getElementById("xh-industry").value="";document.getElementById("xh-audience").value="";
 document.querySelectorAll("#xh-elements .select-chip.selected,#xh-templates .select-chip.selected,#xh-openings .select-chip.selected").forEach(function(c){c.classList.remove("selected")});
 xhState={industry:"",audience:"",elements:[],topics:[],selectedTopic:null,templates:[],openings:[],selectedOpenings:[],results:[]};
+}
+function copyFormResult(btn){
+ var area=document.getElementById("form-result-area");
+ var t=area.textContent.trim();
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(t).then(function(){
+   btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 复制"},2000);
+  }).catch(function(){fallbackCopy(t)})
+ }else{fallbackCopy(t)}
 }
 function copyXhResult(btn){var card=btn.closest("div").parentElement;var text=card.querySelector("div:last-child").textContent;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){btn.textContent="\u2705 已复制";var _copyColor=themeWasteland?"#d4a830":"#10b981";btn.style.color=_copyColor;setTimeout(function(){btn.textContent="\uD83D\uDCCB 复制";btn.style.color="var(--text-secondary)"},2000)}).catch(function(){fallbackCopy(btn,text)})}else{fallbackCopy(btn,text)}}function fallbackCopy(btn,text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");btn.textContent="\u2705 已复制";var _copyColor=themeWasteland?"#d4a830":"#10b981";btn.style.color=_copyColor;setTimeout(function(){btn.textContent="\uD83D\uDCCB 复制";btn.style.color="var(--text-secondary)"},2000)}catch(e){alert("复制失败，请手动选择复制")}document.body.removeChild(ta)}
 function expandCopy(btn){

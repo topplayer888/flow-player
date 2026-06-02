@@ -225,7 +225,7 @@
 
 </aside>
 </div>
-<script src="app.js?v=25"></script>
+<script src="app.js?v=26"></script>
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
 <div class="settings-panel" onclick="event.stopPropagation()">
@@ -314,7 +314,7 @@ function syncHistoryFromCloud() {
     var merged = mergeHistories(local, remote);
     if (JSON.stringify(merged) !== JSON.stringify(local)) {
       localStorage.setItem("fp_chat_history", JSON.stringify(merged));
-      function showConfirmDialog(msg, onOk) {
+      window.showConfirmDialog = function(msg, onOk) {
     document.getElementById("confirm-msg").textContent = msg;
     document.getElementById("confirm-btn-ok").onclick = function() {
       closeConfirmDialog();
@@ -322,7 +322,7 @@ function syncHistoryFromCloud() {
     };
     document.getElementById("confirm-overlay").style.display = "flex";
   }
-  function closeConfirmDialog() {
+  window.closeConfirmDialog = function() {
     document.getElementById("confirm-overlay").style.display = "none";
   }
 
@@ -359,7 +359,7 @@ function syncHistoryFromCloud() {
     if (items.length > 10) items = items.slice(0, 10);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     syncHistoryToCloud(items);
-    function showConfirmDialog(msg, onOk) {
+    window.showConfirmDialog = function(msg, onOk) {
     document.getElementById("confirm-msg").textContent = msg;
     document.getElementById("confirm-btn-ok").onclick = function() {
       closeConfirmDialog();
@@ -367,7 +367,7 @@ function syncHistoryFromCloud() {
     };
     document.getElementById("confirm-overlay").style.display = "flex";
   }
-  function closeConfirmDialog() {
+  window.closeConfirmDialog = function() {
     document.getElementById("confirm-overlay").style.display = "none";
   }
 
@@ -381,7 +381,7 @@ function syncHistoryFromCloud() {
     if (uid && typeof firestoreDB !== "undefined") {
       firestoreDB.collection("chat_history").doc(uid).set({ items: [], updated: Date.now() }).catch(function(){});
     }
-    function showConfirmDialog(msg, onOk) {
+    window.showConfirmDialog = function(msg, onOk) {
     document.getElementById("confirm-msg").textContent = msg;
     document.getElementById("confirm-btn-ok").onclick = function() {
       closeConfirmDialog();
@@ -389,7 +389,7 @@ function syncHistoryFromCloud() {
     };
     document.getElementById("confirm-overlay").style.display = "flex";
   }
-  function closeConfirmDialog() {
+  window.closeConfirmDialog = function() {
     document.getElementById("confirm-overlay").style.display = "none";
   }
 
@@ -402,7 +402,7 @@ function syncHistoryFromCloud() {
     if (uid && typeof firestoreDB !== "undefined") {
       firestoreDB.collection("chat_history").doc(uid).set({ items: [], updated: Date.now() }).catch(function(){});
     }
-    function showConfirmDialog(msg, onOk) {
+    window.showConfirmDialog = function(msg, onOk) {
     document.getElementById("confirm-msg").textContent = msg;
     document.getElementById("confirm-btn-ok").onclick = function() {
       closeConfirmDialog();
@@ -410,7 +410,7 @@ function syncHistoryFromCloud() {
     };
     document.getElementById("confirm-overlay").style.display = "flex";
   }
-  function closeConfirmDialog() {
+  window.closeConfirmDialog = function() {
     document.getElementById("confirm-overlay").style.display = "none";
   }
 
@@ -469,7 +469,7 @@ function syncHistoryFromCloud() {
   var _origClose = window.closeChat;
   window.closeChat = function() { saveHistory(); _origClose(); };
 
-  function showConfirmDialog(msg, onOk) {
+  window.showConfirmDialog = function(msg, onOk) {
     document.getElementById("confirm-msg").textContent = msg;
     document.getElementById("confirm-btn-ok").onclick = function() {
       closeConfirmDialog();
@@ -477,7 +477,7 @@ function syncHistoryFromCloud() {
     };
     document.getElementById("confirm-overlay").style.display = "flex";
   }
-  function closeConfirmDialog() {
+  window.closeConfirmDialog = function() {
     document.getElementById("confirm-overlay").style.display = "none";
   }
 
@@ -490,7 +490,7 @@ function syncHistoryFromCloud() {
     if (cleaned.length !== items.length) {
       localStorage.setItem("fp_chat_history", JSON.stringify(cleaned));
       syncHistoryToCloud(cleaned);
-      function showConfirmDialog(msg, onOk) {
+      window.showConfirmDialog = function(msg, onOk) {
     document.getElementById("confirm-msg").textContent = msg;
     document.getElementById("confirm-btn-ok").onclick = function() {
       closeConfirmDialog();
@@ -498,7 +498,7 @@ function syncHistoryFromCloud() {
     };
     document.getElementById("confirm-overlay").style.display = "flex";
   }
-  function closeConfirmDialog() {
+  window.closeConfirmDialog = function() {
     document.getElementById("confirm-overlay").style.display = "none";
   }
 

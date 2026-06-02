@@ -52,7 +52,7 @@ html,body{margin:0;padding:0;height:100%}
 .theme-pureblack .sidebar-left{background:var(--bg-panel);border-right:1px solid var(--border-glow);box-shadow:none}
 .theme-pureblack .sidebar-right{background:var(--bg-panel);border-left:1px solid var(--border-glow);box-shadow:none}
 .theme-pureblack .logo-area{border-bottom:1px solid var(--border-glow)}
-.theme-pureblack .logo-icon{background:#2e2e3a;box-shadow:0 0 16px rgba(0,0,0,.3);color:#ccc}
+.theme-pureblack .logo-icon{background:#2e2e3a;box-shadow:0 0 16px rgba(0,0,0,.3);color:#ccc}.theme-pureblack .logo-title{background:linear-gradient(90deg,#e0e0e0,#ffffff)!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;background-clip:text!important;text-shadow:none!important}
 .theme-pureblack .nav-item:hover{background:rgba(255,255,255,.05)}
 .theme-pureblack .nav-item.active{background:rgba(255,255,255,.08);border-left-color:#aaa}
 .theme-pureblack .nav-item.active::before{background:#aaa;box-shadow:0 0 6px rgba(255,255,255,.15)}.theme-pureblack body::before{display:none}.theme-pureblack body::after{display:none}

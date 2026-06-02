@@ -582,14 +582,18 @@ function copyVoiceoverForm(btn){
 }
 function formatScript(t){
  return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-  .replace(/【🎙口播】/g,"<span style=\"color:#10b981;font-weight:600\">🎙 口播：</span>").replace(/【📷分镜】/g,"<span style=\"color:#60a5fa;font-weight:600\">📷 分镜：</span>").replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
-  .replace(/^### (.+)$/gm,"<h4 style=\"margin:8px 0 2px;font-size:13px;color:var(--purple)\">$1</h4>")
-  .replace(/^## (.+)$/gm,"<h3 style=\"margin:10px 0 4px;font-size:14px;color:var(--cyan)\">$1</h3>")
-  .replace(/^# (.+)$/gm,"<h2 style=\"margin:12px 0 6px;font-size:15px;color:var(--cyan)\">$1</h2>")
-  .replace(/^\- (.+)$/gm,"<li style=\"margin:1px 0 1px 16px\">$1</li>")
-  .replace(/^(\d+)\. (.+)$/gm,"<div style=\"margin:2px 0 2px 8px\"><span style=\"color:var(--purple)\">$1.</span> $2</div>")
+  .replace(/【🎙口播】/g,"<span style=\"color:#10b981;font-weight:600\">🎙 口播：</span>").replace(/【📷分镜】/g,"<span style=\"color:#60a5fa;font-weight:600\">📷 分镜：</span>")
+  .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+  .replace(/^### (.+)$/gm,"<h4 style=\"margin:6px 0 2px;font-size:13px;color:var(--purple)\">$1</h4>")
+  .replace(/^## (.+)$/gm,"<h3 style=\"margin:6px 0 2px;font-size:14px;color:var(--cyan)\">$1</h3>")
+  .replace(/^# (.+)$/gm,"<h2 style=\"margin:8px 0 4px;font-size:15px;color:var(--cyan)\">$1</h2>")
+  .replace(/^\- (.+)$/gm,"<li style=\"margin:0 0 0 16px\">$1</li>")
+  .replace(/^(\d+)\. (.+)$/gm,"<div style=\"margin:1px 0 1px 8px\"><span style=\"color:var(--purple)\">$1.</span> $2</div>")
   .replace(/^【(.+?)】/gm,"<span style=\"color:var(--gold);font-weight:600\">【$1】</span>")
-  .replace(/\n/g,"<br>");
+  .replace(/\n/g,"<br>")
+  .replace(/<br>(<h[234])/g,"$1")
+  .replace(/(<\/h[234]>)<br>/g,"$1")
+  .replace(/<br><br>/g,"<br>");
 }
 function copyFormResult(btn){
  var area=document.getElementById("form-result-area");

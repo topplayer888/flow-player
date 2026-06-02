@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
-<link rel="stylesheet" href="style.css?v=146"></head><body>
+<link rel="stylesheet" href="style.css?v=147"></head><body>
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="app-container">
 <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
@@ -225,7 +225,7 @@
 
 </aside>
 </div>
-<script src="app.js?v=24"></script>
+<script src="app.js?v=25"></script>
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
 <div class="settings-panel" onclick="event.stopPropagation()">
@@ -314,7 +314,19 @@ function syncHistoryFromCloud() {
     var merged = mergeHistories(local, remote);
     if (JSON.stringify(merged) !== JSON.stringify(local)) {
       localStorage.setItem("fp_chat_history", JSON.stringify(merged));
-      renderHistory();
+      function showConfirmDialog(msg, onOk) {
+    document.getElementById("confirm-msg").textContent = msg;
+    document.getElementById("confirm-btn-ok").onclick = function() {
+      closeConfirmDialog();
+      onOk();
+    };
+    document.getElementById("confirm-overlay").style.display = "flex";
+  }
+  function closeConfirmDialog() {
+    document.getElementById("confirm-overlay").style.display = "none";
+  }
+
+  renderHistory();
     }
   }).catch(function(){});
 }
@@ -347,17 +359,62 @@ function syncHistoryFromCloud() {
     if (items.length > 10) items = items.slice(0, 10);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     syncHistoryToCloud(items);
-    renderHistory();
+    function showConfirmDialog(msg, onOk) {
+    document.getElementById("confirm-msg").textContent = msg;
+    document.getElementById("confirm-btn-ok").onclick = function() {
+      closeConfirmDialog();
+      onOk();
+    };
+    document.getElementById("confirm-overlay").style.display = "flex";
+  }
+  function closeConfirmDialog() {
+    document.getElementById("confirm-overlay").style.display = "none";
   }
 
-  window.clearAllHistory = function() {
-    if (!confirm("确定清空所有历史记录？此操作不可撤销。")) return;
+  renderHistory();
+  }
+
+  var _pendingClear = null;
+  function doClearAllHistory() {
     localStorage.removeItem("fp_chat_history");
     var uid = getHistoryUserId();
     if (uid && typeof firestoreDB !== "undefined") {
       firestoreDB.collection("chat_history").doc(uid).set({ items: [], updated: Date.now() }).catch(function(){});
     }
-    renderHistory();
+    function showConfirmDialog(msg, onOk) {
+    document.getElementById("confirm-msg").textContent = msg;
+    document.getElementById("confirm-btn-ok").onclick = function() {
+      closeConfirmDialog();
+      onOk();
+    };
+    document.getElementById("confirm-overlay").style.display = "flex";
+  }
+  function closeConfirmDialog() {
+    document.getElementById("confirm-overlay").style.display = "none";
+  }
+
+  renderHistory();
+  }
+  window.clearAllHistory = function() {
+    showConfirmDialog("确定清空所有历史记录？此操作不可撤销。", doClearAllHistory); return;
+    localStorage.removeItem("fp_chat_history");
+    var uid = getHistoryUserId();
+    if (uid && typeof firestoreDB !== "undefined") {
+      firestoreDB.collection("chat_history").doc(uid).set({ items: [], updated: Date.now() }).catch(function(){});
+    }
+    function showConfirmDialog(msg, onOk) {
+    document.getElementById("confirm-msg").textContent = msg;
+    document.getElementById("confirm-btn-ok").onclick = function() {
+      closeConfirmDialog();
+      onOk();
+    };
+    document.getElementById("confirm-overlay").style.display = "flex";
+  }
+  function closeConfirmDialog() {
+    document.getElementById("confirm-overlay").style.display = "none";
+  }
+
+  renderHistory();
   }
 
   function renderHistory() {
@@ -412,6 +469,18 @@ function syncHistoryFromCloud() {
   var _origClose = window.closeChat;
   window.closeChat = function() { saveHistory(); _origClose(); };
 
+  function showConfirmDialog(msg, onOk) {
+    document.getElementById("confirm-msg").textContent = msg;
+    document.getElementById("confirm-btn-ok").onclick = function() {
+      closeConfirmDialog();
+      onOk();
+    };
+    document.getElementById("confirm-overlay").style.display = "flex";
+  }
+  function closeConfirmDialog() {
+    document.getElementById("confirm-overlay").style.display = "none";
+  }
+
   renderHistory();
   setTimeout(syncHistoryFromCloud, 800);
   // Clean corrupted entries on load
@@ -421,7 +490,19 @@ function syncHistoryFromCloud() {
     if (cleaned.length !== items.length) {
       localStorage.setItem("fp_chat_history", JSON.stringify(cleaned));
       syncHistoryToCloud(cleaned);
-      renderHistory();
+      function showConfirmDialog(msg, onOk) {
+    document.getElementById("confirm-msg").textContent = msg;
+    document.getElementById("confirm-btn-ok").onclick = function() {
+      closeConfirmDialog();
+      onOk();
+    };
+    document.getElementById("confirm-overlay").style.display = "flex";
+  }
+  function closeConfirmDialog() {
+    document.getElementById("confirm-overlay").style.display = "none";
+  }
+
+  renderHistory();
     }
   }, 2000);
 })();
@@ -459,4 +540,14 @@ function syncHistoryFromCloud() {
     };
   }
 })();
-</script></body></html>
+</script>
+<div class="confirm-overlay" id="confirm-overlay" style="display:none" onclick="closeConfirmDialog()">
+<div class="confirm-dialog" onclick="event.stopPropagation()">
+<div class="confirm-msg" id="confirm-msg"></div>
+<div class="confirm-btns">
+<button class="confirm-btn-cancel" onclick="closeConfirmDialog()">取 消</button>
+<button class="confirm-btn-ok" id="confirm-btn-ok">确 定</button>
+</div>
+</div>
+</div>
+</body></html>

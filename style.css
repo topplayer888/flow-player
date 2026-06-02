@@ -56,9 +56,9 @@ html,body{margin:0;padding:0;height:100%}
 .theme-pureblack .nav-item:hover{background:rgba(255,255,255,.05)}
 .theme-pureblack .nav-item.active{background:rgba(255,255,255,.08);border-left-color:#aaa}
 .theme-pureblack .nav-item.active::before{background:#aaa;box-shadow:0 0 6px rgba(255,255,255,.15)}.theme-pureblack body::before{display:none}.theme-pureblack body::after{display:none}
-.theme-pureblack .mode-card{background:#242430;border:1px solid transparent;border-image:linear-gradient(135deg, #3e3e4a, #55556a, #3e3e4a) 1;box-shadow:none}
+.theme-pureblack .mode-card{background:#242430;border:1px solid #3e3e4a;border-radius:var(--radius);box-shadow:none}
 .theme-pureblack .mode-card:hover{border-color:#555;box-shadow:0 4px 16px rgba(0,0,0,.2)}
-.theme-pureblack .mode-card.active-agent{border-color:transparent!important;border-image:linear-gradient(135deg, #3e3e4a, #55556a, #3e3e4a) 1!important}
+.theme-pureblack .mode-card.active-agent{border-color:#3e3e4a!important;border-radius:var(--radius)!important}
 .theme-pureblack .mode-card.active-agent:hover{border-color:#555!important;box-shadow:0 4px 16px rgba(0,0,0,.2)!important}
 .theme-pureblack .mode-card-status.active{color:#fff!important}
 .theme-pureblack .mode-card-dot.active{background:#fff!important;box-shadow:0 0 6px rgba(255,255,255,.3)!important}

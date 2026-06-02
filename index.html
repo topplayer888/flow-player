@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
-<link rel="stylesheet" href="style.css?v=141"></head><body>
+<link rel="stylesheet" href="style.css?v=142"></head><body>
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="app-container">
 <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
@@ -217,7 +217,7 @@
 <div class="stat-row"><span class="stat-label">内容体系</span><span class="stat-value purple" id="stat-systems">6</span></div>
 <div class="stat-row"><span class="stat-label">可用状态</span><span class="stat-value gold" id="stat-overall">待更新</span></div>
 </div>
-<div class="right-modes" id="right-modes"></div><div class="history-section" id="history-section"><div class="history-title">📋 历史记录</div><div class="history-list" id="history-list"></div></div>
+<div class="right-modes" id="right-modes"></div><div class="history-section" id="history-section"><div class="history-title">📋 历史记录 <button class="history-clear-btn" onclick="clearAllHistory()" title="清空全部记录">🗑</button></div><div class="history-list" id="history-list"></div></div>
 
 
 
@@ -225,7 +225,7 @@
 
 </aside>
 </div>
-<script src="app.js?v=19"></script>
+<script src="app.js?v=20"></script>
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
 <div class="settings-panel" onclick="event.stopPropagation()">
@@ -347,6 +347,16 @@ function syncHistoryFromCloud() {
     if (items.length > 10) items = items.slice(0, 10);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     syncHistoryToCloud(items);
+    renderHistory();
+  }
+
+  function clearAllHistory() {
+    if (!confirm("确定清空所有历史记录？此操作不可撤销。")) return;
+    localStorage.removeItem("fp_chat_history");
+    var uid = getHistoryUserId();
+    if (uid && typeof firestoreDB !== "undefined") {
+      firestoreDB.collection("chat_history").doc(uid).delete().catch(function(){});
+    }
     renderHistory();
   }
 

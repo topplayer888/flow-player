@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
-<link rel="stylesheet" href="style.css?v=140"></head><body>
+<link rel="stylesheet" href="style.css?v=141"></head><body>
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="app-container">
 <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
@@ -225,7 +225,7 @@
 
 </aside>
 </div>
-<script src="app.js?v=18"></script>
+<script src="app.js?v=19"></script>
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
 <div class="settings-panel" onclick="event.stopPropagation()">
@@ -260,7 +260,67 @@
 </div>
 </div>
 </div>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
+var firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+var firestoreDB = firebase.firestore();
+
+function getHistoryUserId() {
+  var key = (typeof apiConfig !== "undefined" && apiConfig.apikey) || localStorage.getItem("fp_apikey") || "";
+  if (!key || key.length < 10) return null;
+  var hash = 0;
+  for (var i = 0; i < key.length; i++) {
+    hash = ((hash << 5) - hash) + key.charCodeAt(i);
+    hash |= 0;
+  }
+  return "user_" + Math.abs(hash).toString(36);
+}
+
+function syncHistoryToCloud(items) {
+  var uid = getHistoryUserId();
+  if (!uid || typeof firestoreDB === "undefined") return;
+  firestoreDB.collection("chat_history").doc(uid).set({ items: items, updated: Date.now() }).catch(function(){});
+}
+
+function mergeHistories(local, remote) {
+  var map = {};
+  local.forEach(function(h) { map[h.key] = h; });
+  remote.forEach(function(h) {
+    if (!map[h.key] || (h.time > map[h.key].time)) {
+      map[h.key] = h;
+    }
+  });
+  var merged = Object.values(map);
+  merged.sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
+  return merged.slice(0, 20);
+}
+
+function syncHistoryFromCloud() {
+  var uid = getHistoryUserId();
+  if (!uid || typeof firestoreDB === "undefined") return;
+  firestoreDB.collection("chat_history").doc(uid).get().then(function(doc) {
+    if (!doc.exists) return;
+    var remote = doc.data().items || [];
+    var local = JSON.parse(localStorage.getItem("fp_chat_history") || "[]");
+    var merged = mergeHistories(local, remote);
+    if (JSON.stringify(merged) !== JSON.stringify(local)) {
+      localStorage.setItem("fp_chat_history", JSON.stringify(merged));
+      renderHistory();
+    }
+  }).catch(function(){});
+}
+</script>
+<script>
+// === <script>
 // === 历史记录 ===
 (function(){
   var STORAGE_KEY = 'fp_chat_history';
@@ -286,6 +346,7 @@
     });
     if (items.length > 10) items = items.slice(0, 10);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    syncHistoryToCloud(items);
     renderHistory();
   }
 
@@ -342,6 +403,7 @@
   window.closeChat = function() { saveHistory(); _origClose(); };
 
   renderHistory();
+  setTimeout(syncHistoryFromCloud, 800);
 })();
 </script>
 <script>

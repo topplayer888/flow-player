@@ -180,81 +180,9 @@ var xp=document.getElementById("chat-form-xuehui");if(xp)xp.style.display="none"
 var tj=document.getElementById("chat-form-tiejia");if(tj)tj.style.display="none";
 }
 }
-function submitFormScript(){
-var product=document.getElementById("form-product").value.trim();
-var usp=document.getElementById("form-usp").value.trim();
-var audience=document.getElementById("form-audience").value.trim();
-var goal=document.getElementById("form-goal").value;
-var duration=document.getElementById("form-duration").value;
-var scriptMethods=Array.from(document.getElementById("script-chips").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val}).join("、")||"未选择";
-var visualMethods=Array.from(document.getElementById("visual-chips").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val}).join("、")||"未选择";
-var extra=document.getElementById("form-extra").value.trim();
-if(!product||!usp||!audience){alert("请至少填写产品信息、核心卖点和目标人群");return}
-var agent=agents[chatKey];if(!agent)return;
-if(!apiConfig.apikey||apiConfig.apikey.length<10){
-showApiConfigPrompt();return
-}
-var durRule="";if(duration==="30秒以内")durRule="【强制字数限制】口播文案80-120字，5-8句，每句12-18字。开场1句3秒，主体3-5句20秒，结尾1-2句5秒。";else if(duration==="60秒以上")durRule="【强制字数限制】口播文案300-500字，15-25句。开场2-3句5秒，主体12-18句45秒，结尾3-4句10秒。信息密度高，有细节展开。";else durRule="【强制字数限制】口播文案150-250字，10-15句。开场1-2句5秒，主体7-10句30秒，结尾2-3句10秒。";var prompt="请根据以下信息生成引流脚本\n\n视频时长范围："+duration+"\n"+durRule+"\n\n## 产品信息\n"+product+"\n\n## 核心卖点\n"+usp+"\n\n## 目标人群\n"+audience+"\n\n## 营销目标\n"+goal;prompt+="\n\n## 脚本手法\n"+scriptMethods;prompt+="\n\n## 视觉手法\n"+visualMethods;
-if(extra)prompt+="\n\n## 补充信息\n"+extra;
-prompt+="\n\n请严格按照马源内容体系工作流程输出：\n1. 策略分析\n2. 脚本手法选择\n3. 视觉手法匹配\n4. 完整脚本（每条口播文案前必须加【🎙口播】前缀，分镜描述前加【📷分镜】前缀，便于区分）\n5. 专项建议";
-var fa=document.getElementById("form-result-area");
-fa.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:20px">⏳ 生成中...</div>';
-fa.style.display="";
-var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt}];
-fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:16000})}).then(function(r){return r.json()}).then(function(data){
-if(data.error){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ API 错误：'+data.error.message+'</div>';return}
-var c=data.choices[0].message.content;
-fa.innerHTML='<div style="background:var(--bg-card);border:1px solid var(--border-glow);border-radius:10px;padding:16px"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:10px">📝 生成结果</div><div style="font-size:12px;line-height:1.8;color:var(--text-primary);line-height:1.5">'+formatScript(c)+'</div><div style="margin-top:12px;display:flex;gap:8px"><button onclick="copyFormResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">📋 复制</button></div></div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 纯口播文案</span><button onclick="copyVoiceoverForm(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="form-voiceover-text" id="form-voiceover-text" style="font-size:12px;line-height:1.5;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-panel);border-radius:8px"><span style="color:var(--text-muted)">⏳ 提取纯口播中...</span></div>';
-// Extract pure voiceover via second API call
-var voPrompt="请从以下内容中提取纯口播文案，只保留可实际朗读的脚本部分，删除所有分析、策略、手法选择、建议等非口播内容。直接输出纯净的口播文案，不要任何说明。\n\n原始内容：\n"+c;
-fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"user",content:voPrompt}],temperature:.3,max_tokens:8000})}).then(function(r2){return r2.json()}).then(function(d2){
- var vo=d2.choices[0].message.content;
- document.getElementById("form-voiceover-text").textContent=vo;
-}).catch(function(){
- document.getElementById("form-voiceover-text").textContent=c;
-});
-fa.innerHTML+= '<div</div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="form-regen-input" placeholder="输入优化意见" style="width:100%;min-height:50px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button onclick="formRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="form-regen-result" style="margin-top:10px;display:none"></div><div id="form-regen-loading" style="display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:12px">重新生成中...</div></div>'
-}).catch(function(e){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ 请求失败：'+e.message+'</div>'}).catch(function(e){hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})
-}
-var xhState={industry:"",audience:"",elements:[],topics:[],selectedTopic:null,templates:[],openings:[],selectedOpenings:[],results:[]};
-var xhOpenTypes=[
-{name:"圈定人群",desc:"喊出人群标签+制造悬念痛点"},
-{name:"直接提问",desc:"用疑问词+反常识/悬念逼用户思考"},
-{name:"自我否定",desc:"推翻认知+极端对比+利益诱惑"},
-{name:"反认知",desc:"颠覆常识认知+强制暂停"},
-{name:"高价值展示",desc:"极端成果+低门槛获取+时间紧迫"},
-{name:"直击痛点",desc:"场景痛点+情绪放大+低门槛解药"},
-{name:"损失厌恶",desc:"信息断点+对比落差+限时危机"},
-{name:"对比对立",desc:"极端选项+利益诱惑+身份绑架"},
-{name:"头牌借势",desc:"借顶流IP+关联自身内容"},
-{name:"警告避坑",desc:"死亡场景+权威背书+逃生指南"},
-{name:"引起焦虑",desc:"死亡预言+身份绑架+末日解药"},
-{name:"制造错过",desc:"限时机会+损失暗示+紧迫行动"},
-{name:"场景代入",desc:"具体场景+身份共鸣+自然过渡"},
-{name:"身份标签",desc:"喊出精确身份+专属痛点+解决方案"},
-{name:"数字清单",desc:"数字承诺+清单体+收藏指令"},
-{name:"故事开头",desc:"冲突事件+细节镜头+悬念铺垫"},
-{name:"数据震撼",desc:"具体数字冲击+认知颠覆+利益关联"},
-{name:"权威背书",desc:"绑定权威+可信证据+结论延伸"},
-{name:"争议话题",desc:"对立观点+选边效应+讨论引导"},
-{name:"灵魂拷问",desc:"直击灵魂问题+价值观冲突+反思引导"},
-{name:"干货合集",desc:"稀缺信息+收藏价值+即刻效果承诺"},
-{name:"跨界组合",desc:"A领域常识+B领域视角=新流量密码"},
-{name:"送惊喜",desc:"身份反差+情感暴击+过程揭秘"},
-{name:"荷尔蒙",desc:"视觉/声音暗示+犹抱琵琶半遮面"},
-{name:"盲盒",desc:"未知快感+低成本高期待+社交货币"},
-{name:"奇葩相关",desc:"行业反差+猎奇心理+社交传播"},
-{name:"负面的",desc:"阴暗窥视+道德审判+弱者代入"},
-{name:"具体的事",desc:"真实生活切片+反常细节+悬念留白"},
-{name:"高情绪",desc:"情绪能量分级+物理引爆+面部特写"},
-{name:"强节奏",desc:"三秒多次画面切换+卡点轰炸+悬念急刹"},
-{name:"凑热闹",desc:"人群效应+意外入侵+镜面克隆"},
-{name:"沉浸感",desc:"全感官卷入+微距暴击+环境音结界"},
-{name:"反差感",desc:"打破认知+身份/场景/阶层反转"},
-{name:"特殊视角",desc:"非常规视角+偷窥效应+认知颠覆"},
-{name:"故事感",desc:"画面叙事+物件隐喻+环境线索"},
-{name:"复古怀旧",desc:"记忆触发+感官穿越+年代错位"}
-];
+
+
+
 var xhOpeningDetails={
 "圈定人群":{formula:"喊出人群标签+制造悬念/痛点/恐惧",logic:"触发身份认同感→激发'与我有关'警觉性",examples:["新手做抖音，千万别直接发视频","穷人家的孩子想翻身，一定要先学会'不听话'","水瓶座2026年财运暴涨的3个密码"],tips:"3秒内让用户觉得视频和自己有关；后半句用避坑警告/颠覆认知/悬念钩子"},
 "直接提问":{formula:"疑问词+反常识/悬念/利益点",logic:"人面对提问本能停留思考",examples:["你敢信？靠喝水一周瘦5斤","你知道什么钱最好赚吗？","为什么新手发10条视频都不火，唯独这条爆了？"],tips:"用'你敢信/你知道/你有没有/如果…会怎样'开头；问题要有争议性或反常识"},
@@ -293,16 +221,7 @@ var xhOpeningDetails={
 "故事感":{formula:"画面叙事+物件隐喻+环境线索",logic:"画面即剧本三秒造悬念",examples:["边整理衣柜边吐槽拍到半开衣柜门","相亲资料表特写放大186体育生字样","擦玻璃时突然停顿暗示看到不该看的"],tips:"用摇晃结婚照/撕碎体检报告等道具叙事；微动作传递情绪"},
 "复古怀旧":{formula:"记忆触发+感官穿越+年代错位",logic:"怀旧=时光机瞬间拉人入局",examples:["爷爷用算盘给孙子算游戏段位","诺基亚手机玩原神","老式电视机改造成猫窝"],tips:"视觉泛黄滤镜+听觉Windows XP开机音效；精准狙击30+人群"}
 };
-var xhElementDetails={
-"头牌选题":{rules:"句式：世界上最贵的东西到底有多贵 / 明星的东西到底值多少钱 / 最牛的人到底有多牛 / 最贵的东西到底好在哪",example:"汽车->周杰伦车库里的车值多少钱，医美->世界上整容花费最多的人花了多少钱"},
-"怀旧选题":{rules:"句式：20年前经典的 / 古代人是如何办到的 / 小时候那些难忘的 / 当年最火的 / 曾经那些价值不菲的",example:"母婴->古代人是如何剖腹产的，女装->80年代最流行的港风"},
-"对立选题":{rules:"句式：穷人vs富人 / 南方人vs北方人 / 男人vs女人 / 中国人vs外国人 / 古代vs现代 / 有良心的vs没良心的 / 曾经vs现在",example:"烧烤->北方人vs南方人吃烧烤的区别，教培->穷人家vs富人家孩子上课外班的区别"},
-"最差选题":{rules:"关键词：贬值最快的 / 最难吃的 / 差评最多的 / 最难看的 / 最没面子的 / 拼多多9块9的 / 最难用的 / 反人类设计的。要靠谱不硬加",example:"装修->贬值最快的家具、最没面子的装修风格"},
-"荷尔蒙选题":{rules:"句式：相亲成功率高的 / 异性多看你两眼 / 最具有性缩力的 / 自以为很帅实际很丑 / 去丈母娘家能先动筷",example:"穿搭->这样穿女生在大街上会多看你两眼，健身->男生练哪里越练女生越讨厌"},
-"猎奇选题":{rules:"句式：脑回路有病的 / 外行人绝对不知道的 / 黑心内幕操作的 / 内行人的神奇操作 / 匪夷所思的行为",example:"结合行业出选题，围绕猎奇感即可"},
-"圈人群选题":{rules:"句式：星座的 / 内向或外向的 / 不同MBTI的 / 身价十个亿的 / 第一次体验的 / 弱势群体的",example:"母婴->巨蟹座妈妈带孩子有哪些麻烦、身价十个亿的妈妈怎么带孩子"},
-"成本选题":{rules:"围绕成本元素（金钱/时间/面子/力气）：便宜又有面子的 / 十分之一金钱时间 / 如何偷懒 / 花小钱办大事",example:"母婴->如何让爸爸帮忙夜里看孩子，摄影->逛街拍照找这三个建筑物肯定好看"}
-};
+
 var xhTemplateDetails={
 "讲故事类":{principles:"用户不爱听道理爱听故事。好故事3特征：有冲突、有细节、有反转",steps:"4步模板：1锁定人群(3秒拦截) 2引爆冲突(情绪钩子) 3展开过程(分2-3阶段含具体事件) 4自然带货(产品变解决方案)",techniques:"3技巧：爆点前置(开头亮结果)、细节特写如婆婆凌晨3点开车带我去泡温泉、金句点睛对比式/数字式收尾",pitfalls:"避坑：别自嗨删主观感慨、别啰嗦删无关细节、别虚假"},
 "共鸣型段子类":{principles:"用户心理：这不就是我吗/终于有人说实话了",steps:"3大模板：1假如XX说真话揭露行业潜规则 2深度还原名场面复刻尴尬瞬间 3XX和XX的差别极端对比制造笑点",techniques:"5技巧：反转型、行业梗+大众梗、具象化数字、方言反差、结尾神转折带货",pitfalls:"避坑：别自嗨删业内梗、别侵权、前3秒必出爆点"},
@@ -310,7 +229,7 @@ var xhTemplateDetails={
 "晒过程类":{principles:"核心：有手艺/猎奇性/治愈感",steps:"火车节模型：拆解成连贯步骤每节关键动作+情绪波动",techniques:"3玩法：猎奇反差、治愈解压、反向操作",pitfalls:"避免纯流水账、慎用专业术语、选题猎奇优先"}
 };
 
-function xuehuiUpdateStatus(){var s=document.getElementById("form-xh-status");var m=document.getElementById("form-xh-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 - "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key"}}
+
 function xuehuiCallAPI(systemPrompt,userPrompt,callback,opts){
 if(!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
 var msgs=[{role:"system",content:systemPrompt},{role:"user",content:userPrompt}];
@@ -323,344 +242,44 @@ fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/jso
  try{var t=text.replace(/^```(?:json)?\s*\n?/,"").replace(/\n?```\s*$/,"");var json=JSON.parse(t);callback(json)}catch(e){callback({raw:text})}
 }).catch(function(e){alert("request failed: "+e.message)});
 }
-function xuehuiStep1(){
-xhState.industry=document.getElementById("xh-industry").value.trim();
-xhState.audience=document.getElementById("xh-audience").value.trim();
-var els=Array.from(document.getElementById("xh-elements").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
-if(!xhState.industry||!xhState.audience){alert("请填写行业和目标人群");return}
-if(els.length===0){alert("请至少选择一个爆款元素");return}
-xhState.elements=els;
-var perEl=els.length===1?10:5;
-var elementRules=xhState.elements.map(function(n){var d=xhElementDetails[n];if(!d)return"【"+n+"】无详细规则";return"【"+n+"】句式："+d.rules+" 示例："+d.example;}).join("\n\n");
-var sysPrompt='你是短视频爆款选题生成专家，基于薛辉内容培训体系。用户选择了以下爆款元素，请严格按照对应元素的固定句式生成选题。\n\n=== 用户选择的爆款元素规则 ===\n{elementRules}\n\n=== 输出要求 ===\n用户选择的爆款元素：{elements}，每个元素生成{count}个选题。\n标题要口语化、有冲击力，像抖音爆款标题。必须严格按照对应元素的句式来生成。\n输出JSON：{"topics":[{"id":1,"title":"选题标题","element":"元素名","idea":"选题思路说明"}]}\n'.replace("{elementRules}",elementRules).replace("{elements}",els.join("、")).replace("{count}",perEl);
-var userPrompt="行业："+xhState.industry+" 目标人群："+xhState.audience+" 爆款元素："+els.join("、");
-var btn=document.querySelector("#xh-step1 .chat-form-submit");btn.textContent="生成中...";btn.disabled=true;
-xuehuiCallAPI(sysPrompt,userPrompt,function(json){
- btn.textContent="🚀 生成爆款选题";btn.disabled=false;
- var topics=json.topics||[];
- if(!Array.isArray(topics)||topics.length===0){alert("生成失败，请重试");return}
- xhState.topics=topics;xhState.selectedTopic=null;
- var list=document.getElementById("xh-topics-list");
- list.innerHTML=topics.map(function(t,i){return '<div class="xh-topic-card" onclick="xuehuiSelectTopic('+i+',this)" style="padding:12px 14px;border-radius:10px;border:2px solid var(--border-glow);background:var(--bg-card);cursor:pointer;transition:all .2s"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:12px;color:var(--purple);font-weight:700">#'+(i+1)+'</span><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:var(--purple-dim);color:var(--purple)">'+t.element+'</span></div><div style="font-size:13px;font-weight:600;color:var(--text-primary)">'+t.title+'</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">'+t.idea+'</div></div>'}).join("");
- document.getElementById("xh-step2").style.display="";
-}, {response_format:{type:"json_object"}});
-}
-function xuehuiSelectTopic_orig(idx,el){
-document.querySelectorAll(".xh-topic-card").forEach(function(c){c.style.borderColor="var(--border-glow)";c.style.background="var(--bg-card)"});
-el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";
-xhState.selectedTopic=xhState.topics[idx];
-document.getElementById("xh-step3").style.display="";
-setTimeout(function(){if(xhState.selectedTopic)xuehuiRecommendTemplates();},500);
-}
-
-function xuehuiSelectTopic(idx,el){
-xuehuiSelectTopic_orig(idx,el);
-}
-
-function xuehuiStep2Next(){
-if(!xhState.selectedTopic){alert("请先选择一个选题");return}
-document.getElementById("xh-step3").style.display="";
-}
-function xuehuiStep3Next(){
-var tmpls=Array.from(document.getElementById("xh-templates").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
-if(tmpls.length===0){alert("请至少选择一个文案模板");return}
-xhState.templates=tmpls;
-document.getElementById("xh-step4").style.display="";
-xuehuiRenderOpenings();
-}
-function xuehuiRenderOpenings(){
-var container=document.getElementById("xh-openings");
-container.innerHTML=xhOpenTypes.map(function(o){return '<span class="select-chip" data-val="'+o.name+'" onclick="xuehuiToggleOpening(this)" title="'+o.desc+'">'+o.name+'</span>'}).join("");
-xuehuiUpdateCount();
-}
-function xuehuiToggleOpening(el){el.classList.toggle("selected");xuehuiUpdateCount();}
-function xuehuiUpdateCount(){
-var sel=document.querySelectorAll("#xh-openings .select-chip.selected").length;
-var tmpl=xhState.templates.length;
-document.getElementById("xh-count-info").textContent="已选 "+sel+" 个开头 x "+tmpl+" 个模板 = "+(sel*tmpl*2)+" 条文案（90秒标准 + 2分钟深度）";
-}
-function xuehuiGenerate(){
-// Ensure templates are captured from DOM if not already set
-if(!xhState.templates||xhState.templates.length===0){
-xhState.templates=Array.from(document.getElementById("xh-templates").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
-}
-xhState.selectedOpenings=Array.from(document.getElementById("xh-openings").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
-if(xhState.selectedOpenings.length===0){alert("请至少选择一个开头类型");return}
-var t=xhState.selectedTopic;
-var openingRules=xhState.selectedOpenings.map(function(n){var d=xhOpeningDetails[n];if(!d)return"【"+n+"】无详细规则";return"【"+n+"】公式："+d.formula+" 逻辑："+d.logic+" 示例："+d.examples.join("；")+" 技巧："+d.tips;}).join("\n\n");
-var tmplRules=xhState.templates.map(function(tn){var d=xhTemplateDetails[tn];if(!d)return"";return"【模板："+tn+"】\n原则："+d.principles+"\n步骤："+d.steps+"\n技巧："+d.techniques+"\n避坑："+d.pitfalls}).join("\n\n");
-var sysPrompt="你是短视频爆款文案生成专家，基于薛辉内容培训体系。根据用户选择的文案模板类型和开头类型，为指定的选题生成完整文案。\n\n=== 用户选择的文案模板规则 ===\n\n"+tmplRules+"\\n\\n=== 用户选择的开头类型规则 ===\\n{openingRules}\\n\\n=== 生成规则（必须严格遵守） ===\\n\\n【字数强制要求 - 这是最重要的规则】\\n!!! 警告：字数不足的文案将被拒绝，请务必严格遵守 !!!\\n1. 90秒标准版：必须写够 250-350 字（约 35-45 秒口播时长），结构完整、节奏紧凑、信息密度高\\n2. 2分钟深度版：必须写够 500-650 字（约 100-120 秒口播时长），深入展开、有细节描写、有情绪铺垫、有场景还原\\n\\n【严正警告】\\n- 禁止输出低于字数下限的文案！90秒版不可少于250字，2分钟版不可少于500字\\n- 禁止用空话凑字数，每句话都要有信息量\\n- 每种「模板类型 + 开头类型」组合，必须同时输出90秒版和2分钟版各1条\\n\\n【格式要求】\\n- 文案必须以用户选择的开头类型句式开头，前3秒必须有钩子\\n- 文案口语化，适合真人口播，像在跟朋友聊天，不是念稿\\n- 有明确转化引导（关注/点赞/评论/私信），自然植入不突兀\\n- 避免书面语、主观感慨、啰嗦废话\\n- 【🔴 强制自查 - 写完后逐字数字数】90秒版少于300字禁止提交，2分钟版少于550字禁止提交，字数不够必须重写，不允许任何借口\\n- 每句15-25字，段落2-3句；90秒版至少6段，2分钟版至少10段\\n\\n【输出JSON格式】\\n{\\\"results\\\":[\\n  {\\\"copyType\\\":\\\"讲故事类\\\",\\\"openingType\\\":\\\"圈定人群\\\",\\\"duration\\\":\\\"90秒标准\\\",\\\"content\\\":\\\"（必须300-400字，少于300字禁止提交）\\\"},\\n  {\\\"copyType\\\":\\\"讲故事类\\\",\\\"openingType\\\":\\\"圈定人群\\\",\\\"duration\\\":\\\"2分钟深度\\\",\\\"content\\\":\\\"（必须550-700字，少于550字禁止提交）\\\"},\\n  ...每种模板×开头组合2条\\n]}\"".replace("{industry}",xhState.industry).replace("{audience}",xhState.audience).replace("{topic}",t.title).replace("{element}",t.element).replace("{templates}",xhState.templates.join("、")).replace("{openings}",xhState.selectedOpenings.join("、")).replace("{openingRules}",openingRules);
-var userPrompt="行业："+xhState.industry+" 人群："+xhState.audience+" 选题："+t.title+" 元素："+t.element+" 模板："+xhState.templates.join("、")+" 开头："+xhState.selectedOpenings.join("、");
-var btn=document.querySelector("#xh-step4 .chat-form-submit");btn.textContent="生成中...";btn.disabled=true;
-xuehuiCallAPI(sysPrompt,userPrompt,function(json){
- btn.textContent="✍️ 生成爆款文案";btn.disabled=false;
- var results=json.results||[];
- if(!Array.isArray(results)||results.length===0){alert("生成失败，请重试");return}
- xhState.results=results;
- var container=document.getElementById("xh-results-content");
- var grouped={};
- results.forEach(function(r){var key=r.copyType||"other";if(!grouped[key])grouped[key]=[];grouped[key].push(r)});
- var html="";
- for(var g in grouped){
-  html+='<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:8px;padding:6px 12px;background:rgba(168,85,247,.08);border-radius:8px">'+g+'</div>';
-  grouped[g].forEach(function(r){
-   var durColor=r.duration==="90秒标准"?"var(--cyan)":"var(--gold)";var charCount=r.content?r.content.length:0;var countColor=charCount<(r.duration==="90秒标准"?300:550)?"var(--red)":"var(--green)";
-   html+='<div style="padding:12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);margin-bottom:8px"><div style="display:flex;gap:8px;margin-bottom:6px"><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(0,229,255,.1);color:'+durColor+'">'+r.duration+' <span style="font-size:9px;color:'+countColor+'">('+charCount+'字)</span></span><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(168,85,247,.1);color:var(--purple)">'+r.openingType+'</span><span style="flex:1"></span><button onclick="copyXhResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px" title="复制全文">&#x1f4cb; 复制</button><button onclick="expandCopy(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px" title="扩写">📝 扩写</button></div><div style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+r.content+'</div><div class="xh-expand-area" style="display:none;margin-top:8px;padding:8px;border-radius:8px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="display:flex;gap:6px;align-items:center;margin-bottom:6px"><input type="number" class="xh-expand-input" placeholder="请输入你想要扩写的字数..." style="flex:1;padding:4px 8px;border-radius:6px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px" min="100"><button onclick="doExpandCopy(this)" style="background:var(--purple);color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;white-space:nowrap">确认扩写</button></div><div class="xh-expand-result" style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap;margin-top:6px;display:none"></div><div class="xh-expand-loading" style="display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:8px">扩写中...</div></div></div>';
-// Monitor template selection for auto-recommend
-var xhOrigToggleChip=toggleChip;
-toggleChip=function(chip,containerId,maxSelect){
-xhOrigToggleChip(chip,containerId,maxSelect);
-// Check if it's the templates container
-if(containerId==="xh-templates"){
-setTimeout(function(){
-var selected=Array.from(document.getElementById("xh-templates").querySelectorAll(".select-chip.selected"));
-if(selected.length>0){
-// Set xhState.templates and trigger openings recommendation
-xhState.templates=selected.map(function(c){return c.dataset.val});
-xuehuiRecommendOpenings();
-}
-},300);
-}
-};
 
 
-  });
-  html+='</div>';
- }
- container.innerHTML=html;
- // Add pure voiceover section
- var voiceoverHTML="<div style=\"margin-top:16px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)\"><div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:6px\"><span style=\"font-size:12px;font-weight:600;color:var(--cyan)\">🎙 纯口播文案</span><button onclick=\"copyVoiceover(this)\" style=\"background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px\">📋 一键复制</button></div><div class=\"xh-voiceover-text\" style=\"font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-card);border-radius:8px\">"+xhState.results.map(function(r){return r.content||""}).join("\n\n---\n\n")+"</div></div>";
- container.innerHTML+=voiceoverHTML;
- // Add regenerate section
- var regenHTML="<div style=\"margin-top:16px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)\"><div style=\"font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px\">🔄 优化意见后重新生成</div><textarea id=\"xh-regen-input\" placeholder=\"输入优化意见，例如：语气更活泼、增加产品功效描述、缩短到200字...\" style=\"width:100%;min-height:60px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit\"></textarea><button onclick=\"xhRegenerate()\" class=\"sidebar-api-save\" style=\"width:100%\">✨ 重新生成</button><div id=\"xh-regen-result\" style=\"margin-top:10px;display:none\"></div><div id=\"xh-regen-loading\" style=\"display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:12px\">重新生成中...</div></div>";
- container.innerHTML+=regenHTML;
- document.getElementById("xh-results").style.display="";
-}, {temperature:0.1,max_tokens:32000});
-}
+
+
+
+
+
+
+
+
+
 
 
 // Auto-recommend: debounced input handling
 var xhAutoRecTimer=null;
-function xhAutoRecElements(){
-clearTimeout(xhAutoRecTimer);
-xhAutoRecTimer=setTimeout(function(){
-var industry=document.getElementById("xh-industry").value.trim();
-var audience=document.getElementById("xh-audience").value.trim();
-if(industry.length>=2&&audience.length>=2){
-xuehuiRecommendElements();
-}
-},800);
-}
+
 // Attach auto-recommend to inputs
 document.getElementById("xh-industry").addEventListener("input",xhAutoRecElements);
 document.getElementById("xh-audience").addEventListener("input",xhAutoRecElements);
 
 
-function copyVoiceover(btn){
- var el=btn.parentElement.parentElement.querySelector(".xh-voiceover-text");
- var t=el.textContent.trim();
- if(navigator.clipboard&&navigator.clipboard.writeText){
-  navigator.clipboard.writeText(t).then(function(){
-   btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 一键复制"},2000);
-  }).catch(function(){fallbackCopy(t)})
- }else{fallbackCopy(t)}
-}
-function xhRegenerate(){
- var feedback=document.getElementById("xh-regen-input").value.trim();
- if(!feedback){alert("请输入优化意见");return}
- if(!xhState.results||xhState.results.length===0){alert("没有可优化的内容");return}
- var sysPrompt="你是短视频文案优化专家。根据用户的优化意见，对原文案进行修改。保持原有结构，只做用户要求的调整。直接返回优化后的文案纯文本，不要加任何说明。";
- var userPrompt="优化意见："+feedback+"\n\n原文案：\n"+xhState.results.map(function(r,i){return "【文案"+(i+1)+"】"+r.duration+" - "+r.copyType+" - "+r.openingType+"\n"+r.content}).join("\n\n---\n\n");
- document.getElementById("xh-regen-loading").style.display="";
- document.getElementById("xh-regen-result").style.display="none";
- xuehuiCallAPI(sysPrompt,userPrompt,function(json){
-  document.getElementById("xh-regen-loading").style.display="none";
-  var result=typeof json==="string"?json:(json.raw||json.content||json.text||JSON.stringify(json));
-  var div=document.getElementById("xh-regen-result");
-  div.innerHTML='<div style="padding:12px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,229,255,.04)"><div style="font-size:11px;font-weight:600;color:var(--cyan);margin-bottom:6px">✅ 优化结果</div><div style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+result+'</div><button onclick="copyXhResult(this)" style="margin-top:8px;background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 复制</button></div>';
-  div.style.display="";
- }, {temperature:0.3,max_tokens:8000});
-}
-function xuehuiRecommendElements(){
-var industry=document.getElementById("xh-industry").value.trim();
-var audience=document.getElementById("xh-audience").value.trim();
-if(!industry||!audience){alert("请先填写行业和人群");return}
-var btn=(typeof event!=="undefined"&&event&&event.target)?event.target:null;if(btn){btn.textContent="分析中...";btn.disabled=true;}
-var prompt="行业："+industry+" 人群："+audience+"\n\n从以下8种爆款元素中推荐1-2个最适合的，只输出JSON数组：\n"+JSON.stringify(Object.keys(xhElementDetails))+"\n每个元素说明：\n"+Object.entries(xhElementDetails).map(function(e){return e[0]+": "+e[1].desc}).join("\n")+"\n\n你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]";
-xuehuiCallAPI("你是爆款选题推荐专家。根据行业和人群推荐最合适的爆款元素。你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]",prompt,function(json){
- if(btn){btn.textContent="智能推荐爆款元素";btn.disabled=false;}
- var recs=Array.isArray(json)?json:(json.raw?JSON.parse(json.raw):[]);
- if(!Array.isArray(recs)||recs.length===0){
-  for(var k in json){if(Array.isArray(json[k])){recs=json[k];break}}
-  if(!Array.isArray(recs)||recs.length===0){alert("推荐失败");return}
- }
- var container=document.getElementById("xh-elements");
- if(!container)return;
- container.querySelectorAll(".select-chip .rec-badge").forEach(function(b){b.remove()});
- recs.forEach(function(key){
-  var chip=container.querySelector('.select-chip[data-val="'+key+'"]');
-  if(chip&&!chip.querySelector(".rec-badge")){
-   var badge=document.createElement("span");badge.className="rec-badge";badge.textContent="推荐";
-   chip.appendChild(badge);chip.classList.add("recommended");
-  }
- });
-});
-}
-function xuehuiRecommendTemplates(){
-var industry=document.getElementById("xh-industry").value.trim();
-var audience=document.getElementById("xh-audience").value.trim();
-if(!industry||!audience){alert("请先填写行业和人群");return}
-var btn=(typeof event!=="undefined"&&event&&event.target)?event.target:null;if(btn){btn.textContent="分析中...";btn.disabled=true;}
-var element=xhState.selectedTopic?xhState.selectedTopic.element:"";
-var prompt="行业："+industry+" 人群："+audience+" 选题元素："+element+"\n\n从以下4种模板推荐1-2个：讲故事类、共鸣型段子类、教知识类、晒过程类\n你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]";
-xuehuiCallAPI("你是文案模板推荐专家。你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]",prompt,function(json){
- if(btn){btn.textContent="智能推荐模板";btn.disabled=false;}
- var recs=Array.isArray(json)?json:(json.raw?JSON.parse(json.raw):[]);
- if(!Array.isArray(recs)||recs.length===0){
-  for(var k in json){if(Array.isArray(json[k])){recs=json[k];break}}
-  if(!Array.isArray(recs)||recs.length===0){alert("推荐失败");return}
- }
- var container=document.getElementById("xh-templates");
- if(!container)return;
- container.querySelectorAll(".select-chip .rec-badge").forEach(function(b){b.remove()});
- recs.forEach(function(key){
-  var chip=container.querySelector('.select-chip[data-val="'+key+'"]');
-  if(chip&&!chip.querySelector(".rec-badge")){
-   var badge=document.createElement("span");badge.className="rec-badge";badge.textContent="推荐";
-   chip.appendChild(badge);chip.classList.add("recommended");
-  }
- });
-});
-}
-function xuehuiRecommendOpenings(){
-var industry=document.getElementById("xh-industry").value.trim();
-var audience=document.getElementById("xh-audience").value.trim();
-var tmpls=xhState.templates||[];
-if(!industry||!audience){alert("请先填写行业和人群");return}
-var btn=(typeof event!=="undefined"&&event&&event.target)?event.target:null;if(btn){btn.textContent="分析中...";btn.disabled=true;}
-var prompt="行业："+industry+" 人群："+audience+" 已选模板："+tmpls.join("、")+"\n\n从以下36种开头推荐2-3个：\n"+JSON.stringify(Object.keys(xhOpeningDetails))+"\n你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]";
-xuehuiCallAPI("你是开头推荐专家。你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]",prompt,function(json){
- if(btn){btn.textContent="智能推荐开头";btn.disabled=false;}
- var recs=Array.isArray(json)?json:(json.raw?JSON.parse(json.raw):[]);
- if(!Array.isArray(recs)||recs.length===0){
-  for(var k in json){if(Array.isArray(json[k])){recs=json[k];break}}
-  if(!Array.isArray(recs)||recs.length===0){alert("推荐失败");return}
- }
- var container=document.getElementById("xh-openings");
- if(!container)return;
- container.querySelectorAll(".select-chip .rec-badge").forEach(function(b){b.remove()});
- recs.forEach(function(key){
-  var chip=container.querySelector('.select-chip[data-val="'+key+'"]');
-  if(chip&&!chip.querySelector(".rec-badge")){
-   var badge=document.createElement("span");badge.className="rec-badge";badge.textContent="推荐";
-   chip.appendChild(badge);chip.classList.add("recommended");
-  }
- });
-});
-}
 
 
-function xuehuiBackTo(step){
-["xh-step1","xh-step2","xh-step3","xh-step4","xh-results"].forEach(function(id){document.getElementById(id).style.display=""});
-}
-function xuehuiReset(){
-document.querySelectorAll("#xh-elements .rec-badge,#xh-templates .rec-badge,#xh-openings .rec-badge").forEach(function(b){b.remove()});
-document.getElementById("xh-topics-list").innerHTML="";
-document.getElementById("xh-results-content").innerHTML="";
-document.getElementById("xh-industry").value="";document.getElementById("xh-audience").value="";
-document.querySelectorAll("#xh-elements .select-chip.selected,#xh-templates .select-chip.selected,#xh-openings .select-chip.selected").forEach(function(c){c.classList.remove("selected")});
-xhState={industry:"",audience:"",elements:[],topics:[],selectedTopic:null,templates:[],openings:[],selectedOpenings:[],results:[]};
-}
-function copyVoiceoverForm(btn){
- var el=btn.parentElement.parentElement.querySelector(".form-voiceover-text");
- var t=el.textContent.trim();
- if(navigator.clipboard&&navigator.clipboard.writeText){
-  navigator.clipboard.writeText(t).then(function(){
-   btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 一键复制"},2000);
-  }).catch(function(){fallbackCopy(t)})
- }else{fallbackCopy(t)}
-}
-function formatScript(t){
- return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-  .replace(/【🎙口播】/g,"<span style=\"color:#10b981;font-weight:600\">🎙 口播：</span>").replace(/【📷分镜】/g,"<span style=\"color:#60a5fa;font-weight:600\">📷 分镜：</span>")
-  .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
-  .replace(/^### (.+)$/gm,"<h4 style=\"margin:6px 0 2px;font-size:13px;color:var(--purple)\">$1</h4>")
-  .replace(/^## (.+)$/gm,"<h3 style=\"margin:6px 0 2px;font-size:14px;color:var(--cyan)\">$1</h3>")
-  .replace(/^# (.+)$/gm,"<h2 style=\"margin:8px 0 4px;font-size:15px;color:var(--cyan)\">$1</h2>")
-  .replace(/^\- (.+)$/gm,"<li style=\"margin:0 0 0 16px\">$1</li>")
-  .replace(/^(\d+)\. (.+)$/gm,"<div style=\"margin:1px 0 1px 8px\"><span style=\"color:var(--purple)\">$1.</span> $2</div>")
-  .replace(/^【(.+?)】/gm,"<span style=\"color:var(--gold);font-weight:600\">【$1】</span>")
-  .replace(/\n/g,"<br>")
-  .replace(/<br>(<h[234])/g,"$1")
-  .replace(/(<\/h[234]>)<br>/g,"$1")
-  .replace(/<br><br>/g,"<br>");
-}
-function copyFormResult(btn){
- var area=document.getElementById("form-result-area");
- var t=area.textContent.trim();
- if(navigator.clipboard&&navigator.clipboard.writeText){
-  navigator.clipboard.writeText(t).then(function(){
-   btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 复制"},2000);
-  }).catch(function(){fallbackCopy(t)})
- }else{fallbackCopy(t)}
-}
-function formRegenerate(){
- var fb=document.getElementById("form-regen-input").value.trim();
- if(!fb){alert("请输入优化意见");return}
- var orig=document.querySelector("#form-result-area .form-voiceover-text");
- if(!orig){alert("没有可优化的内容");return}
- var content=orig.textContent.trim();
- var agent=agents[chatKey];if(!agent)return;
- var sysPrompt="你是短视频文案优化专家，根据用户优化意见修改文案，直接返回优化后的纯文本。";
- var userPrompt="优化意见："+fb+"\n\n原文案：\n"+content;
- document.getElementById("form-regen-loading").style.display="";
- document.getElementById("form-regen-result").style.display="none";
- fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:sysPrompt},{role:"user",content:userPrompt}],temperature:.3,max_tokens:8000})}).then(function(r){return r.json()}).then(function(data){
-  document.getElementById("form-regen-loading").style.display="none";
-  if(data.error){document.getElementById("form-regen-result").innerHTML='<div style="color:#ef4444">❌ '+data.error.message+'</div>';document.getElementById("form-regen-result").style.display="";return}
-  var result=data.choices[0].message.content;
-  document.getElementById("form-regen-result").innerHTML='<div style="padding:12px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,229,255,.04)"><div style="font-size:11px;font-weight:600;color:var(--cyan);margin-bottom:6px">✅ 优化结果</div><div style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+result.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div><button onclick="copyFormRegenResult(this)" style="margin-top:8px;background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 复制</button></div>';
-  document.getElementById("form-regen-result").style.display="";
- }).catch(function(e){
-  document.getElementById("form-regen-loading").style.display="none";
-  document.getElementById("form-regen-result").innerHTML='<div style="color:#ef4444">❌ '+e.message+'</div>';
-  document.getElementById("form-regen-result").style.display="";
- })
-}
-function copyFormRegenResult(btn){
- var t=btn.parentElement.textContent.replace("📋 复制","").trim();
- if(navigator.clipboard&&navigator.clipboard.writeText){
-  navigator.clipboard.writeText(t).then(function(){btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 复制"},2000)}).catch(function(){fallbackCopy(t)})
- }else{fallbackCopy(t)}
-}
-function copyXhResult(btn){var card=btn.closest("div").parentElement;var text=card.querySelector("div:last-child").textContent;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){btn.textContent="\u2705 已复制";var _copyColor=themeWasteland?"#d4a830":"#10b981";btn.style.color=_copyColor;setTimeout(function(){btn.textContent="\uD83D\uDCCB 复制";btn.style.color="var(--text-secondary)"},2000)}).catch(function(){fallbackCopy(btn,text)})}else{fallbackCopy(btn,text)}}function fallbackCopy(btn,text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");btn.textContent="\u2705 已复制";var _copyColor=themeWasteland?"#d4a830":"#10b981";btn.style.color=_copyColor;setTimeout(function(){btn.textContent="\uD83D\uDCCB 复制";btn.style.color="var(--text-secondary)"},2000)}catch(e){alert("复制失败，请手动选择复制")}document.body.removeChild(ta)}
-function expandCopy(btn){
-var card=btn.closest("div").parentElement;
-var area=card.querySelector(".xh-expand-area");
-if(area.style.display==="none"||!area.style.display){area.style.display=""}else{area.style.display="none"}
-}
-function doExpandCopy(btn){
-var card=btn.closest(".xh-expand-area").parentElement;
-var input=card.querySelector(".xh-expand-input");
-var targetWords=parseInt(input.value);
-if(!targetWords||targetWords<50){alert("请输入至少50字的扩写目标");return}
-var originalContent=btn.closest(".xh-expand-area").previousElementSibling.textContent;
-var loading=card.querySelector(".xh-expand-loading");
-var resultDiv=card.querySelector(".xh-expand-result");
-loading.style.display="";resultDiv.style.display="none";
-var prompt="原文案："+originalContent+"\n\n请将上述文案扩写至约"+targetWords+"字，保持原有风格、口语化表达，丰富细节和场景描写。只输出扩写后的完整文案。";
-xuehuiCallAPI("你是文案扩写专家。只输出扩写后的文案。",prompt,function(json){
-loading.style.display="none";
-var expanded=typeof json==="string"?json:(json.raw||json.content||json.expanded||json.text||JSON.stringify(json));
-resultDiv.textContent=expanded;
-resultDiv.style.display="";
-var charCount=expanded.length;
-var countSpan=document.createElement("span");
-countSpan.style.cssText="font-size:9px;margin-left:6px;color:"+(charCount>=targetWords?"var(--green)":"var(--red)");
-countSpan.textContent="("+charCount+"字)";
-resultDiv.appendChild(countSpan);
-},{temperature:0.3,max_tokens:8000});
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function closeChat(){
 document.getElementById("chat-overlay").classList.remove("open");
 chatOpen=false;chatMessages=[];
@@ -849,14 +468,13 @@ elAudience.addEventListener("input",autoRecElements);
 document.addEventListener("DOMContentLoaded",function(){var diag=document.getElementById("diag");if(diag){var ak=Object.keys(agents).join(",");var a20=!!agents["2-0"];var ar="origSelectTopic" in window;diag.textContent="agents:"+ak+" | 2-0:"+a20+" | autoRec:"+ar;}});
 
 
-function tjUpdateStatus(){var s=document.getElementById("form-tj-status");var m=document.getElementById("form-tj-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 - "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key"}}
-function tjPick(el,groupId,max){var chips=document.getElementById(groupId).querySelectorAll(".select-chip");var selected=document.getElementById(groupId).querySelectorAll(".select-chip.selected");if(el.classList.contains("selected")){el.classList.remove("selected");if(groupId!=="tj-hooks"&&groupId!=="tj-persona"&&groupId!=="tj-tone"){tjCheckStep1Auto()}return}if(selected.length>=max){selected[0].classList.remove("selected")}el.classList.add("selected");if(groupId!=="tj-hooks"&&groupId!=="tj-persona"&&groupId!=="tj-tone"){tjCheckStep1Auto()}}
-function tjCheckStep1Auto(){var pn=document.getElementById("tj-product-name").value.trim();var p=tjGetVal("tj-product-type");var a=tjGetVal("tj-audience");var s=document.getElementById("tj-selling-points").value.trim();var pp=document.getElementById("tj-pain-points").value.trim();var sc=tjGetVal("tj-scene");var pr=tjGetVal("tj-price");if(p&&a&&s&&pp&&sc&&pr){tjStep1()}}function tjGetVal(id){var c=document.getElementById(id).querySelector(".select-chip.selected");return c?c.dataset.val:""}
-function tjGetVals(id){return Array.from(document.getElementById(id).querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val})}
-function tjStep1(){var pn=document.getElementById("tj-product-name").value.trim();var p=tjGetVal("tj-product-type");var a=tjGetVal("tj-audience");var s=document.getElementById("tj-selling-points").value.trim();var pp=document.getElementById("tj-pain-points").value.trim();var sc=tjGetVal("tj-scene");var pr=tjGetVal("tj-price");if(!p||!a||!s||!pp||!sc||!pr){alert("请完成所有必填项");return}document.getElementById("tj-loading").style.display="";var prompt="产品名称："+pn+"\n产品类型："+p+"\n目标受众："+a+"\n核心卖点："+s+"\n核心痛点："+pp+"\n使用场景："+sc+"\n价格定位："+pr+"\n\n从12种钩子类型中推荐3种最合适的，每种附推荐理由。\n12种钩子：1.点名受众 2.痛点共鸣 3.身份推荐 4.对话冲突 5.提出疑问 6.开箱评测 7.产地探访 8.实验演示 9.情绪共鸣 10.效果前置 11.悬念好奇 12.正话反说\n\n输出纯JSON数组：[{\"type\":\"钩子名\",\"reason\":\"推荐理由\"}]";xuehuiCallAPI("你是短视频营销专家。只输出JSON数组。",prompt,function(json){document.getElementById("tj-loading").style.display="none";var recs=Array.isArray(json)?json:(json.raw?JSON.parse(json.raw):[]);if(!Array.isArray(recs)||recs.length===0){for(var k in json){if(Array.isArray(json[k])){recs=json[k];break}}}if(!Array.isArray(recs)||recs.length===0){alert("推荐失败");return}var html="";recs.forEach(function(r,i){html+='<div style="margin-bottom:8px"><span style="font-weight:700;color:var(--purple)">'+(i+1)+'. '+r.type+'</span><br><span style="color:var(--text-muted);font-size:11px">'+r.reason+'</span></div>'});document.getElementById("tj-hooks-result").innerHTML=html;var hookChips=document.querySelectorAll("#tj-hooks .select-chip");hookChips.forEach(function(c){c.classList.remove("selected");var b=c.querySelector(".tj-badge");if(b)b.remove()});recs.forEach(function(r){hookChips.forEach(function(c){if(c.dataset.val===r.type&&!c.classList.contains("selected")){c.classList.add("selected");var badge=document.createElement("span");badge.className="tj-badge";badge.textContent="推荐";badge.style.cssText="display:inline-block;margin-left:4px;padding:1px 6px;border-radius:10px;font-size:10px;background:var(--purple);color:#fff;font-weight:600";c.appendChild(badge)}})});document.getElementById("tj-step2")})}
-function tjStep2(){var hooks=tjGetVals("tj-hooks");if(hooks.length===0){alert("请至少选择一个钩子类型");return}}
-function tjStep3(){var pn=document.getElementById("tj-product-name").value.trim();var persona=tjGetVal("tj-persona");var tone=tjGetVal("tj-tone");if(!persona||!tone){alert("请选择人设视角和语气风格");return}var pn=document.getElementById("tj-product-name").value.trim();var p=tjGetVal("tj-product-type");var a=tjGetVal("tj-audience");var s=document.getElementById("tj-selling-points").value.trim();var pp=document.getElementById("tj-pain-points").value.trim();var sc=tjGetVal("tj-scene");var pr=tjGetVal("tj-price");var hooks=tjGetVals("tj-hooks");document.getElementById("tj-loading").style.display="";var prompt="产品名称："+pn+"\n产品类型："+p+"\n目标受众："+a+"\n核心卖点："+s+"\n核心痛点："+pp+"\n使用场景："+sc+"\n价格定位："+pr+"\n钩子类型："+hooks.join("、")+"\n人设视角："+persona+"\n语气风格："+tone+"\n\n生成完整引流文案，包含：\n【标题建议】（3个）\n【完整口播文案】（300-500字，口语化，先制造坏情绪再引出解决方案）\n【分镜脚本】（表格格式：时间段|画面描述|口播文案|情绪/语气）\n【可视化建议】（3-5个画面）\n【转化引导】（结尾话术+评论区预设3条）\n\n只输出纯文本，不要JSON格式。";xuehuiCallAPI("你是短视频营销文案专家。只输出纯文本文案。",prompt,function(json){document.getElementById("tj-loading").style.display="none";var result=typeof json==="string"?json:(json.raw||json.content||json.text||JSON.stringify(json));document.getElementById("tj-result").textContent=result;var oldVo=document.getElementById("tj-voiceover-wrap");if(oldVo)oldVo.remove();var voWrap=document.createElement("div");voWrap.id="tj-voiceover-wrap";voWrap.style.cssText="margin-top:16px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)";voWrap.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 纯口播文案</span><button onclick="copyTjVoiceover(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="tj-voiceover-text" id="tj-voiceover-text" style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-card);border-radius:8px"><span style="color:var(--text-muted)">⏳ 提取纯口播中...</span></div>';document.getElementById("tj-result").insertAdjacentElement("afterend",voWrap);var voPrompt="请从以下内容中提取纯口播文案，只保留可实际朗读的脚本部分，删除所有分析、策略、手法选择、建议、标记符号等非口播内容。直接输出纯净的口播文案，不要任何说明。\n\n原始内容：\n"+result;xuehuiCallAPI("你是口播文案提取助手。只输出纯口播文案。",voPrompt,function(voJson){var vo=typeof voJson==="string"?voJson:(voJson.raw||voJson.content||voJson.text||JSON.stringify(voJson));var voEl=document.getElementById("tj-voiceover-text");if(voEl)voEl.textContent=vo},{temperature:0.3,max_tokens:4000});var oldRegen=document.getElementById("tj-regen-wrap");if(oldRegen)oldRegen.remove();var regenWrap=document.createElement("div");regenWrap.id="tj-regen-wrap";regenWrap.style.cssText="margin-top:16px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)";regenWrap.innerHTML='<div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="tj-regen-input" placeholder="输入优化意见" style="width:100%;min-height:60px;padding:10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea><button onclick="tjRegen()" style="margin-top:8px;padding:8px 16px;border-radius:8px;border:none;background:var(--purple);color:#fff;font-size:12px;cursor:pointer;font-weight:600">🔄 重新生成</button>';document.getElementById("tj-voiceover-wrap").insertAdjacentElement("afterend",regenWrap)})}function copyTjVoiceover(btn){var text=document.getElementById("tj-voiceover-text").textContent;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){if(btn){var orig=btn.textContent;btn.textContent="已复制";setTimeout(function(){btn.textContent=orig},1500)}})}else{var ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta)}}function tjRegen(){var pn=document.getElementById("tj-product-name").value.trim();var input=document.getElementById("tj-regen-input");if(!input||!input.value.trim()){alert("请输入优化意见");return}var suggestion=input.value.trim();var current=document.getElementById("tj-result").textContent;document.getElementById("tj-loading").style.display="";var prompt="以下是原始的引流文案：\n\n"+current+"\n\n用户优化意见："+suggestion+"\n\n请根据优化意见重新生成完整引流文案，保持相同结构（标题建议、口播文案、分镜脚本、可视化建议、转化引导）。只输出纯文本，不要JSON格式。";xuehuiCallAPI("你是短视频营销文案专家。根据用户意见优化文案。只输出纯文本文案。",prompt,function(json){document.getElementById("tj-loading").style.display="none";var result=typeof json==="string"?json:(json.raw||json.content||json.text||JSON.stringify(json));document.getElementById("tj-result").textContent=result;var oldVo=document.getElementById("tj-voiceover-wrap");if(oldVo)oldVo.remove();var oldRegen2=document.getElementById("tj-regen-wrap");if(oldRegen2)oldRegen2.remove();var voWrap=document.createElement("div");voWrap.id="tj-voiceover-wrap";voWrap.style.cssText="margin-top:16px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)";voWrap.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 纯口播文案</span><button onclick="copyTjVoiceover(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="tj-voiceover-text" id="tj-voiceover-text" style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-card);border-radius:8px"><span style="color:var(--text-muted)">⏳ 提取纯口播中...</span></div>';document.getElementById("tj-result").insertAdjacentElement("afterend",voWrap);var voPrompt="请从以下内容中提取纯口播文案，只保留可实际朗读的脚本部分，删除所有分析、策略、手法选择、建议、标记符号等非口播内容。直接输出纯净的口播文案，不要任何说明。\n\n原始内容：\n"+result;xuehuiCallAPI("你是口播文案提取助手。只输出纯口播文案。",voPrompt,function(voJson){var vo=typeof voJson==="string"?voJson:(voJson.raw||voJson.content||voJson.text||JSON.stringify(voJson));var voEl=document.getElementById("tj-voiceover-text");if(voEl)voEl.textContent=vo},{temperature:0.3,max_tokens:4000});var regenWrap=document.createElement("div");regenWrap.id="tj-regen-wrap";regenWrap.style.cssText="margin-top:16px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)";regenWrap.innerHTML='<div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="tj-regen-input" placeholder="输入优化意见" style="width:100%;min-height:60px;padding:10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea><button onclick="tjRegen()" style="margin-top:8px;padding:8px 16px;border-radius:8px;border:none;background:var(--purple);color:#fff;font-size:12px;cursor:pointer;font-weight:600">🔄 重新生成</button>';document.getElementById("tj-voiceover-wrap").insertAdjacentElement("afterend",regenWrap)})}
-function tjCopyResult(btn){var text=document.getElementById("tj-result").textContent;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){if(btn){btn.textContent="已复制";setTimeout(function(){btn.textContent="复制全文"},1500)}}).catch(function(){fallbackTjCopy(text)})}else{fallbackTjCopy(text)}}
-function fallbackTjCopy(text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");alert("已复制")}catch(e){alert("复制失败，请手动复制")}document.body.removeChild(ta)}
-function tjIterate(type){var current=document.getElementById("tj-result").textContent;if(!current){alert("请先生成文案");return}document.getElementById("tj-loading").style.display="";var prompt="原文案："+current+"\n\n操作："+type+"\n\n请根据操作重新生成文案。只输出纯文本。";xuehuiCallAPI("你是文案优化专家。只输出纯文本。",prompt,function(json){document.getElementById("tj-loading").style.display="none";var result=typeof json==="string"?json:(json.raw||json.content||json.text||JSON.stringify(json));var div=document.getElementById("tj-iterate-result");div.textContent=result;div.style.display=""})}
-function tjReset(){var ir=document.getElementById("tj-iterate-result");if(ir)ir.style.display="none";document.getElementById("tj-selling-points").value="";document.getElementById("tj-pain-points").value="";document.getElementById("tj-hooks-result").innerHTML="";document.getElementById("tj-result").textContent="";document.querySelectorAll("#tj-product-type .select-chip.selected,#tj-audience .select-chip.selected,#tj-scene .select-chip.selected,#tj-price .select-chip.selected,#tj-hooks .select-chip.selected,#tj-persona .select-chip.selected,#tj-tone .select-chip.selected").forEach(function(c){c.classList.remove("selected")})}
+
+
+
+
+
+
+
+
+
+

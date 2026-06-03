@@ -586,7 +586,7 @@ function formatScript(t){
 }
 function copyFormResult(btn){
  var area=document.getElementById("form-result-area");
- var t=area.textContent.trim();
+ var resultDiv=area.querySelector("div > div:nth-child(2)");var t=resultDiv?resultDiv.textContent.trim():area.textContent.trim();
  if(navigator.clipboard&&navigator.clipboard.writeText){
   navigator.clipboard.writeText(t).then(function(){
    btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 复制"},2000);

@@ -204,7 +204,15 @@ var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt
 fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:16000})}).then(function(r){return r.json()}).then(function(data){
 if(data.error){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ API 错误：'+data.error.message+'</div>';return}
 var c=data.choices[0].message.content;
-fa.innerHTML='<div style="background:var(--bg-card);border:1px solid var(--border-glow);border-radius:10px;padding:16px"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:10px">📝 生成结果</div><div style="font-size:12px;line-height:1.8;color:var(--text-primary);line-height:1.5">'+formatScript(c)+'</div><div style="margin-top:12px;display:flex;gap:8px"><button onclick="copyFormResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">📋 复制</button></div></div>';
+fa.innerHTML='<div style="background:var(--bg-card);border:1px solid var(--border-glow);border-radius:10px;padding:16px"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:10px">📝 生成结果</div><div style="font-size:12px;line-height:1.8;color:var(--text-primary);line-height:1.5">'+formatScript(c)+'</div><div style="margin-top:12px;display:flex;gap:8px"><button onclick="copyFormResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">📋 复制</button></div></div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 纯口播文案</span><button onclick="copyVoiceoverForm(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="form-voiceover-text" id="form-voiceover-text" style="font-size:12px;line-height:1.5;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-panel);border-radius:8px"><span style="color:var(--text-muted)">⏳ 提取纯口播中...</span></div>';
+// Extract pure voiceover via second API call
+var voPrompt="请从以下内容中提取纯口播文案，只保留可实际朗读的脚本部分，删除所有分析、策略、手法选择、建议等非口播内容。直接输出纯净的口播文案，不要任何说明。\n\n原始内容：\n"+c;
+fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"user",content:voPrompt}],temperature:.3,max_tokens:8000})}).then(function(r2){return r2.json()}).then(function(d2){
+ var vo=d2.choices[0].message.content;
+ document.getElementById("form-voiceover-text").textContent=vo;
+}).catch(function(){
+ document.getElementById("form-voiceover-text").textContent=c;
+});
 fa.innerHTML+= '<div</div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="form-regen-input" placeholder="输入优化意见" style="width:100%;min-height:50px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button onclick="formRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="form-regen-result" style="margin-top:10px;display:none"></div><div id="form-regen-loading" style="display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:12px">重新生成中...</div></div>'
 }).catch(function(e){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ 请求失败：'+e.message+'</div>'}).catch(function(e){hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})
 }
@@ -599,7 +607,7 @@ function copyFormResult(btn){
 function formRegenerate(){
  var fb=document.getElementById("form-regen-input").value.trim();
  if(!fb){alert("请输入优化意见");return}
- var orig=document.querySelector("#form-result-area > div:first-child");
+ var orig=document.querySelector("#form-result-area .form-voiceover-text");
  if(!orig){alert("没有可优化的内容");return}
  var content=orig.textContent.trim();
  var agent=agents[chatKey];if(!agent)return;

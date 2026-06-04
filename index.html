@@ -319,10 +319,11 @@ function syncHistoryFromCloud() {
   firestoreDB.collection("chat_history").doc(uid).get().then(function(doc) {
     if (!doc.exists) return;
     var remote = (doc.data().items || []).filter(function(h) { return h.msgs && h.msgs.length > 0; });
-    var local = JSON.parse(localStorage.getItem("fp_chat_history") || "[]");
+    var storageKey = "fp_chat_history_" + uid;
+    var local = JSON.parse(localStorage.getItem(storageKey) || "[]");
     var merged = mergeHistories(local, remote);
     if (JSON.stringify(merged) !== JSON.stringify(local)) {
-      localStorage.setItem("fp_chat_history", JSON.stringify(merged));
+      localStorage.setItem(storageKey, JSON.stringify(merged));
       window.showConfirmDialog = function(msg, onOk) {
     document.getElementById("confirm-msg").textContent = msg;
     document.getElementById("confirm-btn-ok").onclick = function() {
@@ -344,10 +345,24 @@ function syncHistoryFromCloud() {
 // === <script>
 // === 历史记录 ===
 (function(){
-  var STORAGE_KEY = 'fp_chat_history';
+  var LEGACY_STORAGE_KEY = 'fp_chat_history';
+
+  function getHistoryStorageKey() {
+    var uid = typeof getHistoryUserId === 'function' ? getHistoryUserId() : null;
+    return uid ? ('fp_chat_history_' + uid) : 'fp_chat_history_guest';
+  }
+
+  function isValidHistoryItem(h) {
+    if (!h || !h.key || typeof h.section !== 'number' || typeof h.mode !== 'number') return false;
+    if (h.key !== h.section + '-' + h.mode) return false;
+    if (!Array.isArray(h.msgs)) return false;
+    return h.msgs.some(function(m) {
+      return m && m.role === 'user' && String(m.content || '').replace(/<[^>]*>/g, '').trim().length > 0;
+    });
+  }
 
   function loadHistory() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    try { return JSON.parse(localStorage.getItem(getHistoryStorageKey()) || '[]'); }
     catch(e) { return []; }
   }
 
@@ -356,17 +371,22 @@ function syncHistoryFromCloud() {
     var key = window.chatKey;
     var msgs = window.chatMessages;
     if (!key || !msgs || msgs.length === 0) return;
+    var section = window.currentSection;
+    var mode = window.currentMode;
+    var draft = { key: key, section: section, mode: mode, msgs: msgs };
+    if (!isValidHistoryItem(draft)) return;
     items = items.filter(function(h) { return h.key !== key; });
     var nameEl = document.getElementById('chat-agent-name');
     var iconEl = document.getElementById('chat-agent-icon');
     items.unshift({
-      key: key, section: window.currentSection, mode: window.currentMode,
+      key: key, section: section, mode: mode,
       name: nameEl ? nameEl.textContent : '',
       icon: iconEl ? iconEl.textContent : '',
       msgs: msgs.slice(0), time: Date.now()
     });
+    items = items.filter(isValidHistoryItem);
     if (items.length > 10) items = items.slice(0, 10);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    localStorage.setItem(getHistoryStorageKey(), JSON.stringify(items));
     syncHistoryToCloud(items);
     window.showConfirmDialog = function(msg, onOk) {
     document.getElementById("confirm-msg").textContent = msg;
@@ -385,7 +405,8 @@ function syncHistoryFromCloud() {
 
   var _pendingClear = null;
   function doClearAllHistory() {
-    localStorage.removeItem("fp_chat_history");
+    localStorage.removeItem(getHistoryStorageKey());
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
     var uid = getHistoryUserId();
     if (uid && typeof firestoreDB !== "undefined") {
       firestoreDB.collection("chat_history").doc(uid).set({ items: [], updated: Date.now() }).catch(function(){});
@@ -406,7 +427,8 @@ function syncHistoryFromCloud() {
   }
   window.clearAllHistory = function() {
     showConfirmDialog("确定清空所有历史记录？此操作不可撤销。", doClearAllHistory); return;
-    localStorage.removeItem("fp_chat_history");
+    localStorage.removeItem(getHistoryStorageKey());
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
     var uid = getHistoryUserId();
     if (uid && typeof firestoreDB !== "undefined") {
       firestoreDB.collection("chat_history").doc(uid).set({ items: [], updated: Date.now() }).catch(function(){});
@@ -429,7 +451,8 @@ function syncHistoryFromCloud() {
   function renderHistory() {
     var list = document.getElementById('history-list');
     if (!list) return;
-    var items = loadHistory().filter(function(h) { return h.msgs && h.msgs.length > 0; });
+    var section = typeof window.currentSection === 'number' ? window.currentSection : 0;
+    var items = loadHistory().filter(function(h) { return isValidHistoryItem(h) && h.section === section; });
     if (items.length === 0) {
       list.innerHTML = '<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无记录</div>';
       return;
@@ -439,10 +462,12 @@ function syncHistoryFromCloud() {
         h.icon + ' ' + h.name + ' <span style="font-size:10px;color:var(--text-muted)">' + h.msgs.length + '条</span></div>';
     }).join('');
   }
+  window.renderHistory = renderHistory;
 
   window._restoreHistory = function(key) {
     var items = loadHistory();
-    var item = items.find(function(h) { return h.key === key; });
+    var section = typeof window.currentSection === 'number' ? window.currentSection : 0;
+    var item = items.find(function(h) { return h.key === key && isValidHistoryItem(h) && h.section === section; });
     if (!item) return;
     window.currentSection = item.section; window.currentMode = item.mode;
     window.sectionModes = window.sectionModes || [-1, -1, -1];
@@ -495,9 +520,9 @@ function syncHistoryFromCloud() {
   // Clean corrupted entries on load
   setTimeout(function() {
     var items = loadHistory();
-    var cleaned = items.filter(function(h) { return h.msgs && h.msgs.length > 0; });
+    var cleaned = items.filter(isValidHistoryItem);
     if (cleaned.length !== items.length) {
-      localStorage.setItem("fp_chat_history", JSON.stringify(cleaned));
+      localStorage.setItem(getHistoryStorageKey(), JSON.stringify(cleaned));
       syncHistoryToCloud(cleaned);
       window.showConfirmDialog = function(msg, onOk) {
     document.getElementById("confirm-msg").textContent = msg;

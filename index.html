@@ -197,6 +197,12 @@
 </div>
 <button class="chat-form-submit" style="background:var(--bg-panel);color:var(--text-primary);border:1px solid var(--border-glow)" onclick="tjReset()">🔄 重新开始</button>
 <div id="tj-iterate-result" style="margin-top:12px;padding:12px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;display:none"></div>
+
+<div id="tj-regen-wrap" style="margin-top:16px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)">
+  <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 其它调整</div>
+  <textarea id="tj-regen-input" placeholder="输入调整意见，例如：换一种钩子类型、语气更活泼、增加产品功效描述…" style="width:100%;min-height:60px;padding:10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea>
+  <button onclick="tjRegen()" style="margin-top:8px;padding:8px 16px;border-radius:8px;border:none;background:var(--purple);color:#fff;font-size:12px;cursor:pointer;font-weight:600">🔄 重新生成</button>
+</div>
 </div>
 <div id="tj-loading" style="display:none;text-align:center;padding:20px;color:var(--text-muted)">⏳ AI 正在生成中...</div>
 </div>

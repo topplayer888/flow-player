@@ -63,10 +63,10 @@ return '<div class="mode-card'+(has?' active-agent':'')+'" data-mode="'+i+'" sty
 }).join("")+"</div>";
 ca.innerHTML=n;ca.classList.remove("fading");
 var overall=document.getElementById("stat-overall");
-var hasAny=false;
-e.modes.forEach(function(m,i){if(agents[_s+"-"+i])hasAny=true});
-overall.textContent=hasAny?"已激活":"待更新";
-overall.className="stat-value "+(hasAny?"":"gold");
+var activeCount=0;
+e.modes.forEach(function(m,i){if(agents[_s+"-"+i])activeCount++});
+overall.textContent=activeCount>0?"已激活"+activeCount:"待更新";
+overall.className="stat-value "+(activeCount>0?"":"gold");
 document.getElementById("stat-modes").textContent=e.modes.length;
 document.getElementById("stat-systems").textContent=new Set(e.modes.map(function(m){return m.name})).size;
 setTimeout(function(){

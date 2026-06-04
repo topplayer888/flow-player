@@ -223,24 +223,67 @@ function tjCleanVoiceoverText(text){
     .trim();
 }
 
-function tjRegen(){
+function tjGetRegenSource(){
+  var vo=document.getElementById("tj-voiceover-text");
+  var voText=vo?vo.textContent.trim():"";
+  if(voText&&voText.indexOf("提取纯口播中")===-1){
+    return {type:"纯口播文案",text:voText};
+  }
   var currentEl=document.getElementById("tj-result");
-  var current=currentEl?currentEl.textContent.trim():"";
+  return {type:"完整文案",text:currentEl?currentEl.textContent.trim():""};
+}
+
+function tjBuildIterateInstruction(type){
+  var map={
+    "换钩子":"重写开头钩子，前3到5句话必须明显不同，用新的切入方式制造注意力，但保留产品核心卖点。",
+    "换人设":"更换口播视角和身份表达方式，整篇用新的说话人身份重写，不能沿用原来的叙述口吻。",
+    "换风格":"更换语气风格和节奏，句式、措辞、情绪强度都要明显变化。",
+    "缩短":"压缩篇幅，删除重复铺垫和弱信息，只保留最有转化力的口播内容。",
+    "加长":"加长内容，补充具体场景、痛点细节、产品价值和自然过渡，不能只重复原句。",
+    "批量":"生成3个不同版本，每个版本都要使用不同开头和表达方式，版本之间不能互相复述。"
+  };
+  return map[type]||("按“"+type+"”方向重写口播文案，必须让表达和原稿有明显差异。");
+}
+
+function tjSameContent(a,b){
+  function norm(s){
+    return String(s||"").replace(/\s+/g,"").replace(/[，。！？、,.!?;；:："'“”‘’（）()【】\[\]-]/g,"");
+  }
+  var na=norm(a),nb=norm(b);
+  return na&&nb&&na===nb;
+}
+
+function tjRegen(){
+  var source=tjGetRegenSource();
+  var current=source.text;
   if(!current){alert("请先生成文案");return}
   var selected=Array.from(document.querySelectorAll("#tj-iterate-options .select-chip.selected")).map(function(c){return c.dataset.val});
   var input=document.getElementById("tj-regen-input");
   var suggestion=input?input.value.trim():"";
   if(selected.length===0&&!suggestion){alert("请选择一个调整按钮，或输入其它调整意见");return}
   var requirements=[];
-  if(selected.length>0){requirements.push("用户选择的调整按钮："+selected.join("、"))}
+  if(selected.length>0){
+    requirements.push("用户选择的调整按钮："+selected.join("、"));
+    selected.forEach(function(type){requirements.push("- "+tjBuildIterateInstruction(type))});
+  }
   if(suggestion){requirements.push("用户输入的其它调整："+suggestion)}
   document.getElementById("tj-loading").style.display="";
-  var prompt="以下是原始内容，里面可能包含标题、分镜、画面建议、转化引导等非口播信息：\n\n"+current+"\n\n"+requirements.join("\n")+"\n\n请按调整要求重新生成【口播逐字稿】。\n\n严格输出规则：\n1. 只输出真人可以直接照读的逐字稿正文。\n2. 不要标题建议、分镜脚本、画面描述、可视化建议、转化引导、评论区预设、分析说明。\n3. 不要 Markdown、不要表格、不要项目符号、不要“口播文案：”“以下是”等说明。\n4. 用自然口语短句分行，每一行都是可朗读内容。\n5. 如果用户选择“批量生成更多变体”，可以输出“版本1”“版本2”标签，但每个版本下面只能是逐字稿正文。";
+  var prompt="以下是需要改写的"+source.type+"，这是原稿，不是最终答案：\n\n"+current+"\n\n调整要求：\n"+requirements.join("\n")+"\n\n请根据以上调整要求重新生成【口播逐字稿】。\n\n必须遵守：\n1. 这是改写任务，不是复制任务，不能原样返回原稿，也不能只删标题后照抄原句。\n2. 必须让开头、句式、表达顺序和重点呈现方式根据用户选择/输入发生明显变化。\n3. 用户同时选择按钮和输入调整意见时，两类要求都要执行。\n4. 只输出真人可以直接照读的逐字稿正文。\n5. 不要标题建议、分镜脚本、画面描述、可视化建议、转化引导、评论区预设、分析说明。\n6. 不要 Markdown、不要表格、不要项目符号、不要“口播文案：”“以下是”等说明。\n7. 用自然口语短句分行，每一行都是可朗读内容。\n8. 如果用户选择“批量生成更多变体”，可以输出“版本1”“版本2”“版本3”标签，但每个版本下面只能是逐字稿正文。";
   xuehuiCallAPI("你是短视频口播逐字稿优化专家。你只能输出可直接朗读的口播逐字稿，禁止输出标题、分镜、画面建议、转化引导和解释。",prompt,function(json){
-    document.getElementById("tj-loading").style.display="none";
     var result=typeof json==="string"?json:(json.raw||json.content||json.text||JSON.stringify(json));
-    tjRenderRegenVoiceover(tjCleanVoiceoverText(result));
-  });
+    var cleaned=tjCleanVoiceoverText(result);
+    if(tjSameContent(current,cleaned)){
+      var retryPrompt=prompt+"\n\n上一轮输出与原稿过于接近。请立刻重新改写，必须更换开头、重排表达顺序、替换关键句式，并严格执行调整要求。只输出新的口播逐字稿正文。";
+      xuehuiCallAPI("你是短视频口播逐字稿重写专家。你的任务是强制改写，禁止复述原稿，禁止输出解释。",retryPrompt,function(retryJson){
+        document.getElementById("tj-loading").style.display="none";
+        var retryResult=typeof retryJson==="string"?retryJson:(retryJson.raw||retryJson.content||retryJson.text||JSON.stringify(retryJson));
+        tjRenderRegenVoiceover(tjCleanVoiceoverText(retryResult));
+      },{temperature:1,max_tokens:4000});
+      return;
+    }
+    document.getElementById("tj-loading").style.display="none";
+    tjRenderRegenVoiceover(cleaned);
+  },{temperature:0.95,max_tokens:4000});
 }
 
 function tjCopyResult(btn){

@@ -386,7 +386,9 @@ function updateApiStatus(){var btn=document.querySelector(".sidebar-settings-btn
 function toggleSettings(e){e.stopPropagation();var p=document.getElementById("chat-settings-panel");p.classList.toggle("open")}
 function applyAdjustment(){var t=document.getElementById("cfg-adjust");var v=t.value.trim();if(!v)return;document.getElementById("chat-settings-panel").classList.remove("open");addMessage("user","调整要求："+v);t.value="";showTyping();callAgentForAdjust(v)}
 function clearAdjustment(){document.getElementById("cfg-adjust").value=""}
-function callAgentForAdjust(adjustText){var agent=agents[chatKey];if(!agent)return;if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>");return}var msgs=[{role:"system",content:agent.systemPrompt}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只返回优化后的内容，不要解释过程。\n"+adjustText});fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}addMessage("assistant",data.choices[0].message.content)}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
+function getMayuanDialogueSystemPrompt(base){if(chatKey!=="1-0")return base;return base+"\n\n# 马源内容体系对话式补充规则\n当用户要求生成脚本、引流脚本、短视频文案或口播文案，并且没有明确指定时长时，优先按30-60秒生成。口播文案控制在150-250字左右，约10-15句，结构完整但不要写成长篇。若用户明确指定30秒以内或60秒以上，以用户要求为准。生成文案后，在结尾追加一句：需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
+function appendMayuanDialogueFollowup(content){if(chatKey!=="1-0")return content;if(!content)return content;if(content.indexOf("需要我帮你把这版内容篇幅加长吗")>=0||content.indexOf("有任何修改意见请告诉我")>=0)return content;return content+"\n\n需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
+function callAgentForAdjust(adjustText){var agent=agents[chatKey];if(!agent)return;if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>");return}var msgs=[{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只返回优化后的内容，不要解释过程。\n"+adjustText});fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}addMessage("assistant",appendMayuanDialogueFollowup(data.choices[0].message.content))}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
 function callAgent(userMsg){
 var agent=agents[chatKey];if(!agent)return;
 if(!apiConfig.apikey||apiConfig.apikey.length<10){
@@ -394,7 +396,7 @@ hideTyping();
 addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span><br><br>也可以在左侧栏 ⚙ API 配置 中设置。");
 return;
 }
-var msgs=[{role:"system",content:agent.systemPrompt}];
+var msgs=[{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)}];
 chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});
 fetch(apiConfig.endpoint,{
 method:"POST",
@@ -403,7 +405,7 @@ body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_toke
 }).then(function(r){return r.json()}).then(function(data){
 hideTyping();
 if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}
-addMessage("assistant",data.choices[0].message.content);
+addMessage("assistant",appendMayuanDialogueFollowup(data.choices[0].message.content));
 }).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)});
 }
 

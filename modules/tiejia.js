@@ -79,14 +79,12 @@ function tjStep1(){
     document.getElementById("tj-hooks-result").innerHTML=html;
     var hookChips=document.querySelectorAll("#tj-hooks .select-chip");
     hookChips.forEach(function(c){
-      c.classList.remove("selected");
       var b=c.querySelector(".tj-badge");
       if(b)b.remove();
     });
     recs.forEach(function(r){
       hookChips.forEach(function(c){
-        if(c.dataset.val===r.type&&!c.classList.contains("selected")){
-          c.classList.add("selected");
+        if(c.dataset.val===r.type){
           var badge=document.createElement("span");
           badge.className="tj-badge";
           badge.textContent="推荐";
@@ -309,11 +307,6 @@ function fallbackTjCopy(text){
   ta.select();
   try{document.execCommand("copy");alert("已复制")}catch(e){alert("复制失败，请手动复制")}
   document.body.removeChild(ta);
-}
-
-function tjIterate(type){
-  var chip=document.querySelector('#tj-iterate-options .select-chip[data-val="'+type+'"]');
-  if(chip&&!chip.classList.contains("selected")){chip.classList.add("selected")}
 }
 
 tjBindIterateOnly();

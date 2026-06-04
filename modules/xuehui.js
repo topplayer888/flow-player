@@ -126,6 +126,40 @@ function copyVoiceover(btn){
   }).catch(function(){fallbackCopy(t)})
  }else{fallbackCopy(t)}
 }
+function copyXhResult(btn){
+ var card=btn.closest("[data-xh-card]")||btn.closest("div");
+ var el=card?card.querySelector(".xh-copy-content"):null;
+ var text=el?el.textContent.trim():"";
+ if(!text){
+  var fallback=btn.parentElement&&btn.parentElement.nextElementSibling;
+  text=fallback?fallback.textContent.trim():"";
+ }
+ if(!text){alert("没有找到可复制的文案");return}
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(text).then(function(){
+   var original=btn.textContent;
+   btn.textContent="✅ 已复制";
+   btn.style.color="#10b981";
+   setTimeout(function(){btn.textContent=original;btn.style.color="var(--text-secondary)"},2000);
+  }).catch(function(){fallbackCopyXh(btn,text)})
+ }else{fallbackCopyXh(btn,text)}
+}
+function fallbackCopyXh(btn,text){
+ var ta=document.createElement("textarea");
+ ta.value=text;
+ ta.style.position="fixed";
+ ta.style.left="-9999px";
+ document.body.appendChild(ta);
+ ta.select();
+ try{
+  document.execCommand("copy");
+  var original=btn.textContent;
+  btn.textContent="✅ 已复制";
+  btn.style.color="#10b981";
+  setTimeout(function(){btn.textContent=original;btn.style.color="var(--text-secondary)"},2000);
+ }catch(e){alert("复制失败，请手动选择复制")}
+ document.body.removeChild(ta);
+}
 function xhRegenerate(){
  var feedback=document.getElementById("xh-regen-input").value.trim();
  if(!feedback){alert("请输入优化意见");return}
@@ -138,7 +172,7 @@ function xhRegenerate(){
   document.getElementById("xh-regen-loading").style.display="none";
   var result=typeof json==="string"?json:(json.raw||json.content||json.text||JSON.stringify(json));
   var div=document.getElementById("xh-regen-result");
-  div.innerHTML='<div style="padding:12px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,229,255,.04)"><div style="font-size:11px;font-weight:600;color:var(--cyan);margin-bottom:6px">✅ 优化结果</div><div style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+result+'</div><button onclick="copyXhResult(this)" style="margin-top:8px;background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 复制</button></div>';
+  div.innerHTML='<div data-xh-card="regen" style="padding:12px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,229,255,.04)"><div style="font-size:11px;font-weight:600;color:var(--cyan);margin-bottom:6px">✅ 优化结果</div><div class="xh-copy-content" style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+result+'</div><button onclick="copyXhResult(this)" style="margin-top:8px;background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 复制</button></div>';
   div.style.display="";
  }, {temperature:0.3,max_tokens:8000});
 }
@@ -256,25 +290,7 @@ xuehuiCallAPI(sysPrompt,userPrompt,function(json){
   html+='<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:8px;padding:6px 12px;background:rgba(168,85,247,.08);border-radius:8px">'+g+'</div>';
   grouped[g].forEach(function(r){
    var durColor=r.duration==="90秒标准"?"var(--cyan)":"var(--gold)";var charCount=r.content?r.content.length:0;var countColor=charCount<(r.duration==="90秒标准"?300:550)?"var(--red)":"var(--green)";
-   html+='<div style="padding:12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);margin-bottom:8px"><div style="display:flex;gap:8px;margin-bottom:6px"><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(0,229,255,.1);color:'+durColor+'">'+r.duration+' <span style="font-size:9px;color:'+countColor+'">('+charCount+'字)</span></span><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(168,85,247,.1);color:var(--purple)">'+r.openingType+'</span><span style="flex:1"></span><button onclick="copyXhResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px" title="复制全文">&#x1f4cb; 复制</button><button onclick="expandCopy(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px" title="扩写">📝 扩写</button></div><div style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+r.content+'</div><div class="xh-expand-area" style="display:none;margin-top:8px;padding:8px;border-radius:8px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="display:flex;gap:6px;align-items:center;margin-bottom:6px"><input type="number" class="xh-expand-input" placeholder="请输入你想要扩写的字数..." style="flex:1;padding:4px 8px;border-radius:6px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px" min="100"><button onclick="doExpandCopy(this)" style="background:var(--purple);color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;white-space:nowrap">确认扩写</button></div><div class="xh-expand-result" style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap;margin-top:6px;display:none"></div><div class="xh-expand-loading" style="display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:8px">扩写中...</div></div></div>';
-// Monitor template selection for auto-recommend
-var xhOrigToggleChip=toggleChip;
-toggleChip=function(chip,containerId,maxSelect){
-xhOrigToggleChip(chip,containerId,maxSelect);
-// Check if it's the templates container
-if(containerId==="xh-templates"){
-setTimeout(function(){
-var selected=Array.from(document.getElementById("xh-templates").querySelectorAll(".select-chip.selected"));
-if(selected.length>0){
-// Set xhState.templates and trigger openings recommendation
-xhState.templates=selected.map(function(c){return c.dataset.val});
-xuehuiRecommendOpenings();
-}
-},300);
-}
-};
-
-
+   html+='<div data-xh-card="result" style="padding:12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);margin-bottom:8px"><div style="display:flex;gap:8px;margin-bottom:6px"><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(0,229,255,.1);color:'+durColor+'">'+r.duration+' <span style="font-size:9px;color:'+countColor+'">('+charCount+'字)</span></span><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(168,85,247,.1);color:var(--purple)">'+r.openingType+'</span><span style="flex:1"></span><button onclick="copyXhResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px" title="复制全文">&#x1f4cb; 复制</button><button onclick="expandCopy(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px" title="扩写">📝 扩写</button></div><div class="xh-copy-content" style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+r.content+'</div><div class="xh-expand-area" style="display:none;margin-top:8px;padding:8px;border-radius:8px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="display:flex;gap:6px;align-items:center;margin-bottom:6px"><input type="number" class="xh-expand-input" placeholder="请输入你想要扩写的字数..." style="flex:1;padding:4px 8px;border-radius:6px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px" min="100"><button onclick="doExpandCopy(this)" style="background:var(--purple);color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;white-space:nowrap">确认扩写</button></div><div class="xh-expand-result" style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap;margin-top:6px;display:none"></div><div class="xh-expand-loading" style="display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:8px">扩写中...</div></div></div>';
   });
   html+='</div>';
  }

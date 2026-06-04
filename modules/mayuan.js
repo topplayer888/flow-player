@@ -98,8 +98,7 @@ function copyFormRegenResult(btn){
   navigator.clipboard.writeText(t).then(function(){btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 复制"},2000)}).catch(function(){fallbackCopy(t)})
  }else{fallbackCopy(t)}
 }
-function copyXhResult(btn){var card=btn.closest("div").parentElement;var text=card.querySelector("div:last-child").textContent;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){btn.textContent="\u2705 已复制";var _copyColor=themeWasteland?"#d4a830":"#10b981";btn.style.color=_copyColor;setTimeout(function(){btn.textContent="\uD83D\uDCCB 复制";btn.style.color="var(--text-secondary)"},2000)}).catch(function(){fallbackCopy(btn,text)})}else{fallbackCopy(btn,text)}}
-function fallbackCopy(btn,text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");btn.textContent="\u2705 已复制";var _copyColor=themeWasteland?"#d4a830":"#10b981";btn.style.color=_copyColor;setTimeout(function(){btn.textContent="\uD83D\uDCCB 复制";btn.style.color="var(--text-secondary)"},2000)}catch(e){alert("复制失败，请手动选择复制")}document.body.removeChild(ta)}
+function fallbackCopy(btn,text){if(typeof text==="undefined"){text=btn;btn=null}var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");if(btn){btn.textContent="\u2705 已复制";var _copyColor=themeWasteland?"#d4a830":"#10b981";btn.style.color=_copyColor;setTimeout(function(){btn.textContent="\uD83D\uDCCB 复制";btn.style.color="var(--text-secondary)"},2000)}}catch(e){alert("复制失败，请手动选择复制")}document.body.removeChild(ta)}
 function expandCopy(btn){
 var card=btn.closest("div").parentElement;
 var area=card.querySelector(".xh-expand-area");

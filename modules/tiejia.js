@@ -274,17 +274,3 @@ function tjIterate(type){
 }
 
 tjBindIterateOnly();
-
-function tjReset(){
-  var ir=document.getElementById("tj-iterate-result");
-  if(ir){ir.style.display="none";ir.innerHTML=""}
-  var input=document.getElementById("tj-regen-input");
-  if(input)input.value="";
-  var oldVo=document.getElementById("tj-voiceover-wrap");
-  if(oldVo)oldVo.remove();
-  document.getElementById("tj-selling-points").value="";
-  document.getElementById("tj-pain-points").value="";
-  document.getElementById("tj-hooks-result").innerHTML="";
-  document.getElementById("tj-result").textContent="";
-  document.querySelectorAll("#tj-product-type .select-chip.selected,#tj-audience .select-chip.selected,#tj-scene .select-chip.selected,#tj-price .select-chip.selected,#tj-hooks .select-chip.selected,#tj-persona .select-chip.selected,#tj-tone .select-chip.selected,#tj-iterate-options .select-chip.selected").forEach(function(c){c.classList.remove("selected")});
-}

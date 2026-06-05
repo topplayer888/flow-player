@@ -30,8 +30,17 @@ var kjState = {
     { name: "价值堆叠型", formula: "价值 + 价值 + 价值 + 价值" }
   ],
   recommendedIndices: [],
-  selectedIndex: -1
+  selectedIndex: -1,
+  topicKey: "",
+  topicTimer: null,
+  topicLoading: false
 };
+
+function kjEscapeHtml(text) {
+  return String(text || "").replace(/[&<>"']/g, function(ch) {
+    return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch];
+  });
+}
 
 function kjGetVal(id) {
   var el = document.getElementById(id);
@@ -69,6 +78,88 @@ function kjSelectStructure(idx) {
   });
 }
 
+function kjMaybeAutoRecommendTopics() {
+  clearTimeout(kjState.topicTimer);
+  kjState.topicTimer = setTimeout(function() {
+    kjRecommendTopics(false);
+  }, 800);
+}
+
+function kjPickTopic(topic) {
+  var input = document.getElementById("kj-topic");
+  if (input) input.value = topic;
+  var chips = document.querySelectorAll("#kj-topic-recs-content .kj-topic-chip");
+  chips.forEach(function(chip) {
+    chip.classList.toggle("selected", chip.dataset.topic === topic);
+  });
+}
+
+function kjRenderTopicRecs(items, note) {
+  var wrap = document.getElementById("kj-topic-recs");
+  var content = document.getElementById("kj-topic-recs-content");
+  if (!wrap || !content) return;
+  wrap.style.display = "";
+  if (!Array.isArray(items) || items.length === 0) {
+    content.innerHTML = '<div style="color:var(--text-muted);line-height:1.6">' + kjEscapeHtml(note || "暂时没有推荐结果，你也可以直接手动输入主题。") + '</div>';
+    return;
+  }
+  var html = "";
+  if (note) {
+    html += '<div style="font-size:11px;line-height:1.6;color:var(--text-muted)">' + kjEscapeHtml(note) + '</div>';
+  }
+  html += '<div class="select-chips" style="display:flex;flex-wrap:wrap;gap:8px">';
+  items.slice(0, 8).forEach(function(item) {
+    var topic = typeof item === "string" ? item : (item.topic || item.title || "");
+    var reason = typeof item === "string" ? "" : (item.reason || item.hotReason || item.why || "");
+    if (!topic) return;
+    html += '<span class="select-chip kj-topic-chip" data-topic="' + kjEscapeHtml(topic) + '" onclick="kjPickTopic(this.dataset.topic)" title="' + kjEscapeHtml(reason) + '">' + kjEscapeHtml(topic) + '</span>';
+  });
+  html += '</div>';
+  var reasonList = items.slice(0, 5).map(function(item) {
+    if (typeof item === "string") return "";
+    var topic = item.topic || item.title || "";
+    var reason = item.reason || item.hotReason || item.why || "";
+    return topic && reason ? '<div><span style="color:var(--cyan)">' + kjEscapeHtml(topic) + '</span>：' + kjEscapeHtml(reason) + '</div>' : "";
+  }).join("");
+  if (reasonList) {
+    html += '<div style="margin-top:8px;padding:8px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:11px;line-height:1.7">' + reasonList + '</div>';
+  }
+  content.innerHTML = html;
+}
+
+function kjRecommendTopics(force) {
+  var ip = kjGetInput("kj-ip");
+  var industry = kjGetInput("kj-industry");
+  var audience = kjGetInput("kj-audience");
+  if (!ip || !industry || !audience) return;
+  var key = ip + "|" + industry + "|" + audience;
+  if (!force && (kjState.topicKey === key || kjState.topicLoading)) return;
+  kjState.topicKey = key;
+  kjState.topicLoading = true;
+  kjRenderTopicRecs([], "正在根据基础信息联网检索/分析近期高热主题...");
+  if (!apiConfig.apikey || apiConfig.apikey.length < 10) {
+    kjState.topicLoading = false;
+    kjRenderTopicRecs([], "请先配置 API Key。配置后会自动推荐热门主题，你也可以先手动输入主题。");
+    return;
+  }
+  var prompt = "请根据以下基础信息，联网检索或参考近期公开互联网热度，推荐适合短视频创作的热门内容主题。\n\nIP定位：" + ip + "\n行业：" + industry + "\n目标用户：" + audience + "\n\n要求：\n1. 优先参考近期在抖音、快手、小红书、视频号、B站等平台更容易被讨论、搜索、转发的主题方向。\n2. 不要替用户最终选择，只做推荐。\n3. 输出6-8个主题，每个主题要短、具体、可直接作为视频主题。\n4. 如果当前模型没有真实联网能力，请基于你掌握的公开趋势和平台常见高热议题推断，但不要编造具体数据。\n5. 严格输出JSON数组，不要markdown，不要解释。格式：[{\"topic\":\"主题\",\"reason\":\"热度/适配理由\"}]";
+  xuehuiCallAPI("你是短视频热点选题研究员，擅长结合互联网热度、平台内容趋势和用户画像推荐选题。只输出JSON数组。", prompt, function(json) {
+    kjState.topicLoading = false;
+    var items = Array.isArray(json) ? json : [];
+    if (!items.length && json && json.raw) {
+      try { items = JSON.parse(json.raw.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "")); } catch (e) {}
+    }
+    if (!Array.isArray(items) || !items.length) {
+      items = [
+        { topic: industry + "新手最容易踩的3个坑", reason: "避坑类内容通用热度高，适合目标用户快速代入" },
+        { topic: audience + "最近都在关心的一个问题", reason: "用人群痛点切入，便于评论区互动" },
+        { topic: "普通人做" + industry + "怎么少走弯路", reason: "普通人视角更容易形成共鸣和转发" }
+      ];
+    }
+    kjRenderTopicRecs(items, "以下是推荐主题，点击后才会填入内容主题，也可以自己输入。");
+  }, { temperature: 0.4, max_tokens: 1800 });
+}
+
 function kjStep1() {
   var ip = kjGetInput("kj-ip");
   var industry = kjGetInput("kj-industry");
@@ -78,6 +169,7 @@ function kjStep1() {
     return;
   }
   document.getElementById("kj-step2").style.display = "";
+  kjRecommendTopics(false);
 }
 
 function kjStep2() {
@@ -221,8 +313,14 @@ function kjStepBack() {
   document.getElementById("kj-step4").style.display = "";
   var structuresArea = document.getElementById("kj-structures-area");
   var resultArea = document.getElementById("kj-result-area");
+  var topicWrap = document.getElementById("kj-topic-recs");
+  var topicContent = document.getElementById("kj-topic-recs-content");
   if (structuresArea) structuresArea.innerHTML = "完成上方信息后，点击“AI 推荐结构”，这里会显示 12 种内容结构和推荐标签。";
   if (resultArea) resultArea.innerHTML = "选择内容结构后，点击生成，完整文案会显示在这里。";
+  if (topicWrap) topicWrap.style.display = "none";
+  if (topicContent) topicContent.innerHTML = "基础信息填写完整后，将自动推荐热门主题。";
   kjState.selectedIndex = -1;
   kjState.recommendedIndices = [];
+  kjState.topicKey = "";
+  kjState.topicLoading = false;
 }

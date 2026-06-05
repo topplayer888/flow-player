@@ -52,6 +52,17 @@ var xhState={industry:"",audience:"",elements:[],topics:[],selectedTopic:null,te
 
 // xuehui module
 
+function xhParseJsonArray(json){
+ var recs=Array.isArray(json)?json:[];
+ if(recs.length===0&&json&&json.raw){
+  try{recs=JSON.parse(json.raw.replace(/^```(?:json)?\s*\n?/,"").replace(/\n?```\s*$/,""))}catch(e){recs=[]}
+ }
+ if((!Array.isArray(recs)||recs.length===0)&&json){
+  for(var k in json){if(Array.isArray(json[k])){recs=json[k];break}}
+ }
+ return Array.isArray(recs)?recs:[];
+}
+
 function xuehuiUpdateStatus(){var s=document.getElementById("form-xh-status");var m=document.getElementById("form-xh-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 - "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key"}}
 function xuehuiStep1(){
 xhState.industry=document.getElementById("xh-industry").value.trim();
@@ -181,13 +192,12 @@ var industry=document.getElementById("xh-industry").value.trim();
 var audience=document.getElementById("xh-audience").value.trim();
 if(!industry||!audience){alert("请先填写行业和人群");return}
 var btn=(typeof event!=="undefined"&&event&&event.target)?event.target:null;if(btn){btn.textContent="分析中...";btn.disabled=true;}
-var prompt="行业："+industry+" 人群："+audience+"\n\n从以下8种爆款元素中推荐1-2个最适合的，只输出JSON数组：\n"+JSON.stringify(Object.keys(xhElementDetails))+"\n每个元素说明：\n"+Object.entries(xhElementDetails).map(function(e){return e[0]+": "+e[1].desc}).join("\n")+"\n\n你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]";
+var prompt="行业："+industry+" 人群："+audience+"\n\n从以下8种爆款元素中推荐1-2个最适合的，只输出JSON数组：\n"+JSON.stringify(Object.keys(xhElementDetails))+"\n每个元素说明：\n"+Object.entries(xhElementDetails).map(function(e){return e[0]+": "+e[1].rules+" 示例："+e[1].example}).join("\n")+"\n\n你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]";
 xuehuiCallAPI("你是爆款选题推荐专家。根据行业和人群推荐最合适的爆款元素。你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]",prompt,function(json){
  if(btn){btn.textContent="智能推荐爆款元素";btn.disabled=false;}
- var recs=Array.isArray(json)?json:(json.raw?JSON.parse(json.raw):[]);
+ var recs=xhParseJsonArray(json);
  if(!Array.isArray(recs)||recs.length===0){
-  for(var k in json){if(Array.isArray(json[k])){recs=json[k];break}}
-  if(!Array.isArray(recs)||recs.length===0){alert("推荐失败");return}
+  alert("推荐失败");return
  }
  var container=document.getElementById("xh-elements");
  if(!container)return;
@@ -210,10 +220,9 @@ var element=xhState.selectedTopic?xhState.selectedTopic.element:"";
 var prompt="行业："+industry+" 人群："+audience+" 选题元素："+element+"\n\n从以下4种模板推荐1-2个：讲故事类、共鸣型段子类、教知识类、晒过程类\n你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]";
 xuehuiCallAPI("你是文案模板推荐专家。你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]",prompt,function(json){
  if(btn){btn.textContent="智能推荐模板";btn.disabled=false;}
- var recs=Array.isArray(json)?json:(json.raw?JSON.parse(json.raw):[]);
+ var recs=xhParseJsonArray(json);
  if(!Array.isArray(recs)||recs.length===0){
-  for(var k in json){if(Array.isArray(json[k])){recs=json[k];break}}
-  if(!Array.isArray(recs)||recs.length===0){alert("推荐失败");return}
+  alert("推荐失败");return
  }
  var container=document.getElementById("xh-templates");
  if(!container)return;
@@ -236,10 +245,9 @@ var btn=(typeof event!=="undefined"&&event&&event.target)?event.target:null;if(b
 var prompt="行业："+industry+" 人群："+audience+" 已选模板："+tmpls.join("、")+"\n\n从以下36种开头推荐2-3个：\n"+JSON.stringify(Object.keys(xhOpeningDetails))+"\n你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]";
 xuehuiCallAPI("你是开头推荐专家。你必须严格输出纯JSON数组，不要markdown代码块，不要其他文字。示例：[\"A\",\"B\"]",prompt,function(json){
  if(btn){btn.textContent="智能推荐开头";btn.disabled=false;}
- var recs=Array.isArray(json)?json:(json.raw?JSON.parse(json.raw):[]);
+ var recs=xhParseJsonArray(json);
  if(!Array.isArray(recs)||recs.length===0){
-  for(var k in json){if(Array.isArray(json[k])){recs=json[k];break}}
-  if(!Array.isArray(recs)||recs.length===0){alert("推荐失败");return}
+  alert("推荐失败");return
  }
  var container=document.getElementById("xh-openings");
  if(!container)return;
@@ -269,6 +277,8 @@ function xuehuiGenerate(){
 if(!xhState.templates||xhState.templates.length===0){
 xhState.templates=Array.from(document.getElementById("xh-templates").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
 }
+if(!xhState.selectedTopic){alert("请先选择一个选题");return}
+if(!xhState.templates||xhState.templates.length===0){alert("请至少选择一个文案模板");return}
 xhState.selectedOpenings=Array.from(document.getElementById("xh-openings").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
 if(xhState.selectedOpenings.length===0){alert("请至少选择一个开头类型");return}
 var t=xhState.selectedTopic;

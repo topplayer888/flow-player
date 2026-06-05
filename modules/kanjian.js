@@ -286,7 +286,10 @@ function kjRecommendStructures(force) {
   xuehuiCallAPI("你是短视频爆款文案策略专家，精通《爆款菜谱》方法论。只输出JSON数组。", prompt, function(json) {
     document.getElementById("kj-loading").style.display = "none";
     kjState.structureLoading = false;
-    var recs = Array.isArray(json) ? json : (json.raw ? JSON.parse(json.raw) : []);
+    var recs = Array.isArray(json) ? json : [];
+    if (recs.length === 0 && json && json.raw) {
+      try { recs = JSON.parse(json.raw.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "")); } catch (e) { recs = []; }
+    }
     if (!Array.isArray(recs) || recs.length === 0) {
       for (var k in json) { if (Array.isArray(json[k])) { recs = json[k]; break; } }
     }
@@ -324,6 +327,11 @@ function kjGenerate() {
   
   xuehuiCallAPI(systemPrompt, userPrompt, function(json) {
     document.getElementById("kj-loading").style.display = "none";
+    if (json && json.error) {
+      var errArea = document.getElementById("kj-result-area") || document.getElementById("kj-step4");
+      errArea.innerHTML = '<div style="color:#ef4444;padding:12px">❌ API 错误：' + kjEscapeHtml(json.error.message || "生成失败") + '</div>';
+      return;
+    }
     var result = typeof json === "string" ? json : (json.raw || json.content || json.text || JSON.stringify(json));
     
     var html = '<div id="kj-result" style="padding:14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:13px;line-height:1.9;color:var(--text-primary);white-space:pre-wrap;max-height:500px;overflow-y:auto">' + kjFormatResult(result) + '</div>';

@@ -114,10 +114,12 @@ function tjStep3(){
   var sc=tjGetVal("tj-scene");
   var pr=tjGetVal("tj-price");
   var hooks=tjGetVals("tj-hooks");
+  if(hooks.length===0){alert("请至少选择一个钩子类型");return}
   document.getElementById("tj-loading").style.display="";
   var prompt="产品名称："+pn+"\n产品类型："+p+"\n目标受众："+a+"\n核心卖点："+s+"\n核心痛点："+pp+"\n使用场景："+sc+"\n价格定位："+pr+"\n钩子类型："+hooks.join("、")+"\n人设视角："+persona+"\n语气风格："+tone+"\n\n生成完整引流文案，包含：\n【标题建议】（3个）\n【完整口播文案】（300-500字，口语化，先制造坏情绪再引出解决方案）\n【分镜脚本】（表格格式：时间段|画面描述|口播文案|情绪/语气）\n【可视化建议】（3-5个画面）\n【转化引导】（结尾话术+评论区预设3条）\n\n只输出纯文本，不要JSON格式。";
   xuehuiCallAPI("你是短视频营销文案专家。只输出纯文本文案。",prompt,function(json){
     document.getElementById("tj-loading").style.display="none";
+    if(json&&json.error){document.getElementById("tj-result").textContent="API 错误："+(json.error.message||"生成失败");return}
     var result=typeof json==="string"?json:(json.raw||json.content||json.text||JSON.stringify(json));
     document.getElementById("tj-result").textContent=result;
     tjRenderVoiceover(result);
@@ -173,6 +175,7 @@ function tjRenderVoiceover(result){
   document.getElementById("tj-result").insertAdjacentElement("afterend",voWrap);
   var voPrompt="请从以下内容中提取纯口播文案，只保留可实际朗读的脚本部分，删除所有分析、策略、手法选择、建议、标记符号等非口播内容。直接输出纯净的口播文案，不要任何说明。\n\n原始内容：\n"+result;
   xuehuiCallAPI("你是口播文案提取助手。只输出纯口播文案。",voPrompt,function(voJson){
+    if(voJson&&voJson.error){voJson={raw:result}}
     var vo=typeof voJson==="string"?voJson:(voJson.raw||voJson.content||voJson.text||JSON.stringify(voJson));
     var voEl=document.getElementById("tj-voiceover-text");
     if(voEl)voEl.textContent=vo;
@@ -271,12 +274,14 @@ function tjRegen(){
   if(!sourceBlock){sourceBlock=current}
   var prompt="以下是需要重新生成的"+source.type+"。完整文案用于保留结构、卖点、痛点和转化逻辑；纯口播文案用于参考口语表达。它们都是原稿，不是最终答案：\n\n"+sourceBlock+"调整要求：\n"+requirements.join("\n")+"\n\n请根据以上调整要求重新生成一版【完整口播逐字稿】。\n\n必须遵守：\n1. 这是完整重写任务，不是复制任务，不能原样返回原稿，也不能只删标题后照抄原句。\n2. 生成内容必须完整覆盖：开头钩子、目标人群/场景、核心痛点、产品或方案价值、具体利益点、自然收尾。\n3. 如果原完整文案里有关键卖点、痛点、场景、价格定位或人设语气，必须保留到口播逐字稿里，不能只输出片段。\n4. 必须让开头、句式、表达顺序和重点呈现方式根据用户选择/输入发生明显变化。\n5. 用户同时选择按钮和输入调整意见时，两类要求都要执行。\n6. 除非用户选择“缩短”，否则篇幅不能明显短于原纯口播文案；如果选择“加长”，必须补充更多具体场景和细节。\n7. 只输出真人可以直接照读的逐字稿正文。\n8. 不要标题建议、分镜脚本、画面描述、可视化建议、转化引导、评论区预设、分析说明。\n9. 不要 Markdown、不要表格、不要项目符号、不要“口播文案：”“以下是”等说明。\n10. 用自然口语短句分行，每一行都是可朗读内容。\n11. 如果用户选择“批量生成更多变体”，可以输出“版本1”“版本2”“版本3”标签，但每个版本下面只能是完整口播逐字稿正文。";
   xuehuiCallAPI("你是短视频口播逐字稿优化专家。你只能输出可直接朗读的口播逐字稿，禁止输出标题、分镜、画面建议、转化引导和解释。",prompt,function(json){
+    if(json&&json.error){document.getElementById("tj-loading").style.display="none";tjRenderRegenVoiceover("API 错误："+(json.error.message||"重新生成失败"));return}
     var result=typeof json==="string"?json:(json.raw||json.content||json.text||JSON.stringify(json));
     var cleaned=tjCleanVoiceoverText(result);
     if(tjSameContent(current,cleaned)){
       var retryPrompt=prompt+"\n\n上一轮输出与原稿过于接近。请立刻重新改写，必须更换开头、重排表达顺序、替换关键句式，并严格执行调整要求。内容必须完整覆盖开头钩子、场景、痛点、卖点、利益点和收尾。只输出新的完整口播逐字稿正文。";
       xuehuiCallAPI("你是短视频口播逐字稿重写专家。你的任务是强制改写，禁止复述原稿，禁止输出解释。",retryPrompt,function(retryJson){
         document.getElementById("tj-loading").style.display="none";
+        if(retryJson&&retryJson.error){tjRenderRegenVoiceover("API 错误："+(retryJson.error.message||"重新生成失败"));return}
         var retryResult=typeof retryJson==="string"?retryJson:(retryJson.raw||retryJson.content||retryJson.text||JSON.stringify(retryJson));
         tjRenderRegenVoiceover(tjCleanVoiceoverText(retryResult));
       },{temperature:1,max_tokens:6000});

@@ -32,6 +32,7 @@ systemPrompt:"你是短视频爆款内容策略专家，基于薛辉内容培训
 opening:"",
 questions:[]
 },
+"0-1":{name:"看见内容·爆款菜谱AI",section:"爆款脚本创作 / 看见内容体系",icon:"👁️",features:"8项参数设置×12种爆款结构\nAI智能推荐→完整口播稿→爆款评分",formOnly:true,systemPrompt:"你是顶级短视频文案策划专家，掌握《爆款菜谱》全部方法论。你的目标是生成高完播率、高点赞率、高转发率、高涨粉率的短视频脚本。\n\n## 12种结构\n1.钩子+故事+人设+总结+金句\n2.问题+原因+人设+解决办法+总结\n3.金句+拆解+举例+倡导\n4.热点+描述+观点+金句\n5.利益+强化期待+方案+互动\n6.揭秘+人设+故事+总结\n7.金句+金句+金句+金句\n8.功效+动作+效果+关注\n9.问题+解决办法+总结\n10.现象+原因+解决办法+总结\n11.钩子+剖析+总结+金句\n12.价值+价值+价值+价值\n\n## 输出要求\n- 10条爆款标题\n- 5条封面文案\n- 完整口播稿\n- 5条评论区互动文案\n- 爆款评分(1-100)\n- 优化建议\n\n## 评分标准\n钩子20分/情绪20分/共鸣15分/反差15分/价值15分/传播性15分\n总分100。低于90分自动优化重写。\n\n禁止输出解释，直接输出结果。",opening:"",questions:[]},
 "0-3":{
 name:"爆款仿写·短视频爆款复刻专家",
 section:"爆款脚本创作 / 爆款仿写",
@@ -171,8 +172,8 @@ var rwPanel=document.getElementById("chat-form-rewrite");
 if(mode==="form"){
 msgs.style.display="none";questions.style.display="none";inputArea.style.display="none";
 var xp=document.getElementById("chat-form-xuehui");if(xp)xp.style.display="none";
-var tj=document.getElementById("chat-form-tiejia");if(tj)tj.style.display="none";
-if(chatKey==="0-3"){formPanel.style.display="none";rwPanel.style.display="flex";updateRewriteApiStatus()}else if(chatKey==="0-0"){formPanel.style.display="none";rwPanel.style.display="none";var xp=document.getElementById("chat-form-xuehui");if(xp)xp.style.display="flex";xuehuiUpdateStatus()}else if(chatKey==="1-2"){formPanel.style.display="none";rwPanel.style.display="none";var tj=document.getElementById("chat-form-tiejia");if(tj)tj.style.display="flex";tjUpdateStatus()}else{formPanel.style.display="flex";rwPanel.style.display="none";updateFormApiStatus()}
+var tj=document.getElementById("chat-form-tiejia");if(tj)tj.style.display="none";var kj=document.getElementById("chat-form-kanjian");if(kj)kj.style.display="none";
+if(chatKey==="0-1"){formPanel.style.display="none";rwPanel.style.display="none";var kj=document.getElementById("chat-form-kanjian");if(kj)kj.style.display="flex";kanjianUpdateStatus()}else if(chatKey==="0-3"){formPanel.style.display="none";rwPanel.style.display="flex";updateRewriteApiStatus()}else if(chatKey==="0-0"){formPanel.style.display="none";rwPanel.style.display="none";var xp=document.getElementById("chat-form-xuehui");if(xp)xp.style.display="flex";xuehuiUpdateStatus()}else if(chatKey==="1-2"){formPanel.style.display="none";rwPanel.style.display="none";var tj=document.getElementById("chat-form-tiejia");if(tj)tj.style.display="flex";tjUpdateStatus()}else{formPanel.style.display="flex";rwPanel.style.display="none";updateFormApiStatus()}
 }else{
 msgs.style.display="";questions.style.display="";inputArea.style.display="";
 formPanel.style.display="none";rwPanel.style.display="none";

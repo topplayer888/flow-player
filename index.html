@@ -97,7 +97,66 @@
 <div id="xh-results-content" style="max-height:500px;overflow-y:auto;display:flex;flex-direction:column;gap:12px"></div>
 </div>
 </div>
-﻿<div id="chat-form-tiejia" style="display:none">
+﻿
+<div id="chat-form-kanjian" style="display:none">
+<div id="form-kj-api-bar" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:12px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:11px">
+<span class="form-api-status missing" id="form-kj-status">⚡</span>
+<span id="form-kj-msg" style="color:var(--text-muted);flex:1;margin-left:6px">未配置 API Key</span>
+<button onclick="openSettings(event)" style="background:var(--purple);color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:600">⚙ API 配置</button>
+</div>
+
+<div id="kj-step1">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">🔍 步骤 1/4 · 基础信息</span></div>
+<div class="chat-form-field"><label><span class="field-icon">👤</span> IP定位</label><input id="kj-ip" placeholder="例如：10年经验健身教练、90后创业宝妈..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;outline:none"></div>
+<div class="chat-form-field"><label><span class="field-icon">🏭</span> 行业</label><input id="kj-industry" placeholder="例如：健身、美妆、教育、餐饮..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;outline:none"></div>
+<div class="chat-form-field"><label><span class="field-icon">👥</span> 目标用户</label><input id="kj-audience" placeholder="例如：25-35岁职场女性、减肥人群..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;outline:none"></div>
+<button class="chat-form-submit" onclick="kjStep1()" style="margin-top:12px">下一步 →</button>
+</div>
+
+<div id="kj-step2" style="display:none">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">📋 步骤 2/4 · 内容设定</span></div>
+<div class="chat-form-field"><label><span class="field-icon">📝</span> 内容主题</label><input id="kj-topic" placeholder="本期视频的核心主题..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;outline:none"></div>
+<div class="chat-form-field"><label><span class="field-icon">⏱️</span> 视频时长</label>
+<div class="select-chips" id="kj-duration" style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="select-chip" data-val="15-30秒" onclick="kjPick(this,'kj-duration',1)">⚡ 15-30秒</span>
+<span class="select-chip" data-val="30-60秒" onclick="kjPick(this,'kj-duration',1)">🎯 30-60秒</span>
+<span class="select-chip" data-val="60-90秒" onclick="kjPick(this,'kj-duration',1)">📺 60-90秒</span>
+<span class="select-chip" data-val="90秒以上" onclick="kjPick(this,'kj-duration',1)">🎬 90秒以上</span>
+</div></div>
+<div class="chat-form-field"><label><span class="field-icon">📱</span> 发布平台</label>
+<div class="select-chips" id="kj-platform" style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="select-chip" data-val="抖音" onclick="kjPick(this,'kj-platform',1)">🎵 抖音</span>
+<span class="select-chip" data-val="快手" onclick="kjPick(this,'kj-platform',1)">📹 快手</span>
+<span class="select-chip" data-val="视频号" onclick="kjPick(this,'kj-platform',1)">💬 视频号</span>
+<span class="select-chip" data-val="小红书" onclick="kjPick(this,'kj-platform',1)">📕 小红书</span>
+<span class="select-chip" data-val="B站" onclick="kjPick(this,'kj-platform',1)">📺 B站</span>
+<span class="select-chip" data-val="全平台" onclick="kjPick(this,'kj-platform',1)">🌐 全平台</span>
+</div></div>
+<div class="chat-form-field"><label><span class="field-icon">🎯</span> 应用场景</label>
+<div class="select-chips" id="kj-scene" style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="select-chip" data-val="引流吸粉" onclick="kjPick(this,'kj-scene',1)">📈 引流吸粉</span>
+<span class="select-chip" data-val="直接转化" onclick="kjPick(this,'kj-scene',1)">💰 直接转化</span>
+<span class="select-chip" data-val="品牌种草" onclick="kjPick(this,'kj-scene',1)">🌱 品牌种草</span>
+<span class="select-chip" data-val="知识科普" onclick="kjPick(this,'kj-scene',1)">📚 知识科普</span>
+<span class="select-chip" data-val="娱乐搞笑" onclick="kjPick(this,'kj-scene',1)">😂 娱乐搞笑</span>
+</div></div>
+<div class="chat-form-field"><label><span class="field-icon">🎨</span> 风格</label>
+<div class="select-chips" id="kj-style" style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="select-chip" data-val="口播" onclick="kjPick(this,'kj-style',1)">🎤 口播</span>
+<span class="select-chip" data-val="VLOG" onclick="kjPick(this,'kj-style',1)">📹 VLOG</span>
+<span class="select-chip" data-val="剧情" onclick="kjPick(this,'kj-style',1)">🎭 剧情</span>
+<span class="select-chip" data-val="混剪" onclick="kjPick(this,'kj-style',1)">✂️ 混剪</span>
+<span class="select-chip" data-val="图文" onclick="kjPick(this,'kj-style',1)">🖼️ 图文</span>
+</div></div>
+<button class="chat-form-submit" onclick="kjStep2()" style="margin-top:12px">🤖 AI 推荐结构 →</button>
+</div>
+
+<div id="kj-step3" style="display:none"></div>
+<div id="kj-step4" style="display:none"></div>
+<div id="kj-loading" style="display:none;text-align:center;padding:20px;color:var(--text-muted)">⏳ AI 正在生成中...</div>
+</div>
+
+<div id="chat-form-tiejia" style="display:none">
 <div id="tj-step1">
 <div class="chat-form-field"><label><span class="field-icon">🏷️</span> 产品名称</label><input id="tj-product-name" placeholder="输入产品名称，如：XX面膜、YY课程..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;outline:none"></div>
 <div class="chat-form-field"><label><span class="field-icon">📦</span> 产品类型</label>
@@ -233,7 +292,8 @@
 </div>
 <script src="modules/mayuan.js?v=202606041305"></script>
   <script src="modules/xuehui.js?v=202606041305"></script>
-  <script src="modules/tiejia.js?v=202606041330"></script>
+<script src="modules/kanjian.js?v=20260605"></script>
+<script src="modules/tiejia.js?v=202606041330"></script>
 <script src="app.js?v=202606041610"></script>
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">

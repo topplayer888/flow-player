@@ -1,6 +1,7 @@
 // kanjian module - 看见内容体系 / 爆款菜谱AI
 
 function kanjianUpdateStatus() {
+  return;
   var s = document.getElementById("form-kj-status");
   var m = document.getElementById("form-kj-msg");
   if (!s) return;
@@ -76,9 +77,7 @@ function kjStep1() {
     alert("请填写 IP定位、行业 和目标用户");
     return;
   }
-  document.getElementById("kj-step1").style.display = "none";
   document.getElementById("kj-step2").style.display = "";
-  document.getElementById("kj-step2").scrollIntoView({ behavior: "smooth" });
 }
 
 function kjStep2() {
@@ -143,10 +142,8 @@ function kjStep2() {
     
     html += '<button class="chat-form-submit" onclick="kjGenerate()" style="margin-top:12px">✍️ 生成爆款文案</button>';
     
-    document.getElementById("kj-step2").style.display = "none";
     document.getElementById("kj-step3").style.display = "";
     document.getElementById("kj-step3").innerHTML = html;
-    document.getElementById("kj-step3").scrollIntoView({ behavior: "smooth" });
   }, { temperature: 0.3, max_tokens: 2000 });
 }
 
@@ -183,10 +180,8 @@ function kjGenerate() {
     html += '<button onclick="kjStepBack()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);cursor:pointer;font-size:12px">🔄 调整参数重新生成</button>';
     html += '</div>';
     
-    document.getElementById("kj-step3").style.display = "none";
     document.getElementById("kj-step4").style.display = "";
     document.getElementById("kj-step4").innerHTML = html;
-    document.getElementById("kj-step4").scrollIntoView({ behavior: "smooth" });
   }, { temperature: 0.8, max_tokens: 8000 });
 }
 
@@ -221,10 +216,11 @@ function kjFallbackCopy(text) {
 
 function kjStepBack() {
   document.getElementById("kj-step1").style.display = "";
-  document.getElementById("kj-step2").style.display = "none";
-  document.getElementById("kj-step3").style.display = "none";
-  document.getElementById("kj-step4").style.display = "none";
+  document.getElementById("kj-step2").style.display = "";
+  document.getElementById("kj-step3").style.display = "";
+  document.getElementById("kj-step4").style.display = "";
+  document.getElementById("kj-step3").innerHTML = "";
+  document.getElementById("kj-step4").innerHTML = "";
   kjState.selectedIndex = -1;
   kjState.recommendedIndices = [];
-  document.getElementById("kj-step1").scrollIntoView({ behavior: "smooth" });
 }

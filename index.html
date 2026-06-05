@@ -41,13 +41,17 @@
 <div class="settings-row"><button class="settings-save" onclick="applyAdjustment()">✏️ 提交调整</button><button class="settings-reset" onclick="clearAdjustment()">清空</button></div>
 </div>
 <div class="chat-form-panel" id="chat-form-panel">
+<div style="font-size:12px;color:var(--purple);font-weight:600;margin-bottom:10px">步骤 1/4 · 基础内容信息</div>
 <div class="chat-form-field"><label><span class="field-icon">📦</span> 产品信息</label><textarea id="form-product" placeholder="请详细描述你的产品，包括品类、功能、规格、价格等..."></textarea></div>
 <div class="chat-form-field"><label><span class="field-icon">💎</span> 核心卖点</label><textarea id="form-usp" placeholder="产品最突出的差异化优势是什么？用户真正在意的点..."></textarea></div>
 <div class="chat-form-field"><label><span class="field-icon">👥</span> 目标人群</label><textarea id="form-audience" placeholder="用他们的原话描述：年龄、身份、痛点、使用场景..."></textarea></div>
+<div style="font-size:12px;color:var(--purple);font-weight:600;margin:14px 0 10px">步骤 2/4 · 创作目标与时长</div>
 <div class="chat-form-field"><label><span class="field-icon">🎯</span> 营销目标</label><select id="form-goal"><option value="种草">🌱 种草</option><option value="转化">💰 直接转化</option><option value="测新">🧪 测新</option><option value="品牌">🏷️ 品牌认知</option></select></div>
 <div class="chat-form-field"><label><span class="field-icon">⏱️</span> 视频时长</label><select class="duration-select" id="form-duration"><option value="30秒以内">30秒以内</option><option value="30-60秒" selected>30-60秒</option><option value="60秒以上">60秒以上</option></select></div>
+<div style="font-size:12px;color:var(--purple);font-weight:600;margin:14px 0 10px">步骤 3/4 · 内容手法选择</div>
 <div class="chat-form-field"><label><span class="field-icon">📐</span> 脚本手法 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（选择 1-2 种）</span></label><div class="select-chips" id="script-chips"><span class="select-chip" data-val="USP" onclick="toggleChip(this,'script-chips',2)">USP</span><span class="select-chip" data-val="痛点解决" onclick="toggleChip(this,'script-chips',2)">痛点解决</span><span class="select-chip" data-val="品类PK" onclick="toggleChip(this,'script-chips',2)">品类PK</span><span class="select-chip" data-val="场景" onclick="toggleChip(this,'script-chips',2)">场景</span><span class="select-chip" data-val="权威" onclick="toggleChip(this,'script-chips',2)">权威</span><span class="select-chip" data-val="细节" onclick="toggleChip(this,'script-chips',2)">细节</span></div></div>
 <div class="chat-form-field"><label><span class="field-icon">👁️</span> 视觉手法 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（选择 1-2 种）</span></label><div class="select-chips" id="visual-chips"><span class="select-chip" data-val="同框" onclick="toggleChip(this,'visual-chips',2)">同框</span><span class="select-chip" data-val="超级效果" onclick="toggleChip(this,'visual-chips',2)">超级效果</span><span class="select-chip" data-val="蒙太奇" onclick="toggleChip(this,'visual-chips',2)">蒙太奇</span><span class="select-chip" data-val="符号动作" onclick="toggleChip(this,'visual-chips',2)">符号动作</span><span class="select-chip" data-val="重复" onclick="toggleChip(this,'visual-chips',2)">重复</span><span class="select-chip" data-val="共情" onclick="toggleChip(this,'visual-chips',2)">共情</span></div></div>
+<div style="font-size:12px;color:var(--purple);font-weight:600;margin:14px 0 10px">步骤 4/4 · 补充信息与生成</div>
 <div class="chat-form-field"><label><span class="field-icon">📝</span> 补充信息（选填）</label><textarea id="form-extra" placeholder="价格区间、主要竞品、使用场景、是否有权威背书、独特视觉要素..."></textarea></div>
 <button class="chat-form-submit" onclick="submitFormScript()">🚀 生成引流脚本</button>
 <div id="form-result-area" style="display:none;margin-top:12px"></div>
@@ -99,7 +103,7 @@
 </div>
 ﻿
 <div id="chat-form-kanjian" style="display:none">
-<div id="form-kj-api-bar" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:12px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:11px">
+<div id="form-kj-api-bar" style="display:none">
 <span class="form-api-status missing" id="form-kj-status">⚡</span>
 <span id="form-kj-msg" style="color:var(--text-muted);flex:1;margin-left:6px">未配置 API Key</span>
 <button onclick="openSettings(event)" style="background:var(--purple);color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:600">⚙ API 配置</button>
@@ -113,7 +117,7 @@
 <button class="chat-form-submit" onclick="kjStep1()" style="margin-top:12px">下一步 →</button>
 </div>
 
-<div id="kj-step2" style="display:none">
+<div id="kj-step2" style="margin-top:16px">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">📋 步骤 2/4 · 内容设定</span></div>
 <div class="chat-form-field"><label><span class="field-icon">📝</span> 内容主题</label><input id="kj-topic" placeholder="本期视频的核心主题..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;outline:none"></div>
 <div class="chat-form-field"><label><span class="field-icon">⏱️</span> 视频时长</label>
@@ -151,8 +155,8 @@
 <button class="chat-form-submit" onclick="kjStep2()" style="margin-top:12px">🤖 AI 推荐结构 →</button>
 </div>
 
-<div id="kj-step3" style="display:none"></div>
-<div id="kj-step4" style="display:none"></div>
+<div id="kj-step3" style="margin-top:16px"></div>
+<div id="kj-step4" style="margin-top:16px"></div>
 <div id="kj-loading" style="display:none;text-align:center;padding:20px;color:var(--text-muted)">⏳ AI 正在生成中...</div>
 </div>
 
@@ -290,11 +294,11 @@
 
 </aside>
 </div>
-<script src="modules/mayuan.js?v=202606041305"></script>
-  <script src="modules/xuehui.js?v=202606041305"></script>
-<script src="modules/kanjian.js?v=20260605"></script>
+<script src="modules/mayuan.js?v=202606051020"></script>
+<script src="modules/xuehui.js?v=202606041305"></script>
+<script src="modules/kanjian.js?v=202606051030"></script>
 <script src="modules/tiejia.js?v=202606041330"></script>
-<script src="app.js?v=202606041610"></script>
+<script src="app.js?v=202606051030"></script>
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
 <div class="settings-panel" onclick="event.stopPropagation()">

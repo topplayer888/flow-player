@@ -147,7 +147,15 @@ document.addEventListener("click",function(e){playClickSound();if(themeWasteland
 !function(){var themes=["cool","warm","purple"];var chars=["01","0123456789ABCDEF",">_$#&@*%!","FLOW.01 FLOW.02 RANK.03","0xDEAD 0xBEEF 0xCAFE","{flow:player,rank:01}"];for(var i=0;i<12;i++){var d=document.createElement("div");d.className="data-stream "+themes[i%3];d.style.left=3+8*i+"%";d.style.setProperty("--dur",(7+7*Math.random())+"s");d.style.setProperty("--delay",(10*Math.random())+"s");d.style.animationDuration=(7+7*Math.random())+"s";d.style.animationDelay=(10*Math.random())+"s";var ch=chars[i%chars.length];var t="";for(var j=0;j<40;j++){t+=ch[Math.floor(Math.random()*ch.length)];if(j%8==7)t+="  "}d.textContent=t;document.body.appendChild(d)}}();
 
 var chatOpen=false,chatKey="",chatMessages=[],isTyping=false;
+function syncWorkspaceForMode(section,mode){
+section=parseInt(section);mode=parseInt(mode);
+if(isNaN(section)||isNaN(mode)||!sections[section]||!sections[section].modes[mode])return;
+currentSection=section;currentMode=mode;sectionModes[section]=mode;sectionSavedKey[section]=section+"-"+mode;
+document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active","entering")});
+var nav=document.querySelector('.nav-item[data-section="'+section+'"]');if(nav)nav.classList.add("active");
+}
 function openChat(section,mode){
+syncWorkspaceForMode(section,mode);
 chatKey=section+"-"+mode;var agent=agents[chatKey];
 if(!agent){alert("该智能体尚未配置");return}
 document.getElementById("chat-agent-name").textContent=agent.name;
@@ -284,6 +292,7 @@ document.getElementById("xh-audience").addEventListener("input",xhAutoRecElement
 function closeChat(){
 document.getElementById("chat-overlay").classList.remove("open");
 chatOpen=false;chatMessages=[];
+renderContent();renderRightModes();renderHistory();
 }
 function selectRewriteMode(el){document.querySelectorAll("#rw-mode-chips .select-chip").forEach(function(c){c.classList.remove("selected")});el.classList.add("selected");rwMode=el.dataset.val;document.getElementById("rw-custom-group2").style.display=rwMode==="B"?"":"none"}function selectRewriteModeBtn(el,mode){document.querySelectorAll(".rw-mode-btn").forEach(function(b){b.classList.remove("selected");b.style.borderColor="var(--border-glow)";b.style.background="var(--bg-card)"});el.classList.add("selected");el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";rwMode=mode;document.getElementById("rw-custom-group2").style.display=mode==="B"?"":"none"}
 function updateRewriteApiStatus(){var s=document.getElementById("form-rw-status");var m=document.getElementById("form-rw-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置"}}

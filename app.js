@@ -169,6 +169,11 @@ document.addEventListener("click",function(e){playClickSound();if(themeWasteland
 !function(){var themes=["cool","warm","purple"];var chars=["01","0123456789ABCDEF",">_$#&@*%!","FLOW.01 FLOW.02 RANK.03","0xDEAD 0xBEEF 0xCAFE","{flow:player,rank:01}"];for(var i=0;i<12;i++){var d=document.createElement("div");d.className="data-stream "+themes[i%3];d.style.left=3+8*i+"%";d.style.setProperty("--dur",(7+7*Math.random())+"s");d.style.setProperty("--delay",(10*Math.random())+"s");d.style.animationDuration=(7+7*Math.random())+"s";d.style.animationDelay=(10*Math.random())+"s";var ch=chars[i%chars.length];var t="";for(var j=0;j<40;j++){t+=ch[Math.floor(Math.random()*ch.length)];if(j%8==7)t+="  "}d.textContent=t;document.body.appendChild(d)}}();
 
 var chatOpen=false,chatKey="",chatMessages=[],isTyping=false;
+function hideWorkflowPanels(){
+["chat-form-panel","chat-form-rewrite","chat-form-xuehui","chat-form-tiejia","chat-form-kanjian"].forEach(function(id){
+var el=document.getElementById(id);if(el)el.style.display="none";
+});
+}
 function syncWorkspaceForMode(section,mode){
 section=parseInt(section);mode=parseInt(mode);
 if(isNaN(section)||isNaN(mode)||!sections[section]||!sections[section].modes[mode])return;
@@ -199,16 +204,12 @@ var questions=document.getElementById("chat-questions");
 var inputArea=document.querySelector(".chat-input-area");
 var formPanel=document.getElementById("chat-form-panel");
 var rwPanel=document.getElementById("chat-form-rewrite");
+hideWorkflowPanels();
 if(mode==="form"){
 msgs.style.display="none";questions.style.display="none";inputArea.style.display="none";
-var xp=document.getElementById("chat-form-xuehui");if(xp)xp.style.display="none";
-var tj=document.getElementById("chat-form-tiejia");if(tj)tj.style.display="none";var kj=document.getElementById("chat-form-kanjian");if(kj)kj.style.display="none";
 if(chatKey==="0-1"){formPanel.style.display="none";rwPanel.style.display="none";var kj=document.getElementById("chat-form-kanjian");if(kj)kj.style.display="flex"}else if(chatKey==="0-3"){formPanel.style.display="none";rwPanel.style.display="flex";updateRewriteApiStatus()}else if(chatKey==="0-0"){formPanel.style.display="none";rwPanel.style.display="none";var xp=document.getElementById("chat-form-xuehui");if(xp)xp.style.display="flex";xuehuiUpdateStatus()}else if(chatKey==="1-2"){formPanel.style.display="none";rwPanel.style.display="none";var tj=document.getElementById("chat-form-tiejia");if(tj)tj.style.display="flex";tjUpdateStatus()}else{formPanel.style.display="flex";rwPanel.style.display="none"}
 }else{
 msgs.style.display="";questions.style.display="";inputArea.style.display="";
-formPanel.style.display="none";rwPanel.style.display="none";
-var xp=document.getElementById("chat-form-xuehui");if(xp)xp.style.display="none";
-var tj=document.getElementById("chat-form-tiejia");if(tj)tj.style.display="none";
 }
 }
 

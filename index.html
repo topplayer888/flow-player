@@ -102,7 +102,7 @@
 </div>
 </div>
 ﻿
-<div id="chat-form-kanjian" style="display:none">
+<div class="chat-form-panel" id="chat-form-kanjian" style="display:none">
 <div id="form-kj-api-bar" style="display:none">
 <span class="form-api-status missing" id="form-kj-status">⚡</span>
 <span id="form-kj-msg" style="color:var(--text-muted);flex:1;margin-left:6px">未配置 API Key</span>
@@ -155,8 +155,14 @@
 <button class="chat-form-submit" onclick="kjStep2()" style="margin-top:12px">🤖 AI 推荐结构 →</button>
 </div>
 
-<div id="kj-step3" style="margin-top:16px"></div>
-<div id="kj-step4" style="margin-top:16px"></div>
+<div id="kj-step3" style="margin-top:16px">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">📊 步骤 3/4 · 选择内容结构</span></div>
+<div id="kj-structures-area" style="padding:14px;border-radius:10px;background:var(--bg-card);border:1px dashed var(--border-glow);font-size:12px;line-height:1.7;color:var(--text-muted)">完成上方信息后，点击“AI 推荐结构”，这里会显示 12 种内容结构和推荐标签。</div>
+</div>
+<div id="kj-step4" style="margin-top:16px">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">📝 步骤 4/4 · 生成结果</span></div>
+<div id="kj-result-area" style="padding:14px;border-radius:10px;background:var(--bg-card);border:1px dashed var(--border-glow);font-size:12px;line-height:1.7;color:var(--text-muted)">选择内容结构后，点击生成，完整文案会显示在这里。</div>
+</div>
 <div id="kj-loading" style="display:none;text-align:center;padding:20px;color:var(--text-muted)">⏳ AI 正在生成中...</div>
 </div>
 
@@ -296,7 +302,7 @@
 </div>
 <script src="modules/mayuan.js?v=202606051020"></script>
 <script src="modules/xuehui.js?v=202606041305"></script>
-<script src="modules/kanjian.js?v=202606051030"></script>
+<script src="modules/kanjian.js?v=202606051115"></script>
 <script src="modules/tiejia.js?v=202606041330"></script>
 <script src="app.js?v=202606051030"></script>
 

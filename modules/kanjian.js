@@ -118,8 +118,7 @@ function kjStep2() {
     kjState.recommendedIndices = recs.slice(0, 3).map(function(r) { return r.index; });
     
     // Build structure HTML
-    var html = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">📐 步骤 3/4 · 选择内容结构</span></div>';
-    html += '<div style="margin-bottom:16px;padding:10px;border-radius:8px;background:rgba(168,85,247,.06);border:1px solid var(--border-glow);font-size:11px;color:var(--text-muted)">💡 AI 推荐以下3种结构，点击即可选中。也可手动选择其他结构。</div>';
+    var html = '<div style="margin-bottom:16px;padding:10px;border-radius:8px;background:rgba(168,85,247,.06);border:1px solid var(--border-glow);font-size:11px;color:var(--text-muted)">💡 AI 推荐以下3种结构，点击即可选中。也可手动选择其他结构。</div>';
     html += '<div class="select-chips" id="kj-structures" style="display:flex;flex-wrap:wrap;gap:8px">';
     
     kjState.structures.forEach(function(s, i) {
@@ -143,7 +142,8 @@ function kjStep2() {
     html += '<button class="chat-form-submit" onclick="kjGenerate()" style="margin-top:12px">✍️ 生成爆款文案</button>';
     
     document.getElementById("kj-step3").style.display = "";
-    document.getElementById("kj-step3").innerHTML = html;
+    var structuresArea = document.getElementById("kj-structures-area") || document.getElementById("kj-step3");
+    structuresArea.innerHTML = html;
   }, { temperature: 0.3, max_tokens: 2000 });
 }
 
@@ -173,15 +173,15 @@ function kjGenerate() {
     document.getElementById("kj-loading").style.display = "none";
     var result = typeof json === "string" ? json : (json.raw || json.content || json.text || JSON.stringify(json));
     
-    var html = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">📝 步骤 4/4 · 生成结果</span></div>';
-    html += '<div id="kj-result" style="padding:14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:13px;line-height:1.9;color:var(--text-primary);white-space:pre-wrap;max-height:500px;overflow-y:auto">' + result + '</div>';
+    var html = '<div id="kj-result" style="padding:14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:13px;line-height:1.9;color:var(--text-primary);white-space:pre-wrap;max-height:500px;overflow-y:auto">' + result + '</div>';
     html += '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">';
     html += '<button onclick="kjCopyResult()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);cursor:pointer;font-size:12px">📋 复制全文</button>';
     html += '<button onclick="kjStepBack()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);cursor:pointer;font-size:12px">🔄 调整参数重新生成</button>';
     html += '</div>';
     
     document.getElementById("kj-step4").style.display = "";
-    document.getElementById("kj-step4").innerHTML = html;
+    var resultArea = document.getElementById("kj-result-area") || document.getElementById("kj-step4");
+    resultArea.innerHTML = html;
   }, { temperature: 0.8, max_tokens: 8000 });
 }
 
@@ -219,8 +219,10 @@ function kjStepBack() {
   document.getElementById("kj-step2").style.display = "";
   document.getElementById("kj-step3").style.display = "";
   document.getElementById("kj-step4").style.display = "";
-  document.getElementById("kj-step3").innerHTML = "";
-  document.getElementById("kj-step4").innerHTML = "";
+  var structuresArea = document.getElementById("kj-structures-area");
+  var resultArea = document.getElementById("kj-result-area");
+  if (structuresArea) structuresArea.innerHTML = "完成上方信息后，点击“AI 推荐结构”，这里会显示 12 种内容结构和推荐标签。";
+  if (resultArea) resultArea.innerHTML = "选择内容结构后，点击生成，完整文案会显示在这里。";
   kjState.selectedIndex = -1;
   kjState.recommendedIndices = [];
 }

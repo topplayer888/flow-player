@@ -45,6 +45,14 @@ function kjEscapeHtml(text) {
   });
 }
 
+function kjTodayText() {
+  var d = new Date();
+  var y = d.getFullYear();
+  var m = String(d.getMonth() + 1).padStart(2, "0");
+  var day = String(d.getDate()).padStart(2, "0");
+  return y + "年" + m + "月" + day + "日";
+}
+
 function kjGetVal(id) {
   var el = document.getElementById(id);
   var c = el.querySelector(".select-chip.selected");
@@ -148,14 +156,15 @@ function kjRecommendTopics(force) {
   if (!force && (kjState.topicKey === key || kjState.topicLoading)) return;
   kjState.topicKey = key;
   kjState.topicLoading = true;
-  kjRenderTopicRecs([], "正在根据基础信息联网检索/分析近期高热主题...");
+  var today = kjTodayText();
+  kjRenderTopicRecs([], "正在按" + today + "附近的最新热度联网检索/分析主题...");
   if (!apiConfig.apikey || apiConfig.apikey.length < 10) {
     kjState.topicLoading = false;
     kjRenderTopicRecs([], "请先配置 API Key。配置后会自动推荐热门主题，你也可以先手动输入主题。");
     return;
   }
-  var prompt = "请根据以下基础信息，联网检索或参考近期公开互联网热度，推荐适合短视频创作的热门内容主题。\n\nIP定位：" + ip + "\n行业：" + industry + "\n目标用户：" + audience + "\n\n要求：\n1. 优先参考近期在抖音、快手、小红书、视频号、B站等平台更容易被讨论、搜索、转发的主题方向。\n2. 不要替用户最终选择，只做推荐。\n3. 输出6-8个主题，每个主题要短、具体、可直接作为视频主题。\n4. 如果当前模型没有真实联网能力，请基于你掌握的公开趋势和平台常见高热议题推断，但不要编造具体数据。\n5. 严格输出JSON数组，不要markdown，不要解释。格式：[{\"topic\":\"主题\",\"reason\":\"热度/适配理由\"}]";
-  xuehuiCallAPI("你是短视频热点选题研究员，擅长结合互联网热度、平台内容趋势和用户画像推荐选题。只输出JSON数组。", prompt, function(json) {
+  var prompt = "当前日期：" + today + "。\n\n请根据以下基础信息，联网检索或参考当前最新公开互联网热度，推荐适合短视频创作的热门内容主题。\n\nIP定位：" + ip + "\n行业：" + industry + "\n目标用户：" + audience + "\n\n硬性要求：\n1. 必须以当前日期附近的最新热度为准，优先最近30天，其次最近90天。\n2. 不要把2025年或更早的旧热点、旧梗、旧事件当作最新热点推荐；除非它在当前日期附近重新爆火，并在reason里说明“近期重新被讨论”。\n3. 优先参考抖音、快手、小红书、视频号、B站等平台当前更容易被讨论、搜索、转发的主题方向。\n4. 不要替用户最终选择，只做推荐。\n5. 输出6-8个主题，每个主题要短、具体、可直接作为视频主题。\n6. 如果当前模型没有真实联网能力，请不要伪装成联网结果；请基于当前日期和公开趋势做保守推断，并在reason里标注“趋势推断”。\n7. 严格输出JSON数组，不要markdown，不要解释。格式：[{\"topic\":\"主题\",\"reason\":\"最新热度/适配理由\"}]";
+  xuehuiCallAPI("你是短视频热点选题研究员，擅长结合当前互联网热度、平台内容趋势和用户画像推荐选题。必须优先当前日期附近的新热点，避免把旧年份热点当最新。只输出JSON数组。", prompt, function(json) {
     kjState.topicLoading = false;
     var items = Array.isArray(json) ? json : [];
     if (!items.length && json && json.raw) {
@@ -168,7 +177,7 @@ function kjRecommendTopics(force) {
         { topic: "普通人做" + industry + "怎么少走弯路", reason: "普通人视角更容易形成共鸣和转发" }
       ];
     }
-    kjRenderTopicRecs(items, "以下是推荐主题，点击后才会填入内容主题，也可以自己输入。");
+    kjRenderTopicRecs(items, "以下按" + today + "附近最新热度推荐，点击后才会填入内容主题，也可以自己输入。");
   }, { temperature: 0.4, max_tokens: 1800 });
 }
 

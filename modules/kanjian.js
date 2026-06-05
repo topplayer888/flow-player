@@ -33,7 +33,10 @@ var kjState = {
   selectedIndex: -1,
   topicKey: "",
   topicTimer: null,
-  topicLoading: false
+  topicLoading: false,
+  structureKey: "",
+  structureTimer: null,
+  structureLoading: false
 };
 
 function kjEscapeHtml(text) {
@@ -64,6 +67,7 @@ function kjPick(el, groupId, max) {
     selected[0].classList.remove("selected");
   }
   el.classList.add("selected");
+  kjMaybeAutoRecommendStructures();
 }
 
 function kjSelectStructure(idx) {
@@ -92,6 +96,14 @@ function kjPickTopic(topic) {
   chips.forEach(function(chip) {
     chip.classList.toggle("selected", chip.dataset.topic === topic);
   });
+  kjMaybeAutoRecommendStructures();
+}
+
+function kjMaybeAutoRecommendStructures() {
+  clearTimeout(kjState.structureTimer);
+  kjState.structureTimer = setTimeout(function() {
+    kjRecommendStructures(false);
+  }, 600);
 }
 
 function kjRenderTopicRecs(items, note) {
@@ -173,13 +185,17 @@ function kjStep1() {
 }
 
 function kjStep2() {
+  kjRecommendStructures(true);
+}
+
+function kjRecommendStructures(force) {
   var topic = kjGetInput("kj-topic");
   var duration = kjGetVal("kj-duration");
   var platform = kjGetVal("kj-platform");
   var scene = kjGetVal("kj-scene");
   var style = kjGetVal("kj-style");
   if (!topic || !duration || !platform || !scene || !style) {
-    alert("请完成所有选项");
+    if (force) alert("请完成所有选项");
     return;
   }
   
@@ -187,6 +203,22 @@ function kjStep2() {
   var ip = kjGetInput("kj-ip");
   var industry = kjGetInput("kj-industry");
   var audience = kjGetInput("kj-audience");
+  if (!ip || !industry || !audience) {
+    if (force) alert("请先填写基础信息");
+    return;
+  }
+  var structureKey = ip + "|" + industry + "|" + audience + "|" + topic + "|" + duration + "|" + platform + "|" + scene + "|" + style;
+  if (!force && (kjState.structureKey === structureKey || kjState.structureLoading)) return;
+  kjState.structureKey = structureKey;
+  kjState.structureLoading = true;
+  kjState.selectedIndex = -1;
+  var structuresArea = document.getElementById("kj-structures-area");
+  if (structuresArea) structuresArea.innerHTML = "正在根据前两步信息自动推荐内容结构...";
+  if (!apiConfig.apikey || apiConfig.apikey.length < 10) {
+    kjState.structureLoading = false;
+    if (structuresArea) structuresArea.innerHTML = "请先配置 API Key。配置后，前两步信息完整时会自动推荐内容结构；你也可以继续完善信息。";
+    return;
+  }
   
   // Build prompt for structure recommendation
   var prompt = "IP定位：" + ip + "\n行业：" + industry + "\n目标用户：" + audience + "\n内容主题：" + topic + "\n视频时长：" + duration + "\n平台：" + platform + "\n应用场景：" + scene + "\n风格：" + style + "\n\n从以下12种结构中推荐最合适的3种结构（按推荐优先级排列），只输出JSON数组，每项包含 index（0-11）和 reason：\n";
@@ -199,6 +231,7 @@ function kjStep2() {
   
   xuehuiCallAPI("你是短视频爆款文案策略专家，精通《爆款菜谱》方法论。只输出JSON数组。", prompt, function(json) {
     document.getElementById("kj-loading").style.display = "none";
+    kjState.structureLoading = false;
     var recs = Array.isArray(json) ? json : (json.raw ? JSON.parse(json.raw) : []);
     if (!Array.isArray(recs) || recs.length === 0) {
       for (var k in json) { if (Array.isArray(json[k])) { recs = json[k]; break; } }
@@ -210,7 +243,7 @@ function kjStep2() {
     kjState.recommendedIndices = recs.slice(0, 3).map(function(r) { return r.index; });
     
     // Build structure HTML
-    var html = '<div style="margin-bottom:16px;padding:10px;border-radius:8px;background:rgba(168,85,247,.06);border:1px solid var(--border-glow);font-size:11px;color:var(--text-muted)">💡 AI 推荐以下3种结构，点击即可选中。也可手动选择其他结构。</div>';
+    var html = '<div style="margin-bottom:16px;padding:10px;border-radius:8px;background:rgba(168,85,247,.06);border:1px solid var(--border-glow);font-size:11px;color:var(--text-muted)">💡 AI 已自动推荐以下3种结构。推荐只打标签，不会自动选中；你可以自己选择任意结构。</div>';
     html += '<div class="select-chips" id="kj-structures" style="display:flex;flex-wrap:wrap;gap:8px">';
     
     kjState.structures.forEach(function(s, i) {
@@ -315,7 +348,7 @@ function kjStepBack() {
   var resultArea = document.getElementById("kj-result-area");
   var topicWrap = document.getElementById("kj-topic-recs");
   var topicContent = document.getElementById("kj-topic-recs-content");
-  if (structuresArea) structuresArea.innerHTML = "完成上方信息后，点击“AI 推荐结构”，这里会显示 12 种内容结构和推荐标签。";
+  if (structuresArea) structuresArea.innerHTML = "完成前两步信息后，这里会自动推荐 12 种内容结构并打上推荐标签；结构由你自己选择。";
   if (resultArea) resultArea.innerHTML = "选择内容结构后，点击生成，完整文案会显示在这里。";
   if (topicWrap) topicWrap.style.display = "none";
   if (topicContent) topicContent.innerHTML = "基础信息填写完整后，将自动推荐热门主题。";
@@ -323,4 +356,6 @@ function kjStepBack() {
   kjState.recommendedIndices = [];
   kjState.topicKey = "";
   kjState.topicLoading = false;
+  kjState.structureKey = "";
+  kjState.structureLoading = false;
 }

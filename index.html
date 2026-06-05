@@ -110,16 +110,16 @@
 </div>
 
 <div id="kj-step1">
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">🔍 步骤 1/4 · 基础信息</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap"><span style="font-size:12px;color:var(--purple);font-weight:600">🔍 步骤 1/4 · 基础信息</span><span style="font-size:11px;color:var(--text-muted);line-height:1.5">填完基础信息后，会自动联网推荐爆款主题；推荐只作参考，最终由你选择。</span></div>
 <div class="chat-form-field"><label><span class="field-icon">👤</span> IP定位</label><input id="kj-ip" oninput="kjMaybeAutoRecommendTopics()" placeholder="例如：10年经验健身教练、90后创业宝妈..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;outline:none"></div>
 <div class="chat-form-field"><label><span class="field-icon">🏭</span> 行业</label><input id="kj-industry" oninput="kjMaybeAutoRecommendTopics()" placeholder="例如：健身、美妆、教育、餐饮..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;outline:none"></div>
 <div class="chat-form-field"><label><span class="field-icon">👥</span> 目标用户</label><input id="kj-audience" oninput="kjMaybeAutoRecommendTopics()" placeholder="例如：25-35岁职场女性、减肥人群..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;outline:none"></div>
-<button class="chat-form-submit" onclick="kjStep1()" style="margin-top:12px">下一步 →</button>
+<button class="chat-form-submit" onclick="kjStep1()" style="margin-top:12px">刷新爆款主题推荐</button>
 </div>
 
 <div id="kj-step2" style="margin-top:16px">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">📋 步骤 2/4 · 内容设定</span></div>
-<div class="chat-form-field"><label><span class="field-icon">📝</span> 内容主题</label><input id="kj-topic" placeholder="本期视频的核心主题..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;outline:none"></div>
+<div class="chat-form-field"><label><span class="field-icon">📝</span> 内容主题</label><input id="kj-topic" oninput="kjMaybeAutoRecommendStructures()" placeholder="本期视频的核心主题..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:13px;outline:none"></div>
 <div id="kj-topic-recs" style="display:none;margin:-6px 0 10px;padding:12px;border-radius:10px;background:rgba(168,85,247,.05);border:1px solid var(--border-glow)">
 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
 <span style="font-size:11px;color:var(--purple);font-weight:700">🔥 热门主题推荐</span>
@@ -159,12 +159,11 @@
 <span class="select-chip" data-val="混剪" onclick="kjPick(this,'kj-style',1)">✂️ 混剪</span>
 <span class="select-chip" data-val="图文" onclick="kjPick(this,'kj-style',1)">🖼️ 图文</span>
 </div></div>
-<button class="chat-form-submit" onclick="kjStep2()" style="margin-top:12px">🤖 AI 推荐结构 →</button>
 </div>
 
 <div id="kj-step3" style="margin-top:16px">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">📊 步骤 3/4 · 选择内容结构</span></div>
-<div id="kj-structures-area" style="padding:14px;border-radius:10px;background:var(--bg-card);border:1px dashed var(--border-glow);font-size:12px;line-height:1.7;color:var(--text-muted)">完成上方信息后，点击“AI 推荐结构”，这里会显示 12 种内容结构和推荐标签。</div>
+<div id="kj-structures-area" style="padding:14px;border-radius:10px;background:var(--bg-card);border:1px dashed var(--border-glow);font-size:12px;line-height:1.7;color:var(--text-muted)">完成前两步信息后，这里会自动推荐 12 种内容结构并打上推荐标签；结构由你自己选择。</div>
 </div>
 <div id="kj-step4" style="margin-top:16px">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">📝 步骤 4/4 · 生成结果</span></div>
@@ -309,7 +308,7 @@
 </div>
 <script src="modules/mayuan.js?v=202606051020"></script>
 <script src="modules/xuehui.js?v=202606041305"></script>
-<script src="modules/kanjian.js?v=202606051135"></script>
+<script src="modules/kanjian.js?v=202606051150"></script>
 <script src="modules/tiejia.js?v=202606041330"></script>
 <script src="app.js?v=202606051030"></script>
 

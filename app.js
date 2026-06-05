@@ -408,7 +408,7 @@ s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.mod
 s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置";
 }
 }
-function toggleChip(el,groupId,max){
+function toggleChip(el,groupId,max){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
 var chips=document.getElementById(groupId).querySelectorAll(".select-chip");
 var selected=document.getElementById(groupId).querySelectorAll(".select-chip.selected");
 if(el.classList.contains("selected")){el.classList.remove("selected");return}

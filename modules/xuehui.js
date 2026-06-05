@@ -93,14 +93,14 @@ xhState.selectedTopic=xhState.topics[idx];
 document.getElementById("xh-step3").style.display="";
 setTimeout(function(){if(xhState.selectedTopic)xuehuiRecommendTemplates();},500);
 }
-function xuehuiSelectTopic(idx,el){
+function xuehuiSelectTopic(idx,el){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
 xuehuiSelectTopic_orig(idx,el);
 }
-function xuehuiStep2Next(){
+function xuehuiStep2Next(){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
 if(!xhState.selectedTopic){alert("请先选择一个选题");return}
 document.getElementById("xh-step3").style.display="";
 }
-function xuehuiStep3Next(){
+function xuehuiStep3Next(){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
 var tmpls=Array.from(document.getElementById("xh-templates").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
 if(tmpls.length===0){alert("请至少选择一个文案模板");return}
 xhState.templates=tmpls;
@@ -112,7 +112,7 @@ var container=document.getElementById("xh-openings");
 container.innerHTML=xhOpenTypes.map(function(o){return '<span class="select-chip" data-val="'+o.name+'" onclick="xuehuiToggleOpening(this)" title="'+o.desc+'">'+o.name+'</span>'}).join("");
 xuehuiUpdateCount();
 }
-function xuehuiToggleOpening(el){el.classList.toggle("selected");xuehuiUpdateCount();}
+function xuehuiToggleOpening(el){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}el.classList.toggle("selected");xuehuiUpdateCount();}
 function xuehuiUpdateCount(){
 var sel=document.querySelectorAll("#xh-openings .select-chip.selected").length;
 var tmpl=xhState.templates.length;

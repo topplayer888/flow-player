@@ -37,7 +37,7 @@ fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/jso
 fa.innerHTML+= '</div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="form-regen-input" placeholder="输入优化意见" style="width:100%;min-height:50px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button onclick="formRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="form-regen-result" style="margin-top:10px;display:none"></div><div id="form-regen-loading" style="display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:12px">重新生成中...</div></div>'
 }).catch(function(e){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ 请求失败：'+e.message+'</div>'})
 }
-function copyVoiceoverForm(btn){
+function copyVoiceoverForm(btn){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
  var el=btn.parentElement.parentElement.querySelector(".form-voiceover-text");
  var t=el.textContent.trim();
  if(navigator.clipboard&&navigator.clipboard.writeText){
@@ -61,7 +61,7 @@ function formatScript(t){
   .replace(/(<\/h[234]>)<br>/g,"$1")
   .replace(/<br><br>/g,"<br>");
 }
-function copyFormResult(btn){
+function copyFormResult(btn){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
  var area=document.getElementById("form-result-area");
  var t=area.textContent.trim();
  if(navigator.clipboard&&navigator.clipboard.writeText){
@@ -94,7 +94,7 @@ function formRegenerate(){
   document.getElementById("form-regen-result").style.display="";
  })
 }
-function copyFormRegenResult(btn){
+function copyFormRegenResult(btn){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
  var t=btn.parentElement.textContent.replace("📋 复制","").trim();
  if(navigator.clipboard&&navigator.clipboard.writeText){
   navigator.clipboard.writeText(t).then(function(){btn.textContent="✅ 已复制";setTimeout(function(){btn.textContent="📋 复制"},2000)}).catch(function(){fallbackCopy(t)})

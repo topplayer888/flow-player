@@ -13,7 +13,7 @@ function tjUpdateStatus(){
   }
 }
 
-function tjPick(el,groupId,max){
+function tjPick(el,groupId,max){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
   var selected=document.getElementById(groupId).querySelectorAll(".select-chip.selected");
   if(el.classList.contains("selected")){
     el.classList.remove("selected");
@@ -97,7 +97,7 @@ function tjStep1(){
   });
 }
 
-function tjStep2(){
+function tjStep2(){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
   var hooks=tjGetVals("tj-hooks");
   if(hooks.length===0){alert("请至少选择一个钩子类型");return}
 }
@@ -146,7 +146,7 @@ function copyTjVoiceover(btn){
   }
 }
 
-function tjToggleIterate(el){
+function tjToggleIterate(el){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
   el.classList.toggle("selected");
   var ir=document.getElementById("tj-iterate-result");
   if(ir){ir.style.display="none";ir.innerHTML=""}

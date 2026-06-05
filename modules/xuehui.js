@@ -128,7 +128,7 @@ xuehuiRecommendElements();
 }
 },800);
 }
-function copyVoiceover(btn){
+function copyVoiceover(btn){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
  var el=btn.parentElement.parentElement.querySelector(".xh-voiceover-text");
  var t=el.textContent.trim();
  if(navigator.clipboard&&navigator.clipboard.writeText){
@@ -137,7 +137,7 @@ function copyVoiceover(btn){
   }).catch(function(){fallbackCopy(t)})
  }else{fallbackCopy(t)}
 }
-function copyXhResult(btn){
+function copyXhResult(btn){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
  var card=btn.closest("[data-xh-card]")||btn.closest("div");
  var el=card?card.querySelector(".xh-copy-content"):null;
  var text=el?el.textContent.trim():"";

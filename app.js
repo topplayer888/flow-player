@@ -1,4 +1,26 @@
 var sectionModes=[-1,-1,-1];var sectionSavedKey=["","",""];var historyStack=[];
+var nativeAlert=window.alert;
+function showAppAlert(message){
+var overlay=document.getElementById("confirm-overlay");
+var msg=document.getElementById("confirm-msg");
+var ok=document.getElementById("confirm-btn-ok");
+var cancel=document.querySelector(".confirm-btn-cancel");
+if(!overlay||!msg||!ok){if(nativeAlert)nativeAlert(message);return}
+overlay.classList.add("alert-mode");
+msg.textContent=String(message||"");
+if(cancel)cancel.style.display="none";
+ok.textContent="确定";
+ok.onclick=function(){closeAppAlert()};
+overlay.style.display="flex";
+}
+function closeAppAlert(){
+var overlay=document.getElementById("confirm-overlay");
+var cancel=document.querySelector(".confirm-btn-cancel");
+if(overlay){overlay.style.display="none";overlay.classList.remove("alert-mode")}
+if(cancel)cancel.style.display="";
+}
+window.alert=showAppAlert;
+window.closeAppAlert=closeAppAlert;
 var sections=[{title:"爆款脚本创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"四大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"对话式（采访）",desc:"对话式创作 · 采访体脚本的流量密码",icon:"🎤"},{name:"爆款仿写",desc:"爆款仿写 · 对标爆款文案的结构化仿写生成",icon:"✍️"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"创意",desc:"三大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"策略",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"kyrie直播方法论",desc:"kyrie体系 · 数据驱动的直播增长模型",icon:"📈"}]}],currentSection=0,currentMode=0;
 
 var agents={

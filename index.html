@@ -1,7 +1,7 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
-<link rel="stylesheet" href="style.css?v=147"></head><body>
+<link rel="stylesheet" href="style.css?v=148"></head><body>
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="app-container">
 <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
@@ -310,7 +310,7 @@
 <script src="modules/xuehui.js?v=202606051330"></script>
 <script src="modules/kanjian.js?v=202606051330"></script>
 <script src="modules/tiejia.js?v=202606051330"></script>
-<script src="app.js?v=202606051330"></script>
+<script src="app.js?v=202606051345"></script>
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
 <div class="settings-panel" onclick="event.stopPropagation()">
@@ -409,6 +409,11 @@ function syncHistoryFromCloud() {
     document.getElementById("confirm-overlay").style.display = "flex";
   }
   window.closeConfirmDialog = function() {
+    var overlay = document.getElementById("confirm-overlay");
+    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
+      closeAppAlert();
+      return;
+    }
     document.getElementById("confirm-overlay").style.display = "none";
   }
 
@@ -473,7 +478,12 @@ function syncHistoryFromCloud() {
     document.getElementById("confirm-overlay").style.display = "flex";
   }
   window.closeConfirmDialog = function() {
-    document.getElementById("confirm-overlay").style.display = "none";
+    var overlay = document.getElementById("confirm-overlay");
+    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
+      closeAppAlert();
+      return;
+    }
+    overlay.style.display = "none";
   }
 
   renderHistory();
@@ -496,7 +506,12 @@ function syncHistoryFromCloud() {
     document.getElementById("confirm-overlay").style.display = "flex";
   }
   window.closeConfirmDialog = function() {
-    document.getElementById("confirm-overlay").style.display = "none";
+    var overlay = document.getElementById("confirm-overlay");
+    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
+      closeAppAlert();
+      return;
+    }
+    overlay.style.display = "none";
   }
 
   renderHistory();
@@ -518,7 +533,12 @@ function syncHistoryFromCloud() {
     document.getElementById("confirm-overlay").style.display = "flex";
   }
   window.closeConfirmDialog = function() {
-    document.getElementById("confirm-overlay").style.display = "none";
+    var overlay = document.getElementById("confirm-overlay");
+    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
+      closeAppAlert();
+      return;
+    }
+    overlay.style.display = "none";
   }
 
   renderHistory();
@@ -588,7 +608,12 @@ function syncHistoryFromCloud() {
     document.getElementById("confirm-overlay").style.display = "flex";
   }
   window.closeConfirmDialog = function() {
-    document.getElementById("confirm-overlay").style.display = "none";
+    var overlay = document.getElementById("confirm-overlay");
+    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
+      closeAppAlert();
+      return;
+    }
+    overlay.style.display = "none";
   }
 
   renderHistory();
@@ -609,7 +634,12 @@ function syncHistoryFromCloud() {
     document.getElementById("confirm-overlay").style.display = "flex";
   }
   window.closeConfirmDialog = function() {
-    document.getElementById("confirm-overlay").style.display = "none";
+    var overlay = document.getElementById("confirm-overlay");
+    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
+      closeAppAlert();
+      return;
+    }
+    overlay.style.display = "none";
   }
 
   renderHistory();
@@ -662,3 +692,4 @@ function syncHistoryFromCloud() {
 </div>
   
 </body></html>
+

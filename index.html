@@ -80,18 +80,18 @@
 </div>
 <div id="xh-step3">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 3/4 · 选择文案模板</span></div>
-<div class="chat-form-field"><label><span class="field-icon">&#x1f4cb;</span> 文案模板 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（可多选）</span></label>
+<div class="chat-form-field"><label><span class="field-icon">&#x1f4cb;</span> 文案模板 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（最多选2个）</span></label>
 <div class="select-chips" id="xh-templates" style="display:flex;flex-wrap:wrap;gap:8px">
-<span class="select-chip" data-val="讲故事类" onclick="toggleChip(this,'xh-templates',4)">&#x1f4d6; 讲故事类</span>
-<span class="select-chip" data-val="共鸣型段子类" onclick="toggleChip(this,'xh-templates',4)">&#x1f602; 共鸣型段子类</span>
-<span class="select-chip" data-val="教知识类" onclick="toggleChip(this,'xh-templates',4)">&#x1f4da; 教知识类</span>
-<span class="select-chip" data-val="晒过程类" onclick="toggleChip(this,'xh-templates',4)">&#x1f3ac; 晒过程类</span>
+<span class="select-chip" data-val="讲故事类" onclick="toggleChip(this,'xh-templates',2)">&#x1f4d6; 讲故事类</span>
+<span class="select-chip" data-val="共鸣型段子类" onclick="toggleChip(this,'xh-templates',2)">&#x1f602; 共鸣型段子类</span>
+<span class="select-chip" data-val="教知识类" onclick="toggleChip(this,'xh-templates',2)">&#x1f4da; 教知识类</span>
+<span class="select-chip" data-val="晒过程类" onclick="toggleChip(this,'xh-templates',2)">&#x1f3ac; 晒过程类</span>
 </div></div>
 
 </div>
 <div id="xh-step4">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 4/4 · 选择开头类型</span></div>
-<div class="chat-form-field"><label><span class="field-icon">&#x1f3a4;</span> 开头类型 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（可多选）</span></label>
+<div class="chat-form-field"><label><span class="field-icon">&#x1f3a4;</span> 开头类型 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（最多选3个）</span></label>
 <div class="select-chips" id="xh-openings" style="display:flex;flex-wrap:wrap;gap:6px;max-height:260px;overflow-y:auto"></div></div>
 <div style="font-size:11px;color:var(--text-muted);margin:8px 0" id="xh-count-info">已选 0 个开头 x 0 个模板 = 0 条文案</div>
 <button class="chat-form-submit" onclick="xuehuiGenerate()">&#x270d; 生成爆款文案</button>
@@ -307,10 +307,10 @@
 </aside>
 </div>
 <script src="modules/mayuan.js?v=202606051330"></script>
-<script src="modules/xuehui.js?v=202606051330"></script>
+<script src="modules/xuehui.js?v=202606051610"></script>
 <script src="modules/kanjian.js?v=202606051330"></script>
 <script src="modules/tiejia.js?v=202606051330"></script>
-<script src="app.js?v=202606051500"></script>
+<script src="app.js?v=202606051610"></script>
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
 <div class="settings-panel" onclick="event.stopPropagation()">

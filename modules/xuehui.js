@@ -112,7 +112,15 @@ var container=document.getElementById("xh-openings");
 container.innerHTML=xhOpenTypes.map(function(o){return '<span class="select-chip" data-val="'+o.name+'" onclick="xuehuiToggleOpening(this)" title="'+o.desc+'">'+o.name+'</span>'}).join("");
 xuehuiUpdateCount();
 }
-function xuehuiToggleOpening(el){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}el.classList.toggle("selected");xuehuiUpdateCount();}
+function xuehuiToggleOpening(el){
+if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
+if(!el.classList.contains("selected")){
+var selected=document.querySelectorAll("#xh-openings .select-chip.selected");
+if(selected.length>=3){alert("开头类型一次最多选择3个");return}
+}
+el.classList.toggle("selected");
+xuehuiUpdateCount();
+}
 function xuehuiUpdateCount(){
 var sel=document.querySelectorAll("#xh-openings .select-chip.selected").length;
 var tmpl=xhState.templates.length;

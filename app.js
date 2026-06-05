@@ -524,6 +524,7 @@ updateApiStatus();document.querySelector(".sidebar-settings-btn").addEventListen
 // Auto-recommend now handled in xuehuiSelectTopic_orig
 var origToggleChip2=toggleChip;
 toggleChip=function(chip,containerId,maxSelect){
+if(containerId==="xh-templates")maxSelect=2;
 origToggleChip2(chip,containerId,maxSelect);
 if(containerId==="xh-templates"){
 setTimeout(function(){

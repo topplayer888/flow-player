@@ -226,6 +226,27 @@ function tjBindApiCheck() {
     }
   });
 }
+function myBindApiCheck() {
+  var panel = document.getElementById("chat-form-panel");
+  if (!panel || panel.style.display === "none") return;
+  panel.querySelectorAll("input, textarea").forEach(function(el) {
+    if (!el.dataset.apiCheck) {
+      el.dataset.apiCheck = "1";
+      el.addEventListener("focus", function() { if(!apiConfig||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();} });
+    }
+  });
+}
+function rwBindApiCheck() {
+  var panel = document.getElementById("chat-form-rewrite");
+  if (!panel || panel.style.display === "none") return;
+  panel.querySelectorAll("input, textarea").forEach(function(el) {
+    if (!el.dataset.apiCheck) {
+      el.dataset.apiCheck = "1";
+      el.addEventListener("focus", function() { if(!apiConfig||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();} });
+    }
+  });
+}
+
 function switchChatMode(mode){
 chatMode=mode;
 document.querySelectorAll(".chat-mode-tab").forEach(function(t){t.classList.remove("active")});
@@ -238,7 +259,7 @@ var rwPanel=document.getElementById("chat-form-rewrite");
 hideWorkflowPanels();
 if(mode==="form"){
 msgs.style.display="none";questions.style.display="none";inputArea.style.display="none";
-if(chatKey==="0-1"){formPanel.style.display="none";rwPanel.style.display="none";var kj=document.getElementById("chat-form-kanjian");if(kj)kj.style.display="flex"}else if(chatKey==="0-3"){formPanel.style.display="none";rwPanel.style.display="flex";updateRewriteApiStatus()}else if(chatKey==="0-0"){formPanel.style.display="none";rwPanel.style.display="none";var xp=document.getElementById("chat-form-xuehui");if(xp){xp.style.display="flex";setTimeout(function(){xhBindApiCheck()},100)}xuehuiUpdateStatus()}else if(chatKey==="1-2"){formPanel.style.display="none";rwPanel.style.display="none";var tj=document.getElementById("chat-form-tiejia");if(tj){tj.style.display="flex";setTimeout(function(){tjBindApiCheck()},100)}tjUpdateStatus()}else{formPanel.style.display="flex";rwPanel.style.display="none"}
+if(chatKey==="0-1"){formPanel.style.display="none";rwPanel.style.display="none";var kj=document.getElementById("chat-form-kanjian");if(kj)kj.style.display="flex"}else if(chatKey==="0-3"){formPanel.style.display="none";rwPanel.style.display="flex";setTimeout(function(){rwBindApiCheck()},100);updateRewriteApiStatus()}else if(chatKey==="0-0"){formPanel.style.display="none";rwPanel.style.display="none";var xp=document.getElementById("chat-form-xuehui");if(xp){xp.style.display="flex";setTimeout(function(){xhBindApiCheck()},100)}xuehuiUpdateStatus()}else if(chatKey==="1-2"){formPanel.style.display="none";rwPanel.style.display="none";var tj=document.getElementById("chat-form-tiejia");if(tj){tj.style.display="flex";setTimeout(function(){tjBindApiCheck()},100)}tjUpdateStatus()}else{formPanel.style.display="flex";rwPanel.style.display="none"}
 }else{
 msgs.style.display="";questions.style.display="";inputArea.style.display="";
 }

@@ -64,7 +64,7 @@ function xhParseJsonArray(json){
 }
 
 function xuehuiUpdateStatus(){var s=document.getElementById("form-xh-status");var m=document.getElementById("form-xh-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 - "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key"}}
-function xuehuiStep1(){
+function xuehuiStep1(){if(!apiConfig||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return;}
 xhState.industry=document.getElementById("xh-industry").value.trim();
 xhState.audience=document.getElementById("xh-audience").value.trim();
 var els=Array.from(document.getElementById("xh-elements").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
@@ -171,7 +171,7 @@ function fallbackCopyXh(btn,text){
  }catch(e){alert("复制失败，请手动选择复制")}
  document.body.removeChild(ta);
 }
-function xhRegenerate(){
+function xhRegenerate(){if(!apiConfig||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return;}
  var feedback=document.getElementById("xh-regen-input").value.trim();
  if(!feedback){alert("请输入优化意见");return}
  if(!xhState.results||xhState.results.length===0){alert("没有可优化的内容");return}
@@ -272,7 +272,7 @@ document.getElementById("xh-industry").value="";document.getElementById("xh-audi
 document.querySelectorAll("#xh-elements .select-chip.selected,#xh-templates .select-chip.selected,#xh-openings .select-chip.selected").forEach(function(c){c.classList.remove("selected")});
 xhState={industry:"",audience:"",elements:[],topics:[],selectedTopic:null,templates:[],openings:[],selectedOpenings:[],results:[]};
 }
-function xuehuiGenerate(){
+function xuehuiGenerate(){if(!apiConfig||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return;}
 // Ensure templates are captured from DOM if not already set
 if(!xhState.templates||xhState.templates.length===0){
 xhState.templates=Array.from(document.getElementById("xh-templates").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});

@@ -13,6 +13,43 @@ function kanjianUpdateStatus() {
     m.textContent = "未配置 API Key";
   }
 }
+function kjCheckApi() {
+  if (!apiConfig.apikey || apiConfig.apikey.length < 10) {
+    showApiConfigPrompt();
+    return false;
+  }
+  return true;
+}
+
+function kanjianUpdateStatus() {
+  return;
+  var s = document.getElementById("form-kj-status");
+  var m = document.getElementById("form-kj-msg");
+  if (!s) return;
+  if (apiConfig.apikey && apiConfig.apikey.length > 9) {
+    s.className = "form-api-status ok";
+    m.textContent = "API 已配置 · " + apiConfig.model;
+  } else {
+    s.className = "form-api-status missing";
+    m.textContent = "未配置 API Key";
+  }
+}
+function kjCheckApi() {
+  if (!apiConfig.apikey || apiConfig.apikey.length < 10) {
+    showApiConfigPrompt();
+    return false;
+  }
+  return true;
+}
+
+function kjCheckApi() {
+  if (!apiConfig.apikey || apiConfig.apikey.length < 10) {
+    showApiConfigPrompt();
+    return false;
+  }
+  return true;
+}
+
 
 var kjState = {
   structures: [
@@ -79,8 +116,7 @@ function kjFormatResult(text) {
   return safe;
 }
 
-function kjPick(el, groupId, max) {
-  var chips = document.getElementById(groupId).querySelectorAll(".select-chip");
+function kjPick(el, groupId, max) { if (!kjCheckApi()) return; if (!kjCheckApi()) return;  var chips = document.getElementById(groupId).querySelectorAll(".select-chip");
   var selected = document.getElementById(groupId).querySelectorAll(".select-chip.selected");
   if (el.classList.contains("selected")) {
     el.classList.remove("selected");
@@ -93,7 +129,7 @@ function kjPick(el, groupId, max) {
   kjMaybeAutoRecommendStructures();
 }
 
-function kjSelectStructure(idx) {
+function kjSelectStructure(idx) { if (!kjCheckApi()) return; if (!kjCheckApi()) return;
   kjState.selectedIndex = idx;
   var chips = document.querySelectorAll("#kj-structures .kj-struct-chip");
   chips.forEach(function(c, i) {
@@ -227,8 +263,7 @@ function kjRecommendTopics(force) {
   }, { temperature: 0.4, max_tokens: 1800 });
 }
 
-function kjStep1() {
-  var ip = kjGetInput("kj-ip");
+function kjStep1() { if (!kjCheckApi()) return;  var ip = kjGetInput("kj-ip");
   var industry = kjGetInput("kj-industry");
   var audience = kjGetInput("kj-audience");
   if (!ip || !industry || !audience) {
@@ -239,12 +274,11 @@ function kjStep1() {
   kjRecommendTopics(false);
 }
 
-function kjStep2() {
+function kjStep2() { if (!kjCheckApi()) return;
   kjRecommendStructures(true);
 }
 
-function kjRecommendStructures(force) {
-  var topic = kjGetInput("kj-topic");
+function kjRecommendStructures(force) {  var topic = kjGetInput("kj-topic");
   var duration = kjGetVal("kj-duration");
   var platform = kjGetVal("kj-platform");
   var scene = kjGetVal("kj-scene");
@@ -302,7 +336,7 @@ function kjRecommendStructures(force) {
   }, { temperature: 0.3, max_tokens: 2000 });
 }
 
-function kjGenerate() {
+function kjGenerate() { if (!kjCheckApi()) return; if (!kjCheckApi()) return;
   if (kjState.selectedIndex < 0) {
     alert("请选择一个内容结构");
     return;

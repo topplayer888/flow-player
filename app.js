@@ -135,7 +135,8 @@ document.querySelectorAll(".mode-card").forEach(function(card){
 card.addEventListener("click",function(){
 var modeIdx=parseInt(card.dataset.mode);
 var ak=_s+"-"+modeIdx;
-if(ak==="2-1"){sectionModes[_s]=modeIdx;currentMode=modeIdx;renderKyrieMenuPage()}
+if(ak==="0-2"){sectionModes[_s]=modeIdx;currentMode=modeIdx;renderIPMenuPage()}
+else if(ak==="2-1"){sectionModes[_s]=modeIdx;currentMode=modeIdx;renderKyrieMenuPage()}
 else if(agents[ak]){sectionModes[_s]=modeIdx;openChat(_s,modeIdx)}
 else{currentMode=modeIdx;renderContent();renderRightModes()}
 });
@@ -155,7 +156,8 @@ t.querySelectorAll(".right-mode-item").forEach(function(item){
 item.addEventListener("click",function(){
 var modeIdx=parseInt(item.dataset.mode);
 var ak=currentSection+"-"+modeIdx;
-if(ak==="2-1"){sectionModes[currentSection]=modeIdx;currentMode=modeIdx;renderKyrieMenuPage()}
+if(ak==="0-2"){sectionModes[currentSection]=modeIdx;currentMode=modeIdx;renderIPMenuPage()}
+else if(ak==="2-1"){sectionModes[currentSection]=modeIdx;currentMode=modeIdx;renderKyrieMenuPage()}
 else if(agents[ak]){sectionModes[currentSection]=modeIdx;openChat(currentSection,modeIdx)}
 else{currentMode=modeIdx;renderContent()}
 });
@@ -240,10 +242,119 @@ if(moduleId==="coach"&&taskIndex===1)return base+"请告诉我老师当前表现
 if(moduleId==="control"&&taskIndex===0)return base+"请直接描述当前直播状态，例如在线人数、评论情况、成交情况、老师正在讲什么、是否掉线、是否卖不动。";
 return base+"请发给我直播后的在线、停留、互动、点击、成交等数据，我会帮你诊断问题并给出下一场优化动作。";
 }
+function getKyrieTaskQuestions(moduleId,taskIndex){
+if(moduleId==="strategy"&&taskIndex===0)return ["帮我设计一场完整知识付费直播方案","帮我规划直播主题、流程和成交路径","我有课程和人设，帮我搭一场直播","帮我设计开场、干货、带货和复盘流程"];
+if(moduleId==="strategy"&&taskIndex===1)return ["帮我优化当前直播策略","直播间停留差，帮我诊断原因","直播转化低，帮我调整成交路径","帮我优化直播节奏和互动设计"];
+if(moduleId==="script"&&taskIndex===0)return ["帮我生成整场直播逐字稿","帮我写一场60分钟知识付费直播脚本","帮我生成开场、干货、带货和逼单话术","根据我的课程生成完整直播脚本"];
+if(moduleId==="script"&&taskIndex===1)return ["帮我写开场3分钟留人话术","帮我写干货到卖课的衔接话术","帮我生成福利介绍和核心卖点话术","帮我生成逼单、憋单和返场话术"];
+if(moduleId==="coach"&&taskIndex===0)return ["帮我点评这段老师直播话术","帮我把这段话改得更有直播感","帮我诊断老师表达哪里不够有对象感","帮我优化这段话的控场和转化"];
+if(moduleId==="coach"&&taskIndex===1)return ["帮我训练老师的镜头表现力","帮我提升老师的交流感和真诚感","帮我训练老师的节奏感和笃定感","帮我从控场、互动、销转角度给训练建议"];
+if(moduleId==="control"&&taskIndex===0)return ["当前在线下降，接下来怎么办","直播间没人互动，帮我救场","讲了很久干货但成交少，怎么转带货","老师状态弱，给我下一步3分钟节奏"];
+if(moduleId==="control"&&taskIndex===1)return ["帮我复盘这场直播数据","根据在线、停留、互动、点击、成交做诊断","帮我找出成交高峰对应的话术","帮我给下一场直播优化建议"];
+return ["帮我开始这个功能","我想补充更多信息","请先问我需要的信息"];
+}
 function openKyrieTask(moduleId,taskIndex){
 pendingKyrieModule=moduleId;
 pendingKyrieTaskIndex=taskIndex;
 openChat(2,1);
+}
+
+function getIPPageModules(){
+return [
+{id:"project",icon:"🧭",title:"项目搭建",desc:"先定人设、内容和角色，搭好 IP 项目的底层盘。",tasks:[
+{title:"从0到1完整IP项目",desc:"适合新项目启动，输出定位、访谈、素材、选题、脚本和账号规划。",prompt:"你现在执行完整项目模式。按项目判断、IP定位、人设档案、内容方向、角色定位、访谈提纲、深挖追问池、素材库结构、短视频选题库、首批脚本、账号栏目规划、下一步执行清单输出。信息不足时先问3个关键问题。"},
+{title:"IP定位与人设档案",desc:"适合已有人物资料，提炼一句话定位、人设关键词和差异化。",prompt:"你现在执行 IP定位助手。围绕人设、内容、角色，输出 IP定位报告：一句话定位、人设关键词、核心差异化、内容定位、角色定位、目标用户、商业转化方向、风险提醒、下一步。"}
+]},
+{id:"interview",icon:"🎙️",title:"访谈策划",desc:"把采访变成有目标、有追问、有剪辑方向的内容采集。",tasks:[
+{title:"生成访谈提纲",desc:"为个人IP、老板、老师、专家设计一套能挖出故事和金句的问题。",prompt:"你现在执行访谈提纲生成器。输出访谈目标、开场破冰、人设定位问题、经历挖掘问题、专业案例问题、冲突转折问题、情绪细节问题、观点提炼问题、金句收束问题、可剪辑短视频方向。每个问题写明想挖什么。"},
+{title:"深挖追问现场",desc:"针对一段经历或回答继续追问，让素材更具体、更有传播力。",prompt:"你现在执行深挖追问助手。先判断素材价值和缺失信息，再最多提出3个追问。如果素材已经完整，直接提炼核心故事、核心冲突、情绪钩子、人设信号、可传播观点、可拍视频标题。"}
+]},
+{id:"material",icon:"🗂️",title:"素材转化",desc:"把访谈记录拆成可保存、可复用、可进入选题的素材资产。",tasks:[
+{title:"整理访谈素材库",desc:"把字幕、笔记、访谈记录分类成故事、观点、案例、金句和标签。",prompt:"你现在执行素材库整理助手。识别人设故事、专业观点、典型案例、情绪片段、金句、用户痛点、反常识观点、争议观点、可拍短视频选题、可复用标签，并标注爆款潜力和建议用途。"},
+{title:"生成短视频选题库",desc:"把人物经历、观点和案例转成可拍、可传播、可转化的选题。",prompt:"你现在执行短视频选题生成器。每个选题必须包含标题、类型、核心观点、适合角色、开头钩子、内容结构、爆款元素判断、推荐拍摄形式、转化价值，并标出优先推荐拍摄。"}
+]},
+{id:"script",icon:"📝",title:"脚本运营",desc:"把选题写成可拍脚本，并沉淀长期栏目和发布计划。",tasks:[
+{title:"爆款短视频脚本",desc:"生成30-90秒可直接拍摄的口播、访谈切片或案例拆解脚本。",prompt:"你现在执行爆款脚本生成器。输出标题、时长建议、拍摄形式、适合结构、开头3秒钩子、正文脚本、金句、结尾引导、字幕重点、拍摄建议、可剪辑点。"},
+{title:"账号内容规划",desc:"设计栏目、发布比例、转化路径和前30条视频建议。",prompt:"你现在执行账号内容规划助手。输出账号主定位、内容栏目、每个栏目作用、发布比例、选题示例、转化路径、前30条视频建议。内容必须覆盖人设建立、专业信任、用户痛点、案例证明、情绪共鸣、商业转化。"}
+]}
+];
+}
+function getIPPageModule(id){
+var list=getIPPageModules();
+for(var i=0;i<list.length;i++){if(list[i].id===id)return list[i]}
+return null;
+}
+function renderIPMenuPage(){
+if(chatOpen){closeChat(true)}
+syncWorkspaceForMode(0,2);
+var ca=document.getElementById("content-area");
+ca.classList.add("fading");
+setTimeout(function(){
+var modules=getIPPageModules();
+ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">IP访谈</span>策划工作台</div><div class="content-desc">爆款脚本创作 · 分层菜单式智能体</div></div><button class="kyrie-back-btn" type="button" onclick="renderContent()">← 返回上一层</button><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid kyrie-menu-grid ip-menu-grid">'+modules.map(function(m,i){
+return '<div class="mode-card kyrie-level-card ip-level-card" data-ip-module="'+m.id+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+m.icon+'</div><div class="mode-card-index">0'+(i+1)+'</div></div><div class="mode-card-name">'+m.title+'</div><div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>进入二级菜单</div><div class="mode-card-enter">选择 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
+}).join("")+'</div>';
+ca.classList.remove("fading");
+var overall=document.getElementById("stat-overall");if(overall){overall.textContent="已激活";overall.className="stat-value"}
+var modes=document.getElementById("stat-modes");if(modes)modes.textContent="4";
+var systems=document.getElementById("stat-systems");if(systems)systems.textContent="8";
+setTimeout(function(){
+var ld=ca.querySelector(".content-loading");if(ld)ld.remove();
+ca.querySelectorAll(".ip-level-card").forEach(function(card){
+card.addEventListener("click",function(){renderIPSubmenuPage(card.dataset.ipModule)});
+});
+},300);
+renderRightModes();
+},200);
+}
+function renderIPSubmenuPage(moduleId){
+if(chatOpen){closeChat(true)}
+syncWorkspaceForMode(0,2);
+var module=getIPPageModule(moduleId);if(!module){renderIPMenuPage();return}
+var ca=document.getElementById("content-area");
+ca.classList.add("fading");
+setTimeout(function(){
+ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">'+module.title+'</span></div><div class="content-desc">IP访谈策划工作台 · 输入返回可回到上一级</div></div><button class="kyrie-back-btn" type="button" onclick="renderIPMenuPage()">← 返回上一级</button><div class="mode-grid kyrie-sub-grid ip-sub-grid">'+module.tasks.map(function(t,i){
+return '<div class="mode-card kyrie-task-card ip-task-card" data-ip-module="'+module.id+'" data-ip-task="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+module.icon+'</div><div class="mode-card-index">'+(i+1)+'</div></div><div class="mode-card-name">'+t.title+'</div><div class="mode-card-desc">'+t.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>开始执行</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
+}).join("")+'</div>';
+ca.classList.remove("fading");
+ca.querySelectorAll(".ip-task-card").forEach(function(card){
+card.addEventListener("click",function(){openIPTask(card.dataset.ipModule,parseInt(card.dataset.ipTask))});
+});
+renderRightModes();
+},200);
+}
+function getIPTaskIntro(moduleId,taskIndex){
+var module=getIPPageModule(moduleId),task=module&&module.tasks[taskIndex];
+if(!module||!task)return "请把你的具体需求发给我，我会按 IP 访谈内容体系帮你执行。";
+var base="你已进入：IP访谈策划工作台 > "+module.title+" > "+task.title+"\n\n";
+if(moduleId==="project"&&taskIndex===0)return base+"请告诉我：这个 IP 是谁、行业身份是什么、最想被记住的标签是什么、账号最终目标是什么。我会帮你输出完整项目方案。";
+if(moduleId==="project"&&taskIndex===1)return base+"请发人物资料、过往经历、专业能力、目标用户和商业目标。我会帮你提炼定位、人设关键词和内容方向。";
+if(moduleId==="interview"&&taskIndex===0)return base+"请告诉我访谈对象是谁、行业身份、访谈目的、希望挖出的主题。我会生成可直接执行的访谈提纲。";
+if(moduleId==="interview"&&taskIndex===1)return base+"请发一段经历、回答或观点。我会判断素材价值，并用最多3个问题继续深挖。";
+if(moduleId==="material"&&taskIndex===0)return base+"请粘贴访谈记录、字幕、笔记或素材片段。我会整理成人设故事、观点、案例、金句和选题素材库。";
+if(moduleId==="material"&&taskIndex===1)return base+"请发人物资料、访谈素材或观点案例。我会生成可拍摄的短视频选题库，并标出优先级。";
+if(moduleId==="script"&&taskIndex===0)return base+"请发选题、人物定位、素材或想表达的观点。我会写成30-90秒可拍摄短视频脚本。";
+return base+"请发 IP 定位、目标用户、商业目标或现有内容方向。我会规划栏目、发布比例、转化路径和前30条视频建议。";
+}
+function getIPTaskPrompt(moduleId,taskIndex){
+var module=getIPPageModule(moduleId),task=module&&module.tasks[taskIndex];
+return task?task.prompt:"";
+}
+function getIPTaskQuestions(moduleId,taskIndex){
+if(moduleId==="project"&&taskIndex===0)return ["从0到1帮我做完整IP项目方案","我想打造一个老师IP，帮我规划全流程","帮我从人物资料开始做完整IP方案","帮我输出定位、访谈、选题、脚本和账号规划"];
+if(moduleId==="project"&&taskIndex===1)return ["帮我做IP定位和人设档案","根据这些人物资料提炼差异化","帮我梳理这个IP适合讲什么","帮我判断这个IP适合什么表达角色"];
+if(moduleId==="interview"&&taskIndex===0)return ["帮我生成一套访谈提纲","我要采访一位老板，帮我设计问题","帮我设计能挖出故事和金句的问题","帮我生成访谈问题和可剪辑方向"];
+if(moduleId==="interview"&&taskIndex===1)return ["我有一段经历，帮我继续深挖","帮我把这个故事问得更具体","帮我找这段素材的冲突和情绪","帮我提炼可传播观点并继续追问"];
+if(moduleId==="material"&&taskIndex===0)return ["帮我整理这段访谈素材库","把这段字幕整理成故事、观点和金句","帮我给素材分类并打标签","帮我判断哪些素材最适合拍短视频"];
+if(moduleId==="material"&&taskIndex===1)return ["帮我生成短视频选题库","根据这段访谈素材生成选题","帮我把人物经历转成可拍选题","帮我挑出最值得优先拍的选题"];
+if(moduleId==="script"&&taskIndex===0)return ["帮我写成30-90秒短视频脚本","把这个选题写成可拍口播稿","帮我生成访谈切片脚本","帮我写标题、钩子、正文和结尾引导"];
+return ["帮我规划账号内容体系","帮我设计栏目和发布比例","帮我输出前30条视频建议","帮我设计从内容到转化的路径"];
+}
+function openIPTask(moduleId,taskIndex){
+pendingIPModule=moduleId;
+pendingIPTaskIndex=taskIndex;
+openChat(0,2);
 }
 
 document.querySelectorAll(".nav-item").forEach(function(e){
@@ -291,7 +402,7 @@ document.addEventListener("click",function(e){playClickSound();if(themeWasteland
 
 !function(){var themes=["cool","warm","purple"];var chars=["01","0123456789ABCDEF",">_$#&@*%!","FLOW.01 FLOW.02 RANK.03","0xDEAD 0xBEEF 0xCAFE","{flow:player,rank:01}"];for(var i=0;i<12;i++){var d=document.createElement("div");d.className="data-stream "+themes[i%3];d.style.left=3+8*i+"%";d.style.setProperty("--dur",(7+7*Math.random())+"s");d.style.setProperty("--delay",(10*Math.random())+"s");d.style.animationDuration=(7+7*Math.random())+"s";d.style.animationDelay=(10*Math.random())+"s";var ch=chars[i%chars.length];var t="";for(var j=0;j<40;j++){t+=ch[Math.floor(Math.random()*ch.length)];if(j%8==7)t+="  "}d.textContent=t;document.body.appendChild(d)}}();
 
-var chatOpen=false,chatKey="",chatMessages=[],isTyping=false,currentKyrieSubKey="",currentKyrieMenuLevel="",currentKyrieModule="",currentKyrieTask="",pendingKyrieModule="",pendingKyrieTaskIndex=-1;
+var chatOpen=false,chatKey="",chatMessages=[],isTyping=false,currentKyrieSubKey="",currentKyrieMenuLevel="",currentKyrieModule="",currentKyrieTask="",pendingKyrieModule="",pendingKyrieTaskIndex=-1,currentIPModule="",currentIPTask="",currentIPTaskIndex=-1,pendingIPModule="",pendingIPTaskIndex=-1;
 function hideWorkflowPanels(){
 ["chat-form-panel","chat-form-rewrite","chat-form-xuehui","chat-form-tiejia","chat-form-kanjian"].forEach(function(id){
 var el=document.getElementById(id);if(el)el.style.display="none";
@@ -307,7 +418,12 @@ var nav=document.querySelector('.nav-item[data-section="'+section+'"]');if(nav)n
 function openChat(section,mode){
 syncWorkspaceForMode(section,mode);
 chatKey=section+"-"+mode;var agent=agents[chatKey];
-var kyrieLaunch=null,kyrieTask=null;
+var kyrieLaunch=null,kyrieTask=null,ipLaunch=null,ipTask=null;
+if(chatKey==="0-2"){
+if(!pendingIPModule){renderIPMenuPage();return}
+ipLaunch=getIPPageModule(pendingIPModule);
+ipTask=ipLaunch&&ipLaunch.tasks[pendingIPTaskIndex];
+}
 if(chatKey==="2-1"){
 if(!pendingKyrieModule){renderKyrieMenuPage();return}
 kyrieLaunch=getKyriePageModule(pendingKyrieModule);
@@ -315,26 +431,41 @@ kyrieTask=kyrieLaunch&&kyrieLaunch.tasks[pendingKyrieTaskIndex];
 if(kyrieLaunch&&agents[kyrieLaunch.key])agent=agents[kyrieLaunch.key];
 }
 if(!agent){alert("该智能体尚未配置");return}
-document.getElementById("chat-agent-name").textContent=kyrieLaunch?("Kyrie"+kyrieLaunch.title):agent.name;
-document.getElementById("chat-agent-sub").textContent=kyrieLaunch?("直播策略 / Kyrie直播方法论 / "+kyrieLaunch.title+" / "+(kyrieTask?kyrieTask.title:"")):agent.section;
-document.getElementById("chat-agent-icon").textContent=(kyrieLaunch?kyrieLaunch.icon:agent.icon)||"🚀";
+document.getElementById("chat-agent-name").textContent=ipLaunch?("IP访谈"+ipLaunch.title):(kyrieLaunch?("Kyrie"+kyrieLaunch.title):agent.name);
+document.getElementById("chat-agent-sub").textContent=ipLaunch?("爆款脚本创作 / 访谈式IP策划 / "+ipLaunch.title+" / "+(ipTask?ipTask.title:"")):(kyrieLaunch?("直播策略 / Kyrie直播方法论 / "+kyrieLaunch.title+" / "+(kyrieTask?kyrieTask.title:"")):agent.section);
+document.getElementById("chat-agent-icon").textContent=(ipLaunch?ipLaunch.icon:(kyrieLaunch?kyrieLaunch.icon:agent.icon))||"🚀";
 document.getElementById("chat-messages").innerHTML="";
-if(kyrieLaunch){
+if(ipLaunch){
+currentIPModule=ipLaunch.id;
+currentIPTask=ipTask?ipTask.title:"";
+currentIPTaskIndex=pendingIPTaskIndex;
+currentKyrieSubKey="";
+currentKyrieMenuLevel="";
+currentKyrieModule="";
+currentKyrieTask="";
+}else if(kyrieLaunch){
 currentKyrieSubKey=kyrieLaunch.key;
 currentKyrieMenuLevel="task";
 currentKyrieModule=kyrieLaunch.id;
 currentKyrieTask=kyrieTask?kyrieTask.title:"";
+currentIPModule="";
+currentIPTask="";
+currentIPTaskIndex=-1;
 }else{
 currentKyrieSubKey="";
 currentKyrieMenuLevel="";
 currentKyrieModule="";
 currentKyrieTask="";
+currentIPModule="";
+currentIPTask="";
+currentIPTaskIndex=-1;
 }
-document.getElementById("chat-questions").innerHTML=(kyrieLaunch?[]:agent.questions).map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
+var presetQuestions=kyrieLaunch?getKyrieTaskQuestions(kyrieLaunch.id,pendingKyrieTaskIndex):(ipLaunch?getIPTaskQuestions(ipLaunch.id,pendingIPTaskIndex):agent.questions);
+document.getElementById("chat-questions").innerHTML=presetQuestions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");
 chatOpen=true;chatMessages=[];addHistory(section,mode);if(chatKey==='0-3'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else if(chatKey==='0-2'||chatKey.indexOf('2-')===0){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});var firstTab=document.querySelector('.chat-mode-tab');if(firstTab)firstTab.classList.add('active');
-addMessage("assistant",kyrieLaunch?getKyrieTaskIntro(kyrieLaunch.id,pendingKyrieTaskIndex):agent.opening);
-pendingKyrieModule="";pendingKyrieTaskIndex=-1;
+addMessage("assistant",ipLaunch?getIPTaskIntro(ipLaunch.id,pendingIPTaskIndex):(kyrieLaunch?getKyrieTaskIntro(kyrieLaunch.id,pendingKyrieTaskIndex):agent.opening));
+pendingKyrieModule="";pendingKyrieTaskIndex=-1;pendingIPModule="";pendingIPTaskIndex=-1;
 }
 var chatMode="qa";
 
@@ -591,9 +722,11 @@ document.getElementById("xh-audience").addEventListener("input",xhAutoRecElement
 
 
 function closeChat(skipKyrieReturn){
+var ipReturnModule=!skipKyrieReturn&&chatKey==="0-2"&&currentIPModule;
 var kyrieReturnModule=!skipKyrieReturn&&chatKey==="2-1"&&currentKyrieMenuLevel==="task"&&currentKyrieModule;
 document.getElementById("chat-overlay").classList.remove("open");
 chatOpen=false;chatMessages=[];
+if(ipReturnModule){renderIPSubmenuPage(ipReturnModule);return}
 if(kyrieReturnModule){renderKyrieSubmenuPage(kyrieReturnModule);return}
 renderContent();renderRightModes();renderHistory();
 }
@@ -711,6 +844,9 @@ function appendMayuanDialogueFollowup(content){if(chatKey!=="1-0")return content
 function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent)return;if(chatKey==="2-1"&&currentKyrieMenuLevel!=="task"){hideTyping();addMessage("assistant","请先选择到二级功能后，再输入调整意见。\n\n"+(currentKyrieMenuLevel==="sub"?getKyrieSubMenuText(currentKyrieModule):getKyrieMainMenuText()));return}if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>");return}var msgs=[{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只返回优化后的内容，不要解释过程。\n"+adjustText});fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}addMessage("assistant",appendMayuanDialogueFollowup(data.choices[0].message.content))}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
+if(chatKey==="0-2"&&/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){
+ hideTyping();var backIPModule=currentIPModule||"project";closeChat(true);renderIPSubmenuPage(backIPModule);return;
+}
 if(chatKey==="2-1"){
  if(/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){hideTyping();var backModule=currentKyrieModule||"strategy";closeChat(true);renderKyrieSubmenuPage(backModule);return}
  if(currentKyrieMenuLevel!=="task"&&handleKyrieMenuInput(userMsg)){hideTyping();return}
@@ -721,7 +857,11 @@ hideTyping();
 addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span><br><br>也可以在左侧栏 ⚙ API 配置 中设置。");
 return;
 }
-var msgs=[{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)}];
+var activeSystemPrompt=getMayuanDialogueSystemPrompt(agent.systemPrompt);
+if(chatKey==="0-2"&&currentIPModule){
+ activeSystemPrompt+="\n\n# 当前界面选择\n用户当前选择的是：IP访谈策划工作台 > "+currentIPModule+" > "+currentIPTask+"。\n"+getIPTaskPrompt(currentIPModule,currentIPTaskIndex);
+}
+var msgs=[{role:"system",content:activeSystemPrompt}];
 chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});
 fetch(apiConfig.endpoint,{
 method:"POST",

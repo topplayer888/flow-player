@@ -381,6 +381,41 @@ renderContent();renderRightModes();renderHistory();
 }
 function selectRewriteMode(el){document.querySelectorAll("#rw-mode-chips .select-chip").forEach(function(c){c.classList.remove("selected")});el.classList.add("selected");rwMode=el.dataset.val;document.getElementById("rw-custom-group2").style.display=rwMode==="B"?"":"none"}function selectRewriteModeBtn(el,mode){document.querySelectorAll(".rw-mode-btn").forEach(function(b){b.classList.remove("selected");b.style.borderColor="var(--border-glow)";b.style.background="var(--bg-card)"});el.classList.add("selected");el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";rwMode=mode;document.getElementById("rw-custom-group2").style.display=mode==="B"?"":"none"}
 function updateRewriteApiStatus(){var s=document.getElementById("form-rw-status");var m=document.getElementById("form-rw-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置"}}
+function rwSetLinkStatus(text,type){
+var el=document.getElementById("rw-link-status");if(!el)return;
+el.textContent=text||"";el.style.display=text?"":"none";
+el.style.borderColor=type==="ok"?"rgba(16,185,129,.35)":type==="error"?"rgba(239,68,68,.35)":"var(--border-glow)";
+el.style.color=type==="ok"?"#10b981":type==="error"?"#ef4444":"var(--text-secondary)";
+}
+function rwLooksLikeUnableTranscript(text){
+return /无法访问|不能访问|无法读取|不能读取|无法打开|无法获取|无法解析|不能解析|无法查看|不能查看|无法提取|不能提取|不能直接访问|当前模型无法|无法从链接|unable|cannot access|can't access|cannot read|can't read/i.test(text||"");
+}
+function transcribeRewriteLink(){
+if(!apiConfig||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
+var input=document.getElementById("rw-link");
+var btn=document.getElementById("rw-link-btn");
+var url=input?input.value.trim():"";
+if(!url){alert("请先粘贴视频链接");return}
+if(!/^https?:\/\/\S+/i.test(url)){rwSetLinkStatus("链接格式不正确，请粘贴以 http:// 或 https:// 开头的视频链接。","error");return}
+var oldText=btn?btn.textContent:"";
+if(btn){btn.textContent="转写中...";btn.disabled=true}
+rwSetLinkStatus("正在调用你绑定的模型尝试读取链接并生成逐字稿...","info");
+var systemPrompt="你是视频链接逐字稿整理助手。你的唯一任务是根据用户提供的视频链接，尽力生成可用于短视频爆款仿写分析的逐字稿。只输出逐字稿正文，不做爆款分析，不做仿写，不输出标题建议。如果能识别时间轴，使用 [00:00] 文案 格式；如果无法识别时间轴，就按自然段输出完整口播逐字稿。如果当前模型无法访问、读取或解析该视频链接，必须明确回复：当前模型无法访问该视频链接，请手动粘贴视频文案或逐字稿。禁止编造视频内容。";
+var userPrompt="视频链接：\n"+url+"\n\n请基于该链接生成逐字稿。要求：\n1. 只输出逐字稿，不要输出分析、标题、仿写建议。\n2. 尽量保留原视频口语表达和语气。\n3. 如果能识别时间轴，按 [00:00] 文案 格式输出。\n4. 如果无法访问链接，不要编造，直接说明无法访问并引导用户手动粘贴。";
+fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:systemPrompt},{role:"user",content:userPrompt}],temperature:.2,max_tokens:6000})})
+.then(function(r){return r.json()})
+.then(function(data){
+ if(data.error){rwSetLinkStatus("API 错误："+data.error.message,"error");return}
+ var content=data&&data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:"";
+ if(!content){rwSetLinkStatus("API 返回格式异常，没有生成逐字稿。","error");return}
+ content=content.replace(/^```(?:text|markdown)?\s*/i,"").replace(/```\s*$/,"").trim();
+ if(rwLooksLikeUnableTranscript(content)){rwSetLinkStatus(content,"error");return}
+ var textEl=document.getElementById("rw-text");if(textEl)textEl.value=content;
+ rwSetLinkStatus("已生成逐字稿，可检查后开始分析拆解。","ok");
+})
+.catch(function(e){rwSetLinkStatus("请求失败："+e.message,"error")})
+.finally(function(){if(btn){btn.textContent=oldText||"🎧 链接生成逐字稿";btn.disabled=false}});
+}
 function goBackRewriteStep1(){document.getElementById("rw-step2").style.display="none";document.getElementById("rw-step1").style.display=""}
 function submitRewriteStep1(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
 var content=document.getElementById("rw-text").value.trim();

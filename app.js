@@ -143,7 +143,8 @@ document.querySelectorAll(".mode-card").forEach(function(card){
 card.addEventListener("click",function(){
 var modeIdx=parseInt(card.dataset.mode);
 var ak=_s+"-"+modeIdx;
-if(agents[ak]){sectionModes[_s]=modeIdx;openChat(_s,modeIdx)}
+if(ak==="2-1"){sectionModes[_s]=modeIdx;currentMode=modeIdx;renderKyrieMenuPage()}
+else if(agents[ak]){sectionModes[_s]=modeIdx;openChat(_s,modeIdx)}
 else{currentMode=modeIdx;renderContent();renderRightModes()}
 });
 });
@@ -162,10 +163,95 @@ t.querySelectorAll(".right-mode-item").forEach(function(item){
 item.addEventListener("click",function(){
 var modeIdx=parseInt(item.dataset.mode);
 var ak=currentSection+"-"+modeIdx;
-if(agents[ak]){sectionModes[currentSection]=modeIdx;openChat(currentSection,modeIdx)}
+if(ak==="2-1"){sectionModes[currentSection]=modeIdx;currentMode=modeIdx;renderKyrieMenuPage()}
+else if(agents[ak]){sectionModes[currentSection]=modeIdx;openChat(currentSection,modeIdx)}
 else{currentMode=modeIdx;renderContent()}
 });
 });
+}
+
+function getKyriePageModules(){
+return [
+{id:"strategy",key:"2-1",icon:"📌",title:"直播策略",desc:"规划直播主题、流程、节奏和成交路径。",tasks:[
+{title:"设计一场完整直播方案",desc:"适合从 0 到 1 规划直播主题、流程、节奏、成交路径。"},
+{title:"优化当前直播策略",desc:"适合已有直播间，但遇到流量低、停留差、转化低、节奏乱等问题。"}
+]},
+{id:"script",key:"2-2",icon:"📝",title:"脚本生成",desc:"生成整场逐字稿或单个环节话术。",tasks:[
+{title:"整场直播逐字稿",desc:"包含开场、干货、衔接、带货、逼单、返场。"},
+{title:"单个环节话术",desc:"可生成开场话术、干货话术、带货衔接、福利介绍、逼单话术等。"}
+]},
+{id:"coach",key:"2-3",icon:"🎙️",title:"老师训练",desc:"优化老师表达、镜头感、互动感和转化感。",tasks:[
+{title:"直播话术点评优化",desc:"你发一段老师原话，我帮你诊断并改成直播感更强的话术。"},
+{title:"镜头表现力训练",desc:"从表情、声音、肢体、眼神、停顿、情绪状态给训练建议。"}
+]},
+{id:"control",key:"2-4",icon:"📊",title:"实时中控",desc:"根据直播状态给实时动作和复盘建议。",tasks:[
+{title:"直播中实时救场",desc:"适合在线掉、没人互动、卖不动、老师状态弱等情况。"},
+{title:"直播后数据复盘",desc:"根据在线、停留、互动、点击、成交数据，分析问题和优化动作。"}
+]}
+];
+}
+function getKyriePageModule(id){
+var list=getKyriePageModules();
+for(var i=0;i<list.length;i++){if(list[i].id===id)return list[i]}
+return null;
+}
+function renderKyrieMenuPage(){
+if(chatOpen){closeChat()}
+syncWorkspaceForMode(2,1);
+var ca=document.getElementById("content-area");
+ca.classList.add("fading");
+setTimeout(function(){
+var modules=getKyriePageModules();
+ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">Kyrie</span>直播方法论</div><div class="content-desc">直播策略 · 分层菜单式智能体</div></div><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid kyrie-menu-grid">'+modules.map(function(m,i){
+return '<div class="mode-card kyrie-level-card" data-kyrie-module="'+m.id+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+m.icon+'</div><div class="mode-card-index">0'+(i+1)+'</div></div><div class="mode-card-name">'+m.title+'</div><div class="mode-card-features-area"><div class="mode-card-features-text">请选择你要使用的直播智能体功能</div></div><div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>进入二级菜单</div><div class="mode-card-enter">选择 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
+}).join("")+'</div>';
+ca.classList.remove("fading");
+var overall=document.getElementById("stat-overall");if(overall){overall.textContent="已激活4";overall.className="stat-value"}
+var modes=document.getElementById("stat-modes");if(modes)modes.textContent="4";
+var systems=document.getElementById("stat-systems");if(systems)systems.textContent="8";
+setTimeout(function(){
+var ld=ca.querySelector(".content-loading");if(ld)ld.remove();
+ca.querySelectorAll(".kyrie-level-card").forEach(function(card){
+card.addEventListener("click",function(){renderKyrieSubmenuPage(card.dataset.kyrieModule)});
+});
+},300);
+renderRightModes();
+},200);
+}
+function renderKyrieSubmenuPage(moduleId){
+if(chatOpen){closeChat()}
+syncWorkspaceForMode(2,1);
+var module=getKyriePageModule(moduleId);if(!module){renderKyrieMenuPage();return}
+var ca=document.getElementById("content-area");
+ca.classList.add("fading");
+setTimeout(function(){
+ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">'+module.title+'</span></div><div class="content-desc">Kyrie直播方法论 · 输入返回可回到上一级</div></div><button class="kyrie-back-btn" type="button" onclick="renderKyrieMenuPage()">← 返回上一级</button><div class="mode-grid kyrie-sub-grid">'+module.tasks.map(function(t,i){
+return '<div class="mode-card kyrie-task-card" data-kyrie-module="'+module.id+'" data-kyrie-task="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+module.icon+'</div><div class="mode-card-index">'+(i+1)+'</div></div><div class="mode-card-name">'+t.title+'</div><div class="mode-card-features-area"><div class="mode-card-features-text">你已进入：'+module.title+'</div></div><div class="mode-card-desc">'+t.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>开始执行</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
+}).join("")+'</div>';
+ca.classList.remove("fading");
+ca.querySelectorAll(".kyrie-task-card").forEach(function(card){
+card.addEventListener("click",function(){openKyrieTask(card.dataset.kyrieModule,parseInt(card.dataset.kyrieTask))});
+});
+renderRightModes();
+},200);
+}
+function getKyrieTaskIntro(moduleId,taskIndex){
+var module=getKyriePageModule(moduleId),task=module&&module.tasks[taskIndex];
+if(!module||!task)return "请把你的具体需求发给我，我会按 Kyrie 直播方法论帮你执行。";
+var base="你已进入：Kyrie直播方法论 > "+module.title+" > "+task.title+"\n\n";
+if(moduleId==="strategy"&&taskIndex===0)return base+"请告诉我：老师/IP是谁、卖什么课、课程价格、目标用户、用户最痛的 3 个问题、当前直播阶段。我会帮你设计完整直播方案。";
+if(moduleId==="strategy"&&taskIndex===1)return base+"请告诉我：当前直播间数据、遇到的具体问题、老师状态、课程产品和成交目标。我会帮你优化直播策略。";
+if(moduleId==="script"&&taskIndex===0)return base+"请按这个格式发我：行业、老师人设、课程产品、课程价格、目标用户、用户痛点、直播时长、当前流量阶段、希望直播形式。";
+if(moduleId==="script"&&taskIndex===1)return base+"请告诉我要生成哪个环节：开场、干货、带货衔接、福利介绍、逼单、憋单、返场或答疑，并补充行业和课程信息。";
+if(moduleId==="coach"&&taskIndex===0)return base+"请把老师原话发给我，最好同时补充老师人设、课程产品、目标用户，以及现在卡在留人、互动还是成交。";
+if(moduleId==="coach"&&taskIndex===1)return base+"请告诉我老师当前表现问题，或发一段直播话术/录播观察。我会从表情、声音、肢体、眼神、停顿和情绪给训练建议。";
+if(moduleId==="control"&&taskIndex===0)return base+"请直接描述当前直播状态，例如在线人数、评论情况、成交情况、老师正在讲什么、是否掉线、是否卖不动。";
+return base+"请发给我直播后的在线、停留、互动、点击、成交等数据，我会帮你诊断问题并给出下一场优化动作。";
+}
+function openKyrieTask(moduleId,taskIndex){
+pendingKyrieModule=moduleId;
+pendingKyrieTaskIndex=taskIndex;
+openChat(2,1);
 }
 
 document.querySelectorAll(".nav-item").forEach(function(e){
@@ -213,7 +299,7 @@ document.addEventListener("click",function(e){playClickSound();if(themeWasteland
 
 !function(){var themes=["cool","warm","purple"];var chars=["01","0123456789ABCDEF",">_$#&@*%!","FLOW.01 FLOW.02 RANK.03","0xDEAD 0xBEEF 0xCAFE","{flow:player,rank:01}"];for(var i=0;i<12;i++){var d=document.createElement("div");d.className="data-stream "+themes[i%3];d.style.left=3+8*i+"%";d.style.setProperty("--dur",(7+7*Math.random())+"s");d.style.setProperty("--delay",(10*Math.random())+"s");d.style.animationDuration=(7+7*Math.random())+"s";d.style.animationDelay=(10*Math.random())+"s";var ch=chars[i%chars.length];var t="";for(var j=0;j<40;j++){t+=ch[Math.floor(Math.random()*ch.length)];if(j%8==7)t+="  "}d.textContent=t;document.body.appendChild(d)}}();
 
-var chatOpen=false,chatKey="",chatMessages=[],isTyping=false,currentKyrieSubKey="",currentKyrieMenuLevel="",currentKyrieModule="",currentKyrieTask="";
+var chatOpen=false,chatKey="",chatMessages=[],isTyping=false,currentKyrieSubKey="",currentKyrieMenuLevel="",currentKyrieModule="",currentKyrieTask="",pendingKyrieModule="",pendingKyrieTaskIndex=-1;
 function hideWorkflowPanels(){
 ["chat-form-panel","chat-form-rewrite","chat-form-xuehui","chat-form-tiejia","chat-form-kanjian"].forEach(function(id){
 var el=document.getElementById(id);if(el)el.style.display="none";
@@ -229,19 +315,34 @@ var nav=document.querySelector('.nav-item[data-section="'+section+'"]');if(nav)n
 function openChat(section,mode){
 syncWorkspaceForMode(section,mode);
 chatKey=section+"-"+mode;var agent=agents[chatKey];
+var kyrieLaunch=null,kyrieTask=null;
+if(chatKey==="2-1"){
+if(!pendingKyrieModule){renderKyrieMenuPage();return}
+kyrieLaunch=getKyriePageModule(pendingKyrieModule);
+kyrieTask=kyrieLaunch&&kyrieLaunch.tasks[pendingKyrieTaskIndex];
+if(kyrieLaunch&&agents[kyrieLaunch.key])agent=agents[kyrieLaunch.key];
+}
 if(!agent){alert("该智能体尚未配置");return}
-document.getElementById("chat-agent-name").textContent=agent.name;
-document.getElementById("chat-agent-sub").textContent=agent.section;
-document.getElementById("chat-agent-icon").textContent=agent.icon||"🚀";
+document.getElementById("chat-agent-name").textContent=kyrieLaunch?("Kyrie"+kyrieLaunch.title):agent.name;
+document.getElementById("chat-agent-sub").textContent=kyrieLaunch?("直播策略 / Kyrie直播方法论 / "+kyrieLaunch.title+" / "+(kyrieTask?kyrieTask.title:"")):agent.section;
+document.getElementById("chat-agent-icon").textContent=(kyrieLaunch?kyrieLaunch.icon:agent.icon)||"🚀";
 document.getElementById("chat-messages").innerHTML="";
+if(kyrieLaunch){
+currentKyrieSubKey=kyrieLaunch.key;
+currentKyrieMenuLevel="task";
+currentKyrieModule=kyrieLaunch.id;
+currentKyrieTask=kyrieTask?kyrieTask.title:"";
+}else{
 currentKyrieSubKey="";
-currentKyrieMenuLevel=chatKey==="2-1"?"main":"";
+currentKyrieMenuLevel="";
 currentKyrieModule="";
 currentKyrieTask="";
-document.getElementById("chat-questions").innerHTML=agent.questions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
+}
+document.getElementById("chat-questions").innerHTML=(kyrieLaunch?[]:agent.questions).map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");
 chatOpen=true;chatMessages=[];addHistory(section,mode);if(chatKey==='0-3'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else if(chatKey==='0-2'||chatKey.indexOf('2-')===0){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});var firstTab=document.querySelector('.chat-mode-tab');if(firstTab)firstTab.classList.add('active');
-addMessage("assistant",agent.opening);
+addMessage("assistant",kyrieLaunch?getKyrieTaskIntro(kyrieLaunch.id,pendingKyrieTaskIndex):agent.opening);
+pendingKyrieModule="";pendingKyrieTaskIndex=-1;
 }
 var chatMode="qa";
 
@@ -617,7 +718,8 @@ function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
 if(chatKey==="2-1"){
- if(handleKyrieMenuInput(userMsg)){hideTyping();return}
+ if(/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){hideTyping();var backModule=currentKyrieModule||"strategy";closeChat();renderKyrieSubmenuPage(backModule);return}
+ if(currentKyrieMenuLevel!=="task"&&handleKyrieMenuInput(userMsg)){hideTyping();return}
  if(!currentKyrieSubKey||currentKyrieMenuLevel!=="task"){hideTyping();addMessage("assistant","请先选择到二级功能后，再输入具体需求。");return}
 }
 if(!apiConfig.apikey||apiConfig.apikey.length<10){

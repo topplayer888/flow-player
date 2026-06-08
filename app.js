@@ -196,7 +196,7 @@ for(var i=0;i<list.length;i++){if(list[i].id===id)return list[i]}
 return null;
 }
 function renderKyrieMenuPage(){
-if(chatOpen){closeChat()}
+if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(2,1);
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
@@ -219,7 +219,7 @@ renderRightModes();
 },200);
 }
 function renderKyrieSubmenuPage(moduleId){
-if(chatOpen){closeChat()}
+if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(2,1);
 var module=getKyriePageModule(moduleId);if(!module){renderKyrieMenuPage();return}
 var ca=document.getElementById("content-area");
@@ -598,9 +598,11 @@ document.getElementById("xh-audience").addEventListener("input",xhAutoRecElement
 
 
 
-function closeChat(){
+function closeChat(skipKyrieReturn){
+var kyrieReturnModule=!skipKyrieReturn&&chatKey==="2-1"&&currentKyrieMenuLevel==="task"&&currentKyrieModule;
 document.getElementById("chat-overlay").classList.remove("open");
 chatOpen=false;chatMessages=[];
+if(kyrieReturnModule){renderKyrieSubmenuPage(kyrieReturnModule);return}
 renderContent();renderRightModes();renderHistory();
 }
 function selectRewriteMode(el){document.querySelectorAll("#rw-mode-chips .select-chip").forEach(function(c){c.classList.remove("selected")});el.classList.add("selected");rwMode=el.dataset.val;document.getElementById("rw-custom-group2").style.display=rwMode==="B"?"":"none"}function selectRewriteModeBtn(el,mode){document.querySelectorAll(".rw-mode-btn").forEach(function(b){b.classList.remove("selected");b.style.borderColor="var(--border-glow)";b.style.background="var(--bg-card)"});el.classList.add("selected");el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";rwMode=mode;document.getElementById("rw-custom-group2").style.display=mode==="B"?"":"none"}
@@ -718,7 +720,7 @@ function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
 if(chatKey==="2-1"){
- if(/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){hideTyping();var backModule=currentKyrieModule||"strategy";closeChat();renderKyrieSubmenuPage(backModule);return}
+ if(/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){hideTyping();var backModule=currentKyrieModule||"strategy";closeChat(true);renderKyrieSubmenuPage(backModule);return}
  if(currentKyrieMenuLevel!=="task"&&handleKyrieMenuInput(userMsg)){hideTyping();return}
  if(!currentKyrieSubKey||currentKyrieMenuLevel!=="task"){hideTyping();addMessage("assistant","请先选择到二级功能后，再输入具体需求。");return}
 }

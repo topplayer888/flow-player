@@ -89,7 +89,7 @@ section:"直播策略 / Kyrie直播方法论",
 icon:"📈",
 features:"4个智能体封装\n直播策划 · 脚本生成 · 老师训练 · 实时中控\n知识付费直播闭环",
 systemPrompt:"你是一个“知识付费直播智能体”，专门帮助直播运营、IP老师和直播中控设计、训练、优化知识付费直播间。你的核心目标：1. 帮助老师提升镜头表现力、控场能力、互动能力、销转能力。2. 帮助运营设计完整直播闭环，包括干货分享、带货衔接、课程带货、福利设计、逼单/憋单、留存和互动。3. 根据用户输入的行业、老师人设、课程产品、目标用户和直播阶段，生成可直接使用的话术、脚本、流程和复盘建议。4. 在直播过程中，可以像中控一样，根据当前在线人数、评论情况、成交情况、用户抗拒点，实时给出下一步动作建议。\n\n底层原则：直播不是单纯讲课，而是“信任建立 + 痛点唤醒 + 认知改变 + 价值呈现 + 成交转化”的过程。老师要有交流感、真诚感、节奏感、笃定感。直播内容必须围绕用户痛点、场景、冲突、原因、危害和方法展开。干货不能过度专业，也不能一次性解决所有问题，要让用户有收获感，同时保留继续学习的需求。卖课前必须有衔接，不能从干货突然跳到“我有一门课”。转化要虚实结合、刚柔并济：既讲老师人设、初心、信念，也讲课程内容、服务、案例、效果、福利。互动要低成本、短回复、选择题优先，并且对直播节奏有正向帮助。所有话术要口语化、直播感强，不能像书面文章。不输出违法违规、夸大承诺、虚假效果保证、恶意恐吓用户的话术。涉及效果时使用“有机会、帮助、提升、改善、适合”等稳妥表达。\n\n当用户要求设计直播方案时，按以下结构输出：一、直播定位：直播主题、目标用户、用户核心痛点、老师核心人设、本场直播转化目标。二、直播形式选择：短逻辑闭环、长逻辑闭环、百问百答、连麦答疑、强带货循环，并说明为什么。三、整场直播流程：开场留人 → 干货分享 → 带货衔接 → 课程介绍 → 福利介绍 → 核心卖点 → 答疑破抗 → 返场逼单 → 复盘数据。每个环节输出目标、时长、老师动作、话术示例、互动设计、中控关注数据。四、干货脚本：痛点现象 → 用户场景 → 背后原因 → 危害放大 → 简单方法 → 转课程衔接。五、带货衔接：洗认知 → 给场景 → 挖痛 → 攀比 → 造梦 → 上价值。六、成交话术：课程简介上架话术、课程详细介绍、福利介绍、核心卖点、逼单、憋单、返场。七、互动设计：是不是/有没有、打1/打2、打“想”、打“有收获”、打孩子年级/当前问题，并说明每个互动点放在哪个环节。八、抗拒点处理：价格、效果、时间、上手难度、服务、售后、正版、适不适合我。九、直播复盘指标：进入率、停留时长、评论率、加粉率、商品点击率、成交转化率、每个成交高峰对应话术，并给出优化建议。\n\n输出风格：直接、实用、可复制。优先给直播话术、流程表、脚本结构、实时建议。少讲理论，多给可执行内容。如果用户信息不足，先用合理假设生成，再提醒用户补充行业、课程、价格、目标用户、直播阶段。",
-opening:"你好，我是 Kyrie 直播方法论。\n\n这个模板下面封装了 4 个智能体：直播策划、脚本生成、老师训练、实时中控。\n\n请先选择你这次要使用的功能，然后我会进入对应的工作流。",
+opening:"请选择你要使用的直播智能体功能：\n\n1. 直播策略\n2. 脚本生成\n3. 老师训练\n4. 实时中控\n\n你可以输入对应数字或功能名称进入。",
 questions:["直播策划智能体","脚本生成智能体","老师训练智能体","实时中控智能体"]
 },
 "2-2":{
@@ -213,7 +213,7 @@ document.addEventListener("click",function(e){playClickSound();if(themeWasteland
 
 !function(){var themes=["cool","warm","purple"];var chars=["01","0123456789ABCDEF",">_$#&@*%!","FLOW.01 FLOW.02 RANK.03","0xDEAD 0xBEEF 0xCAFE","{flow:player,rank:01}"];for(var i=0;i<12;i++){var d=document.createElement("div");d.className="data-stream "+themes[i%3];d.style.left=3+8*i+"%";d.style.setProperty("--dur",(7+7*Math.random())+"s");d.style.setProperty("--delay",(10*Math.random())+"s");d.style.animationDuration=(7+7*Math.random())+"s";d.style.animationDelay=(10*Math.random())+"s";var ch=chars[i%chars.length];var t="";for(var j=0;j<40;j++){t+=ch[Math.floor(Math.random()*ch.length)];if(j%8==7)t+="  "}d.textContent=t;document.body.appendChild(d)}}();
 
-var chatOpen=false,chatKey="",chatMessages=[],isTyping=false,currentKyrieSubKey="";
+var chatOpen=false,chatKey="",chatMessages=[],isTyping=false,currentKyrieSubKey="",currentKyrieMenuLevel="",currentKyrieModule="",currentKyrieTask="";
 function hideWorkflowPanels(){
 ["chat-form-panel","chat-form-rewrite","chat-form-xuehui","chat-form-tiejia","chat-form-kanjian"].forEach(function(id){
 var el=document.getElementById(id);if(el)el.style.display="none";
@@ -235,45 +235,97 @@ document.getElementById("chat-agent-sub").textContent=agent.section;
 document.getElementById("chat-agent-icon").textContent=agent.icon||"🚀";
 document.getElementById("chat-messages").innerHTML="";
 currentKyrieSubKey="";
+currentKyrieMenuLevel=chatKey==="2-1"?"main":"";
+currentKyrieModule="";
+currentKyrieTask="";
 document.getElementById("chat-questions").innerHTML=agent.questions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");
 chatOpen=true;chatMessages=[];addHistory(section,mode);if(chatKey==='0-3'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else if(chatKey==='0-2'||chatKey.indexOf('2-')===0){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});var firstTab=document.querySelector('.chat-mode-tab');if(firstTab)firstTab.classList.add('active');
 addMessage("assistant",agent.opening);
-if(chatKey==="2-1")renderKyrieChooser();
 }
 var chatMode="qa";
 
 function getKyrieSubMap(){return {
-"plan":{key:"2-1",title:"直播策划智能体",desc:"直播定位、流程闭环、互动设计、复盘指标",icon:"🧭"},
-"script":{key:"2-2",title:"脚本生成智能体",desc:"开场留人、干货逐字稿、带货衔接、成交话术",icon:"📝"},
-"coach":{key:"2-3",title:"老师训练智能体",desc:"表达诊断、话术改写、镜头表现和互动训练",icon:"🎙️"},
-"control":{key:"2-4",title:"实时中控智能体",desc:"在线、评论、成交、掉线状态下的实时动作建议",icon:"📊"}
+"strategy":{key:"2-1",title:"直播策略",tasks:["设计一场完整直播方案","优化当前直播策略"]},
+"script":{key:"2-2",title:"脚本生成",tasks:["整场直播逐字稿","单个环节话术"]},
+"coach":{key:"2-3",title:"老师训练",tasks:["直播话术点评优化","镜头表现力训练"]},
+"control":{key:"2-4",title:"实时中控",tasks:["直播中实时救场","直播后数据复盘"]}
 }}
 function getActiveChatAgent(){
 if(chatKey==="2-1"&&currentKyrieSubKey&&agents[currentKyrieSubKey])return agents[currentKyrieSubKey];
 return agents[chatKey];
 }
-function renderKyrieChooser(){
-var msgs=document.getElementById("chat-messages");if(!msgs)return;
-var map=getKyrieSubMap(),html='<div class="kyrie-subgrid">';
-Object.keys(map).forEach(function(k){var item=map[k];html+='<button class="kyrie-subcard" onclick="selectKyrieSubAgent(\''+k+'\')"><span class="kyrie-subicon">'+item.icon+'</span><span class="kyrie-submain"><b>'+item.title+'</b><small>'+item.desc+'</small></span></button>'});
-html+='</div>';
-var div=document.createElement("div");div.className="chat-msg assistant kyrie-chooser-msg";
-div.innerHTML='<div class="chat-avatar">🤖</div><div class="chat-bubble">'+html+'</div>';
-msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+function getKyrieMainMenuText(){return "请选择你要使用的直播智能体功能：\n\n1. 直播策略\n2. 脚本生成\n3. 老师训练\n4. 实时中控\n\n你可以输入对应数字或功能名称进入。"}
+function getKyrieModuleByInput(text){
+var t=(text||"").trim();
+if(t==="1"||t.indexOf("直播策略")>=0)return "strategy";
+if(t==="2"||t.indexOf("脚本")>=0)return "script";
+if(t==="3"||t.indexOf("老师")>=0||t.indexOf("训练")>=0)return "coach";
+if(t==="4"||t.indexOf("中控")>=0||t.indexOf("实时")>=0)return "control";
+return "";
 }
-function selectKyrieSubAgent(type){
-var item=getKyrieSubMap()[type];if(!item)return;
-currentKyrieSubKey=item.key;
-var agent=agents[item.key]||agents["2-1"];
-if(type==="plan"){agent=Object.assign({},agent,{opening:"你好，我是 Kyrie 直播策划智能体。\n\n我可以帮你搭建一场知识付费直播：直播定位、流程闭环、干货设计、带货衔接、福利逼单、互动留存和复盘指标都可以一起做。\n\n你可以先告诉我 5 个信息：\n1. 老师/IP是谁？有什么专业背书？\n2. 卖的是什么课？价格是多少？\n3. 目标用户是谁？他们最痛的 3 个问题是什么？\n4. 当前直播阶段：冷启动、短视频起号、稳定老粉、付费投放，还是素材引流成熟？\n5. 你想生成整场流程、逐字稿、开场话术、带货衔接、逼单话术、互动话术、复盘分析，还是实时中控建议？\n\n信息不完整也没关系，我会先按已知信息给你一个可用版本。",questions:["帮我设计一场知识付费直播流程","帮我做直播定位和转化目标","帮我设计直播闭环和互动点","帮我设计干货到卖课的衔接","帮我做一份直播复盘指标表"]})}
+function getKyrieSubMenuText(module){
+if(module==="strategy")return "你已进入：直播策略\n\n请选择你要使用的功能：\n\n1. 设计一场完整直播方案\n   适合从 0 到 1 规划直播主题、流程、节奏、成交路径。\n\n2. 优化当前直播策略\n   适合已有直播间，但遇到流量低、停留差、转化低、节奏乱等问题。\n\n输入“返回”可回到上一级。";
+if(module==="script")return "你已进入：脚本生成\n\n请选择你要生成的内容：\n\n1. 整场直播逐字稿\n   包含开场、干货、衔接、带货、逼单、返场。\n\n2. 单个环节话术\n   可生成开场话术、干货话术、带货衔接、福利介绍、逼单话术等。\n\n输入“返回”可回到上一级。";
+if(module==="coach")return "你已进入：老师训练\n\n请选择训练方式：\n\n1. 直播话术点评优化\n   你发一段老师原话，我帮你诊断并改成直播感更强的话术。\n\n2. 镜头表现力训练\n   从表情、声音、肢体、眼神、停顿、情绪状态给训练建议。\n\n输入“返回”可回到上一级。";
+if(module==="control")return "你已进入：实时中控\n\n请选择当前场景：\n\n1. 直播中实时救场\n   适合在线掉、没人互动、卖不动、老师状态弱等情况。\n\n2. 直播后数据复盘\n   根据在线、停留、互动、点击、成交数据，分析问题和优化动作。\n\n输入“返回”可回到上一级。";
+return getKyrieMainMenuText();
+}
+function getKyrieTaskByInput(text){
+var t=(text||"").trim();
+if(t==="1")return 0;
+if(t==="2")return 1;
+if(currentKyrieModule==="strategy"&&/完整|方案|规划|从 0|从0/.test(t))return 0;
+if(currentKyrieModule==="strategy"&&/优化|当前|流量|停留|转化|节奏/.test(t))return 1;
+if(currentKyrieModule==="script"&&/整场|逐字稿|全场|直播脚本/.test(t))return 0;
+if(currentKyrieModule==="script"&&/单个|环节|话术|开场|逼单|福利|衔接/.test(t))return 1;
+if(currentKyrieModule==="coach"&&/点评|优化|原话|话术/.test(t))return 0;
+if(currentKyrieModule==="coach"&&/镜头|表现|表情|声音|肢体|眼神/.test(t))return 1;
+if(currentKyrieModule==="control"&&/救场|直播中|在线|互动|卖不动|状态/.test(t))return 0;
+if(currentKyrieModule==="control"&&/复盘|数据|直播后|成交|点击/.test(t))return 1;
+return -1;
+}
+function setKyrieModule(module){
+var map=getKyrieSubMap(),item=map[module];if(!item)return;
+currentKyrieModule=module;currentKyrieSubKey=item.key;currentKyrieTask="";currentKyrieMenuLevel="sub";
 document.getElementById("chat-agent-name").textContent="Kyrie"+item.title;
-document.getElementById("chat-agent-sub").textContent=agent.section||"直播策略 / Kyrie直播方法论";
-document.getElementById("chat-agent-icon").textContent=item.icon;
-document.getElementById("chat-messages").innerHTML="";
-chatMessages=[];
-document.getElementById("chat-questions").innerHTML=(agent.questions||[]).map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
-addMessage("assistant",agent.opening||("已进入 "+item.title+"，请告诉我你的需求。"));
+document.getElementById("chat-agent-sub").textContent="直播策略 / Kyrie直播方法论 / "+item.title;
+addMessage("assistant",getKyrieSubMenuText(module));
+}
+function setKyrieTask(taskIndex){
+var map=getKyrieSubMap(),item=map[currentKyrieModule];if(!item||taskIndex<0)return;
+currentKyrieTask=item.tasks[taskIndex];currentKyrieMenuLevel="task";
+addMessage("assistant","我将为你进入："+item.title+" > "+currentKyrieTask+"\n\n请把你的具体信息发给我，我会按这个功能开始执行。输入“返回”可回到上一级。");
+}
+function handleKyrieMenuInput(text){
+var t=(text||"").trim();
+if(!t)return false;
+if(/^(返回|上一步|返回上一级)$/i.test(t)){
+ if(currentKyrieMenuLevel==="task"){currentKyrieMenuLevel="sub";currentKyrieTask="";addMessage("assistant",getKyrieSubMenuText(currentKyrieModule));return true}
+ if(currentKyrieMenuLevel==="sub"){currentKyrieMenuLevel="main";currentKyrieModule="";currentKyrieSubKey="";currentKyrieTask="";document.getElementById("chat-agent-name").textContent="Kyrie直播方法论";document.getElementById("chat-agent-sub").textContent="直播策略 / Kyrie直播方法论";addMessage("assistant",getKyrieMainMenuText());return true}
+}
+if(currentKyrieMenuLevel==="main"){
+ var exactMenu=/^(1|2|3|4|直播策略|脚本生成|老师训练|实时中控)$/.test(t);
+ var module=exactMenu?getKyrieModuleByInput(t):"";
+ if(module){setKyrieModule(module);return true}
+ module=autoDetectKyrieModule(t);
+ if(module){setKyrieModule(module);var task=getKyrieTaskByInput(t);if(task<0)task=0;setKyrieTask(task);return false}
+ addMessage("assistant",getKyrieMainMenuText());return true;
+}
+if(currentKyrieMenuLevel==="sub"){
+ var taskIndex=getKyrieTaskByInput(t);
+ if(taskIndex>=0){setKyrieTask(taskIndex);return true}
+ addMessage("assistant",getKyrieSubMenuText(currentKyrieModule));return true;
+}
+return false;
+}
+function autoDetectKyrieModule(text){
+var t=text||"";
+if(/脚本|逐字稿|开场|干货|衔接|逼单|话术/.test(t))return "script";
+if(/点评|训练|镜头|老师|表达|停顿|眼神/.test(t))return "coach";
+if(/中控|救场|在线|评论|成交|复盘|掉线|卖不动/.test(t))return "control";
+if(/策略|方案|流程|直播间|转化|流量|停留/.test(t))return "strategy";
+return "";
 }
 
 function kjBindApiCheck() {
@@ -516,10 +568,8 @@ addMessage("user",text);showTyping();callAgent(text);
 }
 function sendPreset(text){
 if(chatKey==="2-1"&&!currentKyrieSubKey){
-if(text.indexOf("直播策划")>=0){selectKyrieSubAgent("plan");return}
-if(text.indexOf("脚本生成")>=0){selectKyrieSubAgent("script");return}
-if(text.indexOf("老师训练")>=0){selectKyrieSubAgent("coach");return}
-if(text.indexOf("实时中控")>=0){selectKyrieSubAgent("control");return}
+var module=getKyrieModuleByInput(text);
+if(module){setKyrieModule(module);return}
 }
 document.getElementById("chat-input").value=text;sendMessage()
 }
@@ -563,10 +613,13 @@ function applyAdjustment(){var t=document.getElementById("cfg-adjust");var v=t.v
 function clearAdjustment(){document.getElementById("cfg-adjust").value=""}
 function getMayuanDialogueSystemPrompt(base){if(chatKey!=="1-0")return base;return base+"\n\n# 马源内容体系对话式补充规则\n当用户要求生成脚本、引流脚本、短视频文案或口播文案，并且没有明确指定时长时，优先按30-60秒生成。口播文案控制在150-250字左右，约10-15句，结构完整但不要写成长篇。若用户明确指定30秒以内或60秒以上，以用户要求为准。生成文案后，在结尾追加一句：需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
 function appendMayuanDialogueFollowup(content){if(chatKey!=="1-0")return content;if(!content)return content;if(content.indexOf("需要我帮你把这版内容篇幅加长吗")>=0||content.indexOf("有任何修改意见请告诉我")>=0)return content;return content+"\n\n需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
-function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent)return;if(chatKey==="2-1"&&!currentKyrieSubKey){hideTyping();addMessage("assistant","请先在 Kyrie 方法论下面选择一个智能体功能，再输入调整意见。");renderKyrieChooser();return}if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>");return}var msgs=[{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只返回优化后的内容，不要解释过程。\n"+adjustText});fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}addMessage("assistant",appendMayuanDialogueFollowup(data.choices[0].message.content))}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
+function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent)return;if(chatKey==="2-1"&&currentKyrieMenuLevel!=="task"){hideTyping();addMessage("assistant","请先选择到二级功能后，再输入调整意见。\n\n"+(currentKyrieMenuLevel==="sub"?getKyrieSubMenuText(currentKyrieModule):getKyrieMainMenuText()));return}if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>");return}var msgs=[{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只返回优化后的内容，不要解释过程。\n"+adjustText});fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}addMessage("assistant",appendMayuanDialogueFollowup(data.choices[0].message.content))}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
-if(chatKey==="2-1"&&!currentKyrieSubKey){hideTyping();addMessage("assistant","请先选择 Kyrie 方法论下面的一个智能体功能。");renderKyrieChooser();return}
+if(chatKey==="2-1"){
+ if(handleKyrieMenuInput(userMsg)){hideTyping();return}
+ if(!currentKyrieSubKey||currentKyrieMenuLevel!=="task"){hideTyping();addMessage("assistant","请先选择到二级功能后，再输入具体需求。");return}
+}
 if(!apiConfig.apikey||apiConfig.apikey.length<10){
 hideTyping();
 addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span><br><br>也可以在左侧栏 ⚙ API 配置 中设置。");

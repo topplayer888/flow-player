@@ -70,7 +70,7 @@ section:"爆款脚本创作 / 爆款仿写",
 icon:"✍️",
 features:"文案拆解·爆款分析\n两种仿写模式：原汁原味 & 自定义定位\n结构保真·人设对齐·行业平移",
 
-systemPrompt:"# 角色定义\n\n你是一个专业的短视频爆款仿写专家。你的核心任务是将用户提供的短视频（链接或文件）转化为逐字稿，并基于逐字稿进行两种模式的仿写创作。\n\n## 前置能力\n1. **视频解析与转写**：能够从短视频链接或上传的视频文件中提取音频，并准确转写为带时间戳的逐字稿。若无法直接解析链接，请明确告知用户，并引导其上传视频文件或直接粘贴文案。\n2. **爆款要素分析**：自动分析原视频的行业属性、IP人设定位、内容结构、情绪节奏、开场钩子、金句、互动引导等关键要素。\n\n## 工作流程\n### 第一步：获取与转写\n- 如果用户提供的是链接，先尝试获取视频内容，转写为逐字稿。\n- 如果用户上传视频文件，直接进行转写。\n- 如果因技术限制无法处理，请礼貌说明，并请用户直接粘贴文案进行仿写。\n- 输出完整的逐字稿（格式：[时间戳] 文案内容），并附上对原视频的简要分析，包括：\n  - 行业/赛道\n  - IP人设定位（如：严厉的创业导师、邻家美妆达人、专业且幽默的律师等）\n  - 内容结构（如：痛点引入+错误示范+正确方法+号召行动）\n  - 情绪曲线与节奏变化\n  - 关键钩子/金句\n\n### 第二步：确认仿写模式\n在完成逐字稿和分析后，询问用户选择哪种仿写模式：\n- **模式A：原汁原味仿写**。完全保留原视频的行业赛道和IP人设定位，用相同风格和结构写一条同主题或相近主题的爆款文案。\n- **模式B：自定义定位仿写**。请用户提供新的行业赛道和/或IP人设定位（例如：我想做一个面向新手宝妈的家庭理财科普号，人设是温柔耐心的邻家姐姐）。你基于原视频的爆款结构，套用到用户指定的新定位上进行仿写。\n\n### 第三步：执行仿写并输出\n根据用户选择的模式，生成仿写文案。文案必须：\n- 完整对应原视频的结构和节奏。\n- 语气、用词与人设定位完全一致。\n- 保留原作的钩子逻辑和高转化结尾方式。\n- 在文案后用简短的话说明仿写逻辑（例如：如何将原视频的痛点平移到新赛道，如何保留了3秒抓人钩子等）。\n\n## 仿写原则（极其重要）\n1. **结构保真**：开场方式、转折点、情绪高潮、行动号召的次序和功能必须一一复刻。\n2. **人设对齐**：每个句子都要符合目标人设的口吻，不能跑人设。\n3. **行业平移**（模式B）：将原视频的专业概念、场景、案例，全部精准替换为新行业的等效物。例如，把流量换成客户，把转化率换成到店率。\n4. **法律与道德**：不仿写任何涉及医疗承诺、金融保本收益、虚假宣传等违规内容，碰到此类请求直接拒绝并提示风险。\n\n## 输出格式范例\n收到逐字稿后，你应先输出：\n`\n📝 **逐字稿**\n[00:00] ...\n[00:03] ...\n...\n🔍 **原视频分析**\n· 行业：...\n· IP人设：...\n· 结构：...\n· 钩子：...\n· 情绪节奏：...\n`\n然后询问模式，并按以下格式输出仿写结果：\n`\n✍️ **仿写文案（模式A/B）**\n[仿写完整文案，可注明建议的画面或情绪标注]\n\n💡 **仿写逻辑说明**\n...\n`",
+systemPrompt:"# Role\\nYou are a professional short-video viral rewrite expert. Always respond in Chinese unless the user explicitly asks otherwise.\\n\\n# Core Task\\nThe user will paste a short-video transcript or copy. Your job is to organize the transcript if needed, analyze the viral structure, then support two rewrite modes.\\n\\n# Workflow\\nStep 1: Analyze the pasted transcript. Output a clean transcript when useful, then identify industry, IP persona, content structure, opening hook, emotional rhythm, key lines, and conversion ending.\\nStep 2: Ask or respect the selected rewrite mode.\\nMode A: preserve the original industry, persona, style, and structure to create a similar viral script.\\nMode B: map the original structure into the user-specified industry, audience, and persona.\\nStep 3: Generate the rewrite and briefly explain the rewrite logic.\\n\\n# Principles\\nKeep the structure faithful: opening, turn, emotional peak, and call to action should serve the same functions as the source.\\nKeep persona alignment: every sentence must match the target persona and voice.\\nFor Mode B, replace concepts, scenarios, pain points, and examples with equivalent items in the new industry.\\nDo not fabricate missing source content. If the pasted transcript is too thin, ask the user to provide more original copy.\\nDo not produce illegal or risky claims, especially medical guarantees, guaranteed financial returns, or false advertising.\\n\\n# Output Format\\nFirst output: transcript cleanup if needed, original video analysis, and the recommended rewrite direction.\\nThen output the rewritten script and a short rewrite-logic explanation.",
 opening:"嗨！我是你的爆款仿写助手 👋\n\n请直接把你要仿写的短视频逐字文案发给我，我会：\n\n1️⃣ 拆解分析——行业、人设、结构、钩子、情绪节奏\n2️⃣ 让你选择仿写模式——原汁原味 or 自定义定位\n3️⃣ 生成仿写文案\n\n直接粘贴文案，我们开始吧！",
 questions:["我有一条爆款文案，帮我拆解和仿写","我想用模式A原汁原味仿写","我想自定义定位仿写（模式B）","什么是结构保真和行业平移？","帮我分析这篇文案的爆款逻辑"]
 },
@@ -381,41 +381,6 @@ renderContent();renderRightModes();renderHistory();
 }
 function selectRewriteMode(el){document.querySelectorAll("#rw-mode-chips .select-chip").forEach(function(c){c.classList.remove("selected")});el.classList.add("selected");rwMode=el.dataset.val;document.getElementById("rw-custom-group2").style.display=rwMode==="B"?"":"none"}function selectRewriteModeBtn(el,mode){document.querySelectorAll(".rw-mode-btn").forEach(function(b){b.classList.remove("selected");b.style.borderColor="var(--border-glow)";b.style.background="var(--bg-card)"});el.classList.add("selected");el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";rwMode=mode;document.getElementById("rw-custom-group2").style.display=mode==="B"?"":"none"}
 function updateRewriteApiStatus(){var s=document.getElementById("form-rw-status");var m=document.getElementById("form-rw-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置"}}
-function rwSetLinkStatus(text,type){
-var el=document.getElementById("rw-link-status");if(!el)return;
-el.textContent=text||"";el.style.display=text?"":"none";
-el.style.borderColor=type==="ok"?"rgba(16,185,129,.35)":type==="error"?"rgba(239,68,68,.35)":"var(--border-glow)";
-el.style.color=type==="ok"?"#10b981":type==="error"?"#ef4444":"var(--text-secondary)";
-}
-function rwLooksLikeUnableTranscript(text){
-return /无法访问|不能访问|无法读取|不能读取|无法打开|无法获取|无法解析|不能解析|无法查看|不能查看|无法提取|不能提取|不能直接访问|当前模型无法|无法从链接|unable|cannot access|can't access|cannot read|can't read/i.test(text||"");
-}
-function transcribeRewriteLink(){
-if(!apiConfig||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
-var input=document.getElementById("rw-link");
-var btn=document.getElementById("rw-link-btn");
-var url=input?input.value.trim():"";
-if(!url){alert("请先粘贴视频链接");return}
-if(!/^https?:\/\/\S+/i.test(url)){rwSetLinkStatus("链接格式不正确，请粘贴以 http:// 或 https:// 开头的视频链接。","error");return}
-var oldText=btn?btn.textContent:"";
-if(btn){btn.textContent="转写中...";btn.disabled=true}
-rwSetLinkStatus("正在调用你绑定的模型尝试读取链接并生成逐字稿...","info");
-var systemPrompt="你是视频链接逐字稿整理助手。你的唯一任务是根据用户提供的视频链接，尽力生成可用于短视频爆款仿写分析的逐字稿。只输出逐字稿正文，不做爆款分析，不做仿写，不输出标题建议。如果能识别时间轴，使用 [00:00] 文案 格式；如果无法识别时间轴，就按自然段输出完整口播逐字稿。如果当前模型无法访问、读取或解析该视频链接，必须明确回复：当前模型无法访问该视频链接，请手动粘贴视频文案或逐字稿。禁止编造视频内容。";
-var userPrompt="视频链接：\n"+url+"\n\n请基于该链接生成逐字稿。要求：\n1. 只输出逐字稿，不要输出分析、标题、仿写建议。\n2. 尽量保留原视频口语表达和语气。\n3. 如果能识别时间轴，按 [00:00] 文案 格式输出。\n4. 如果无法访问链接，不要编造，直接说明无法访问并引导用户手动粘贴。";
-fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:systemPrompt},{role:"user",content:userPrompt}],temperature:.2,max_tokens:6000})})
-.then(function(r){return r.json()})
-.then(function(data){
- if(data.error){rwSetLinkStatus("API 错误："+data.error.message,"error");return}
- var content=data&&data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:"";
- if(!content){rwSetLinkStatus("API 返回格式异常，没有生成逐字稿。","error");return}
- content=content.replace(/^```(?:text|markdown)?\s*/i,"").replace(/```\s*$/,"").trim();
- if(rwLooksLikeUnableTranscript(content)){rwSetLinkStatus(content,"error");return}
- var textEl=document.getElementById("rw-text");if(textEl)textEl.value=content;
- rwSetLinkStatus("已生成逐字稿，可检查后开始分析拆解。","ok");
-})
-.catch(function(e){rwSetLinkStatus("请求失败："+e.message,"error")})
-.finally(function(){if(btn){btn.textContent=oldText||"🎧 链接生成逐字稿";btn.disabled=false}});
-}
 function goBackRewriteStep1(){document.getElementById("rw-step2").style.display="none";document.getElementById("rw-step1").style.display=""}
 function submitRewriteStep1(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
 var content=document.getElementById("rw-text").value.trim();

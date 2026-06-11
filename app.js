@@ -478,17 +478,24 @@ el.style.color=color;
 el.textContent=text;
 }
 function renderMayuanDocumentTools(){
-var questions=document.getElementById("chat-questions");
-if(!questions||chatKey!=="1-0"||chatMode!=="qa")return;
-if(document.getElementById("mayuan-doc-tools"))return;
-var wrap=document.createElement("div");
-wrap.id="mayuan-doc-tools";
-wrap.style.cssText="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;padding:8px 10px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.04)";
-wrap.innerHTML='<button onclick="triggerMayuanDocUpload()" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-primary);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px">📎 上传本地文档</button><span id="mayuan-doc-status" style="font-size:11px;color:var(--text-muted)">支持 txt / md / csv / json / docx / pdf，上传后直接调用 API 总结</span>';
-questions.insertBefore(wrap,questions.firstChild);
+var wrap=document.getElementById("mayuan-upload-wrap");
+var menu=document.getElementById("mayuan-upload-menu");
+if(!wrap)return;
+var visible=chatKey==="1-0"&&chatMode==="qa";
+wrap.style.display=visible?"block":"none";
+if(!visible&&menu)menu.style.display="none";
+if(visible)setMayuanDocStatus("上传后生成马源素材总结","idle");
+}
+function toggleMayuanUploadMenu(e){
+if(e)e.stopPropagation();
+var menu=document.getElementById("mayuan-upload-menu");
+if(!menu||chatKey!=="1-0")return;
+menu.style.display=menu.style.display==="block"?"none":"block";
 }
 function triggerMayuanDocUpload(){
 if(chatKey!=="1-0"){return}
+var menu=document.getElementById("mayuan-upload-menu");
+if(menu)menu.style.display="none";
 var input=document.getElementById("mayuan-doc-upload");
 if(input){input.value="";input.click()}
 }
@@ -1037,6 +1044,11 @@ origSend();
 };
 
 document.getElementById("chat-overlay").addEventListener("click",function(e){if(e.target===this)closeChat()});
+document.addEventListener("click",function(e){
+var menu=document.getElementById("mayuan-upload-menu");
+var wrap=document.getElementById("mayuan-upload-wrap");
+if(menu&&wrap&&menu.style.display==="block"&&!wrap.contains(e.target))menu.style.display="none";
+});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&chatOpen)closeChat()});
 
 function toggleMobileMenu(){var s=document.querySelector(".sidebar-left");var o=document.getElementById("mobile-overlay");if(s.classList.contains("mobile-open")){closeMobileMenu()}else{s.classList.add("mobile-open");o.classList.add("open")}}

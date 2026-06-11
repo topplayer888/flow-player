@@ -484,7 +484,7 @@ if(document.getElementById("mayuan-doc-tools"))return;
 var wrap=document.createElement("div");
 wrap.id="mayuan-doc-tools";
 wrap.style.cssText="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;padding:8px 10px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.04)";
-wrap.innerHTML='<button onclick="triggerMayuanDocUpload()" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-primary);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px">📎 上传本地文档</button><span id="mayuan-doc-status" style="font-size:11px;color:var(--text-muted)">支持 txt / md / csv / json / docx / pdf，读取后先填入输入框</span>';
+wrap.innerHTML='<button onclick="triggerMayuanDocUpload()" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-primary);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px">📎 上传本地文档</button><span id="mayuan-doc-status" style="font-size:11px;color:var(--text-muted)">支持 txt / md / csv / json / docx / pdf，上传后直接调用 API 总结</span>';
 questions.insertBefore(wrap,questions.firstChild);
 }
 function triggerMayuanDocUpload(){
@@ -539,23 +539,67 @@ if(/\.docx$/i.test(name))return readMayuanDocxFile(file);
 if(/\.pdf$/i.test(name))return readMayuanPdfFile(file);
 return Promise.reject(new Error("暂不支持该格式，请上传 txt、md、docx 或 pdf"));
 }
+function splitMayuanDocumentText(text,maxLen){
+var chunks=[];
+var source=String(text||"");
+for(var i=0;i<source.length;i+=maxLen){chunks.push(source.slice(i,i+maxLen))}
+return chunks;
+}
+function callMayuanDocumentSummaryAPI(messages,maxTokens){
+return fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:messages,temperature:.2,max_tokens:maxTokens||3000})}).then(function(r){return r.json()}).then(function(data){
+if(data.error){throw new Error(data.error.message||"API 返回错误")}
+if(!data.choices||!data.choices[0]||!data.choices[0].message){throw new Error("API 返回格式异常")}
+return data.choices[0].message.content||"";
+});
+}
+function summarizeMayuanDocument(fileName,text){
+var chunks=splitMayuanDocumentText(text,9000);
+var system="你是马源内容体系的文档整理助手。你的任务是读取用户上传的文档内容，只做总结和素材提炼，不要直接生成完整脚本，除非用户后续明确要求。输出要清晰、口语化、便于继续生成广告引流脚本。";
+if(chunks.length<=1){
+return callMayuanDocumentSummaryAPI([{role:"system",content:system},{role:"user",content:"请总结这份本地文档，并按马源内容体系提炼可用于短视频引流脚本的信息。\n\n文档名称："+fileName+"\n\n请输出：\n1. 文档核心摘要\n2. 产品/业务信息\n3. 目标人群\n4. 用户痛点\n5. 核心卖点\n6. 可用案例或证据\n7. 适合使用的马源脚本手法\n8. 还缺哪些信息\n9. 下一步可以让用户选择：生成30-60秒脚本、提炼卖点、补充用户痛点。\n\n文档内容：\n"+text}],3500);
+}
+var partials=[];
+var chain=Promise.resolve();
+chunks.forEach(function(chunk,idx){
+chain=chain.then(function(){
+setMayuanDocStatus("正在总结第 "+(idx+1)+"/"+chunks.length+" 段","loading");
+return callMayuanDocumentSummaryAPI([{role:"system",content:system},{role:"user",content:"这是长文档的第 "+(idx+1)+"/"+chunks.length+" 段。请只提炼本段与马源广告引流脚本相关的信息：产品/业务、目标人群、痛点、卖点、案例证据、可用表达素材。不要生成脚本。\n\n文档名称："+fileName+"\n\n本段内容：\n"+chunk}],2200).then(function(summary){partials.push("第"+(idx+1)+"段摘要：\n"+summary)});
+});
+});
+return chain.then(function(){
+setMayuanDocStatus("正在合成文档总摘要","loading");
+return callMayuanDocumentSummaryAPI([{role:"system",content:system},{role:"user",content:"请把以下分段摘要合成为一份完整的马源内容体系文档总结。不要生成完整脚本，只做素材整理。\n\n文档名称："+fileName+"\n\n输出：\n1. 文档核心摘要\n2. 产品/业务信息\n3. 目标人群\n4. 用户痛点\n5. 核心卖点\n6. 可用案例或证据\n7. 适合使用的马源脚本手法\n8. 还缺哪些信息\n9. 下一步可以让用户选择：生成30-60秒脚本、提炼卖点、补充用户痛点。\n\n分段摘要：\n"+partials.join("\n\n")}],3500);
+});
+}
 function handleMayuanDocUpload(event){
 var file=event&&event.target&&event.target.files?event.target.files[0]:null;
 if(!file)return;
+if(!apiConfig.apikey||apiConfig.apikey.length<10){
+setMayuanDocStatus("请先配置 API，再上传文档总结","error");
+showApiConfigPrompt();
+return;
+}
+if(!apiConfig.model){
+setMayuanDocStatus("请先选择模型，再上传文档总结","error");
+showApiConfigPrompt();
+return;
+}
 setMayuanDocStatus("正在读取："+file.name,"loading");
 getMayuanDocumentText(file).then(function(text){
 text=String(text||"").replace(/\u0000/g,"").replace(/[ \t]+\n/g,"\n").replace(/\n{4,}/g,"\n\n\n").trim();
 if(!text){throw new Error("没有识别到可用文字内容")}
-var max=12000;
-var clipped=text.length>max;
-var input=document.getElementById("chat-input");
-var prefix="我上传了一份本地文档，请基于文档内容，按马源内容体系帮我提炼产品信息、目标人群、核心卖点，并生成30-60秒引流脚本。\n\n【文档名称】"+file.name+"\n\n【文档内容】\n";
-input.value=prefix+text.slice(0,max)+(clipped?"\n\n【提示】文档较长，已先读取前"+max+"字，请基于以上内容处理。":"");
-input.style.height="auto";
-input.style.height=Math.min(input.scrollHeight,140)+"px";
-setMayuanDocStatus("已读取文档，可检查后点击发送","ok");
+addMessage("user","📎 已上传文档："+file.name+"\n请先帮我总结文档内容，并按马源内容体系提炼可用素材。");
+showTyping();
+setMayuanDocStatus("正在调用 API 总结文档","loading");
+return summarizeMayuanDocument(file.name,text);
+}).then(function(summary){
+hideTyping();
+addMessage("assistant",summary+"\n\n你可以继续告诉我：要生成30-60秒引流脚本，还是先继续提炼卖点/痛点。");
+setMayuanDocStatus("文档总结完成，可继续提出生成要求","ok");
 }).catch(function(err){
+hideTyping();
 setMayuanDocStatus(err.message||"文档读取失败","error");
+if(chatOpen){addMessage("assistant","❌ 文档总结失败："+(err.message||"请稍后重试"))}
 });
 }
 

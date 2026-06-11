@@ -321,7 +321,7 @@
 <script src="modules/tiejia.js?v=202606051330"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606111300"></script>
+<script src="app.js?v=202606111330"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
@@ -468,13 +468,49 @@ function syncHistoryFromCloud() {
     catch(e) { return []; }
   }
 
+  function getActiveHistoryContext() {
+    var ctx = window.currentHistoryContext || {};
+    var key = ctx.key || window.chatKey || '';
+    var section = typeof ctx.section === 'number' ? ctx.section : window.currentSection;
+    var mode = typeof ctx.mode === 'number' ? ctx.mode : window.currentMode;
+    return {
+      key: key,
+      section: section,
+      mode: mode,
+      workflowType: ctx.workflowType || '',
+      moduleId: ctx.moduleId || '',
+      taskIndex: typeof ctx.taskIndex === 'number' ? ctx.taskIndex : -1,
+      taskTitle: ctx.taskTitle || ''
+    };
+  }
+
+  function matchesCurrentWorkspace(h) {
+    if (!isValidHistoryItem(h)) return false;
+    var section = typeof window.currentSection === 'number' ? window.currentSection : 0;
+    var mode = typeof window.currentMode === 'number' ? window.currentMode : -1;
+    if (h.section !== section) return false;
+    if (mode < 0) return true;
+    if (h.mode !== mode) return false;
+
+    if (h.workflowType === 'kyrie') {
+      if (window.currentKyrieModule && h.moduleId !== window.currentKyrieModule) return false;
+      if (typeof window.currentKyrieTask === 'string' && window.currentKyrieTask && h.taskTitle && h.taskTitle !== window.currentKyrieTask) return false;
+    }
+    if (h.workflowType === 'ip') {
+      if (window.currentIPModule && h.moduleId !== window.currentIPModule) return false;
+      if (typeof window.currentIPTaskIndex === 'number' && window.currentIPTaskIndex >= 0 && typeof h.taskIndex === 'number' && h.taskIndex >= 0 && h.taskIndex !== window.currentIPTaskIndex) return false;
+    }
+    return true;
+  }
+
   function saveHistory() {
-    var key = window.chatKey;
+    var ctx = getActiveHistoryContext();
+    var key = ctx.key;
     var msgs = window.chatMessages;
     if (!key || !Array.isArray(msgs) || msgs.length === 0) return;
 
-    var section = window.currentSection;
-    var mode = window.currentMode;
+    var section = ctx.section;
+    var mode = ctx.mode;
     var nameEl = document.getElementById('chat-agent-name');
     var iconEl = document.getElementById('chat-agent-icon');
     var subEl = document.getElementById('chat-agent-sub');
@@ -487,17 +523,14 @@ function syncHistoryFromCloud() {
       sub: subEl ? subEl.textContent : '',
       msgs: msgs.slice(0),
       time: Date.now(),
-      workflowType: '',
-      moduleId: '',
-      taskIndex: -1,
-      taskTitle: '',
+      workflowType: ctx.workflowType,
+      moduleId: ctx.moduleId,
+      taskIndex: ctx.taskIndex,
+      taskTitle: ctx.taskTitle,
       preview: firstUserText(msgs).slice(0, 42)
     };
 
-    if (key === '2-1' && window.currentKyrieModule) {
-      item.workflowType = 'kyrie';
-      item.moduleId = window.currentKyrieModule;
-      item.taskTitle = window.currentKyrieTask || '';
+    if (key === '2-1' && item.workflowType === 'kyrie' && item.moduleId) {
       if (typeof getKyriePageModule === 'function' && item.taskTitle) {
         var kyrieModule = getKyriePageModule(item.moduleId);
         if (kyrieModule && Array.isArray(kyrieModule.tasks)) {
@@ -509,11 +542,6 @@ function syncHistoryFromCloud() {
           }
         }
       }
-    } else if (key === '0-2' && window.currentIPModule) {
-      item.workflowType = 'ip';
-      item.moduleId = window.currentIPModule;
-      item.taskIndex = typeof window.currentIPTaskIndex === 'number' ? window.currentIPTaskIndex : -1;
-      item.taskTitle = window.currentIPTask || '';
     }
 
     if (!isValidHistoryItem(item)) return;
@@ -559,8 +587,7 @@ function syncHistoryFromCloud() {
   function renderHistory() {
     var list = document.getElementById('history-list');
     if (!list) return;
-    var section = typeof window.currentSection === 'number' ? window.currentSection : 0;
-    var items = loadHistory().filter(function(h) { return isValidHistoryItem(h) && h.section === section; });
+    var items = loadHistory().filter(matchesCurrentWorkspace);
     if (items.length === 0) {
       list.innerHTML = '<div style="font-size:10px;color:var(--text-muted);padding:4px">暂无记录</div>';
       return;
@@ -621,8 +648,7 @@ function syncHistoryFromCloud() {
   }
 
   window._restoreHistoryById = function(id) {
-    var section = typeof window.currentSection === 'number' ? window.currentSection : 0;
-    var item = loadHistory().find(function(h) { return isValidHistoryItem(h) && h.section === section && historyId(h) === id; });
+    var item = loadHistory().find(function(h) { return isValidHistoryItem(h) && matchesCurrentWorkspace(h) && historyId(h) === id; });
     if (!item) return;
     window.currentSection = item.section;
     window.currentMode = item.mode;
@@ -640,8 +666,7 @@ function syncHistoryFromCloud() {
   };
 
   window._restoreHistory = function(key) {
-    var section = typeof window.currentSection === 'number' ? window.currentSection : 0;
-    var item = loadHistory().find(function(h) { return isValidHistoryItem(h) && h.section === section && h.key === key; });
+    var item = loadHistory().find(function(h) { return isValidHistoryItem(h) && matchesCurrentWorkspace(h) && h.key === key; });
     if (item) window._restoreHistoryById(historyId(item));
   };
 

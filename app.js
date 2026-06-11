@@ -192,6 +192,8 @@ return null;
 function renderKyrieMenuPage(){
 if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(2,1);
+currentKyrieSubKey="";currentKyrieMenuLevel="";currentKyrieModule="";currentKyrieTask="";
+window.currentHistoryContext={key:"2-1",section:2,mode:1,workflowType:"",moduleId:"",taskIndex:-1,taskTitle:""};
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 setTimeout(function(){
@@ -216,6 +218,8 @@ function renderKyrieSubmenuPage(moduleId){
 if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(2,1);
 var module=getKyriePageModule(moduleId);if(!module){renderKyrieMenuPage();return}
+currentKyrieSubKey="";currentKyrieMenuLevel="sub";currentKyrieModule=module.id;currentKyrieTask="";
+window.currentHistoryContext={key:"2-1",section:2,mode:1,workflowType:"kyrie",moduleId:module.id,taskIndex:-1,taskTitle:""};
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 setTimeout(function(){
@@ -287,6 +291,8 @@ return null;
 function renderIPMenuPage(){
 if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(0,2);
+currentIPModule="";currentIPTask="";currentIPTaskIndex=-1;
+window.currentHistoryContext={key:"0-2",section:0,mode:2,workflowType:"",moduleId:"",taskIndex:-1,taskTitle:""};
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 setTimeout(function(){
@@ -311,6 +317,8 @@ function renderIPSubmenuPage(moduleId){
 if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(0,2);
 var module=getIPPageModule(moduleId);if(!module){renderIPMenuPage();return}
+currentIPModule=module.id;currentIPTask="";currentIPTaskIndex=-1;
+window.currentHistoryContext={key:"0-2",section:0,mode:2,workflowType:"ip",moduleId:module.id,taskIndex:-1,taskTitle:""};
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 setTimeout(function(){
@@ -359,11 +367,14 @@ openChat(0,2);
 
 document.querySelectorAll(".nav-item").forEach(function(e){
 e.addEventListener("click",function(){
-if(currentSection===parseInt(e.dataset.section))return;
+var nextSection=parseInt(e.dataset.section);
+if(currentSection===nextSection)return;
+var prevSection=currentSection;
+if(chatOpen){sectionSavedKey[prevSection]=chatKey;closeChat(true)}
 document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active","entering")});
 e.classList.add("active","entering");
 setTimeout(function(){e.classList.remove("entering")},600);
-sectionSavedKey[currentSection]=chatOpen?chatKey:"";currentSection=parseInt(e.dataset.section);closeMobileMenu();if(sectionSavedKey[currentSection]){var parts=sectionSavedKey[currentSection].split("-");var m=parseInt(parts[1]);currentMode=m;sectionModes[currentSection]=m;renderRightModes();openChat(parseInt(parts[0]),m)}else{if(chatOpen){closeChat()}renderContent();renderRightModes();renderHistory()}
+currentSection=nextSection;closeMobileMenu();if(sectionSavedKey[currentSection]){var parts=sectionSavedKey[currentSection].split("-");var m=parseInt(parts[1]);currentMode=m;sectionModes[currentSection]=m;renderRightModes();openChat(parseInt(parts[0]),m)}else{renderContent();renderRightModes();renderHistory()}
 });
 });
 var canvas=document.getElementById("bg-canvas"),ctx=canvas.getContext("2d"),particles=[],rainDrops=[],gridOffset=0,sparks=[],mx=-1,my=-1,pmx=-1,pmy=-1;
@@ -416,6 +427,7 @@ document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("a
 var nav=document.querySelector('.nav-item[data-section="'+section+'"]');if(nav)nav.classList.add("active");
 }
 function openChat(section,mode){
+if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(section,mode);
 chatKey=section+"-"+mode;var agent=agents[chatKey];
 var kyrieLaunch=null,kyrieTask=null,ipLaunch=null,ipTask=null;
@@ -460,6 +472,15 @@ currentIPModule="";
 currentIPTask="";
 currentIPTaskIndex=-1;
 }
+window.currentHistoryContext={
+key:chatKey,
+section:section,
+mode:mode,
+workflowType:kyrieLaunch?"kyrie":(ipLaunch?"ip":""),
+moduleId:kyrieLaunch?kyrieLaunch.id:(ipLaunch?ipLaunch.id:""),
+taskIndex:kyrieLaunch?pendingKyrieTaskIndex:(ipLaunch?pendingIPTaskIndex:-1),
+taskTitle:kyrieTask?kyrieTask.title:(ipTask?ipTask.title:"")
+};
 var presetQuestions=kyrieLaunch?getKyrieTaskQuestions(kyrieLaunch.id,pendingKyrieTaskIndex):(ipLaunch?getIPTaskQuestions(ipLaunch.id,pendingIPTaskIndex):agent.questions);
 document.getElementById("chat-questions").innerHTML=presetQuestions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");

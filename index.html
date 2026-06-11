@@ -597,7 +597,8 @@ function syncHistoryFromCloud() {
       var avatar = m.role === 'assistant' ? '🤖' : '👤';
       var content = String(m.content || '');
       if (content.indexOf('chat-bubble') === -1) {
-        content = '<div class="chat-avatar">' + avatar + '</div><div class="chat-bubble">' + content.replace(/\n/g, '<br>') + '</div>';
+        var formatted = typeof formatChatText === 'function' ? formatChatText(content) : content.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+        content = '<div class="chat-avatar">' + avatar + '</div><div class="chat-bubble">' + formatted + '</div>';
       }
       var d = document.createElement('div');
       d.className = 'chat-msg ' + m.role;

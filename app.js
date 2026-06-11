@@ -757,6 +757,18 @@ div.className="chat-msg "+role;
 div.innerHTML='<div class="chat-avatar">'+(role==="assistant"?"🤖":"👤")+'</div><div class="chat-bubble">'+html+"</div>";
 msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
 }
+function escapeChatText(text){
+return String(text||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function formatChatText(content){
+var safe=escapeChatText(content).replace(/\r\n/g,"\n").replace(/\r/g,"\n").trim();
+safe=safe.replace(/^#{1,6}\s*(.+)$/gm,'<div style="font-weight:700;color:var(--text-primary);margin:10px 0 6px">$1</div>');
+safe=safe.replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');
+safe=safe.replace(/^\s*[-*]\s+(.+)$/gm,'<div style="margin:4px 0 4px 12px">• $1</div>');
+safe=safe.replace(/^\s*(\d+)[\.、]\s+(.+)$/gm,'<div style="margin:4px 0 4px 12px">$1. $2</div>');
+safe=safe.replace(/\n{3,}/g,"\n\n").replace(/\n\n/g,'<div style="height:8px"></div>').replace(/\n/g,"<br>");
+return safe;
+}
 function showApiConfigPrompt(){
 openSettings();
 var apiTab=document.querySelector(".settings-tab");
@@ -775,7 +787,7 @@ chatMessages.push({role:role,content:content});
 var msgs=document.getElementById("chat-messages");
 var div=document.createElement("div");
 div.className="chat-msg "+role;
-div.innerHTML='<div class="chat-avatar">'+(role==="assistant"?"🤖":"👤")+'</div><div class="chat-bubble">'+content.replace(/\n/g,"<br>")+"</div>";
+div.innerHTML='<div class="chat-avatar">'+(role==="assistant"?"🤖":"👤")+'</div><div class="chat-bubble">'+formatChatText(content)+"</div>";
 msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
 }
 function showTyping(){
@@ -839,7 +851,7 @@ function updateApiStatus(){var btn=document.querySelector(".sidebar-settings-btn
 function toggleSettings(e){e.stopPropagation();var p=document.getElementById("chat-settings-panel");p.classList.toggle("open")}
 function applyAdjustment(){var t=document.getElementById("cfg-adjust");var v=t.value.trim();if(!v)return;document.getElementById("chat-settings-panel").classList.remove("open");addMessage("user","调整要求："+v);t.value="";showTyping();callAgentForAdjust(v)}
 function clearAdjustment(){document.getElementById("cfg-adjust").value=""}
-function getMayuanDialogueSystemPrompt(base){if(chatKey!=="1-0")return base;return base+"\n\n# 马源内容体系对话式补充规则\n当用户要求生成脚本、引流脚本、短视频文案或口播文案，并且没有明确指定时长时，优先按30-60秒生成。口播文案控制在150-250字左右，约10-15句，结构完整但不要写成长篇。若用户明确指定30秒以内或60秒以上，以用户要求为准。生成文案后，在结尾追加一句：需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
+function getMayuanDialogueSystemPrompt(base){if(chatKey!=="1-0")return base;return base+"\n\n# 马源内容体系对话式补充规则\n当用户要求生成脚本、引流脚本、短视频文案或口播文案，并且没有明确指定时长时，优先按30-60秒生成。口播文案控制在150-250字左右，约10-15句，结构完整但不要写成长篇。若用户明确指定30秒以内或60秒以上，以用户要求为准。\n\n# 输出排版要求\n使用清晰分段输出，不要使用Markdown表格、代码块或复杂嵌套列表。完整脚本建议按“脚本策略 / 口播逐字稿 / 拍摄画面 / 执行建议”分段；口播逐字稿每句话单独成行，方便用户复制和拍摄。生成文案后，在结尾追加一句：需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
 function appendMayuanDialogueFollowup(content){if(chatKey!=="1-0")return content;if(!content)return content;if(content.indexOf("需要我帮你把这版内容篇幅加长吗")>=0||content.indexOf("有任何修改意见请告诉我")>=0)return content;return content+"\n\n需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
 function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent)return;if(chatKey==="2-1"&&currentKyrieMenuLevel!=="task"){hideTyping();addMessage("assistant","请先选择到二级功能后，再输入调整意见。\n\n"+(currentKyrieMenuLevel==="sub"?getKyrieSubMenuText(currentKyrieModule):getKyrieMainMenuText()));return}if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>");return}var activeSystemPrompt=getMayuanDialogueSystemPrompt(agent.systemPrompt);
 if(chatKey==="0-2"&&currentIPModule){

@@ -464,6 +464,7 @@ var presetQuestions=kyrieLaunch?getKyrieTaskQuestions(kyrieLaunch.id,pendingKyri
 document.getElementById("chat-questions").innerHTML=presetQuestions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");
 chatOpen=true;chatMessages=[];addHistory(section,mode);if(chatKey==='0-3'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else if(chatKey==='0-2'||chatKey.indexOf('2-')===0){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});var firstTab=document.querySelector('.chat-mode-tab');if(firstTab)firstTab.classList.add('active');
+if(chatKey==="1-0")window.mayuanDocActiveStatus=false;
 renderMayuanDocumentTools();
 addMessage("assistant",ipLaunch?getIPTaskIntro(ipLaunch.id,pendingIPTaskIndex):(kyrieLaunch?getKyrieTaskIntro(kyrieLaunch.id,pendingKyrieTaskIndex):agent.opening));
 pendingKyrieModule="";pendingKyrieTaskIndex=-1;pendingIPModule="";pendingIPTaskIndex=-1;
@@ -476,6 +477,24 @@ if(!el)return;
 var color=type==="error"?"#ef4444":(type==="ok"?"#10b981":"var(--text-muted)");
 el.style.color=color;
 el.textContent=text;
+window.mayuanDocActiveStatus=type&&type!=="idle";
+}
+function getMayuanStatusByContent(text,phase){
+var t=String(text||"");
+if(phase==="request"){
+ if(/脚本|文案|口播|视频|引流|生成/.test(t))return "正在生成引流视频脚本";
+ if(/卖点/.test(t))return "正在提炼核心卖点";
+ if(/痛点|人群|目标/.test(t))return "正在梳理人群和痛点";
+ return "正在根据你的需求整理内容";
+}
+if(/脚本|口播|分镜|拍摄画面|引流视频/.test(t))return "已生成脚本，可继续优化或扩写";
+if(/卖点/.test(t)&&/痛点|人群|目标/.test(t))return "已提炼卖点、人群和痛点";
+if(/文档|摘要|产品\/业务|产品信息/.test(t))return "文档提炼完成，可继续生成引流视频";
+return "已生成结果，可继续提出修改意见";
+}
+function updateMayuanDocStatusByContent(text,phase){
+if(chatKey!=="1-0")return;
+setMayuanDocStatus(getMayuanStatusByContent(text,phase),phase==="request"?"loading":"ok");
 }
 function renderMayuanDocumentTools(){
 var wrap=document.getElementById("mayuan-upload-wrap");
@@ -484,7 +503,7 @@ if(!wrap)return;
 var visible=chatKey==="1-0"&&chatMode==="qa";
 wrap.style.display=visible?"block":"none";
 if(!visible&&menu)menu.style.display="none";
-if(visible)setMayuanDocStatus("上传后提炼产品、人群和卖点","idle");
+if(visible&&!window.mayuanDocActiveStatus)setMayuanDocStatus("上传后提炼产品、人群和卖点","idle");
 }
 function toggleMayuanUploadMenu(e){
 if(e)e.stopPropagation();
@@ -991,7 +1010,7 @@ function openSettings(e){var o=document.getElementById("settings-overlay");o.cla
 var MODEL_ENDPOINTS={"deepseek-v4-flash":"https://api.deepseek.com/v1/chat/completions","deepseek-v4-pro":"https://api.deepseek.com/v1/chat/completions","gpt-4o":"https://api.openai.com/v1/chat/completions","gpt-4o-mini":"https://api.openai.com/v1/chat/completions","gpt-4-turbo":"https://api.openai.com/v1/chat/completions","qwen-plus":"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions","qwen-max":"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions","glm-4":"https://open.bigmodel.cn/api/paas/v4/chat/completions","moonshot-v1-8k":"https://api.moonshot.cn/v1/chat/completions"};function onModelSelectChange(){var sel=document.getElementById("set-model");var ci=document.getElementById("set-model-custom");if(!sel.value){ci.style.display="none";ci.value="";return}if(sel.value==="__custom__"){ci.style.display="";ci.focus()}else{ci.style.display="none";ci.value="";var ep=MODEL_ENDPOINTS[sel.value];if(ep){document.getElementById("set-endpoint").value=ep}}}function saveSettingsApi(){apiConfig.endpoint=normalizeEndpoint(document.getElementById("set-endpoint").value.trim());apiConfig.apikey=document.getElementById("set-apikey").value.trim();var sel=document.getElementById("set-model");var model=sel.value==="__custom__"?document.getElementById("set-model-custom").value.trim():sel.value;if(!model){alert("请先在模型选择栏选择你的模型");return}apiConfig.model=model;localStorage.setItem("fp_endpoint",apiConfig.endpoint);localStorage.setItem("fp_apikey",apiConfig.apikey);localStorage.setItem("fp_model",apiConfig.model);document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus()}function clearSettingsApi(){document.getElementById("set-endpoint").value="";document.getElementById("set-apikey").value="";document.getElementById("set-model").value="";document.getElementById("set-model-custom").style.display="none";document.getElementById("set-model-custom").value="";apiConfig.endpoint="https://api.deepseek.com/v1/chat/completions";apiConfig.apikey="";apiConfig.model="";localStorage.removeItem("fp_endpoint");localStorage.removeItem("fp_apikey");localStorage.removeItem("fp_model");document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus()}
 function updateApiStatus(){var btn=document.querySelector(".sidebar-settings-btn");if(!btn)return;if(apiConfig.apikey){if(themeWasteland){btn.style.color="#d4a830";btn.style.borderColor="rgba(200,132,42,.4)"}else{btn.style.color="#10b981";btn.style.borderColor="rgba(16,185,129,.3)"}}else{btn.style.color="var(--text-muted)";btn.style.borderColor="var(--border-glow)"}}
 function toggleSettings(e){e.stopPropagation();var p=document.getElementById("chat-settings-panel");p.classList.toggle("open")}
-function applyAdjustment(){var t=document.getElementById("cfg-adjust");var v=t.value.trim();if(!v)return;document.getElementById("chat-settings-panel").classList.remove("open");addMessage("user","调整要求："+v);t.value="";showTyping();callAgentForAdjust(v)}
+function applyAdjustment(){var t=document.getElementById("cfg-adjust");var v=t.value.trim();if(!v)return;document.getElementById("chat-settings-panel").classList.remove("open");addMessage("user","调整要求："+v);if(chatKey==="1-0")updateMayuanDocStatusByContent(v,"request");t.value="";showTyping();callAgentForAdjust(v)}
 function clearAdjustment(){document.getElementById("cfg-adjust").value=""}
 function getMayuanDialogueSystemPrompt(base){if(chatKey!=="1-0")return base;return base+"\n\n# 马源内容体系对话式补充规则\n当用户要求生成脚本、引流脚本、短视频文案或口播文案，并且没有明确指定时长时，优先按30-60秒生成。口播文案控制在150-250字左右，约10-15句，结构完整但不要写成长篇。若用户明确指定30秒以内或60秒以上，以用户要求为准。\n\n# 输出排版要求\n使用清晰分段输出，不要使用Markdown表格、代码块或复杂嵌套列表。完整脚本建议按“脚本策略 / 口播逐字稿 / 拍摄画面 / 执行建议”分段；口播逐字稿每句话单独成行，方便用户复制和拍摄。生成文案后，在结尾追加一句：需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
 function appendMayuanDialogueFollowup(content){if(chatKey!=="1-0")return content;if(!content)return content;if(content.indexOf("需要我帮你把这版内容篇幅加长吗")>=0||content.indexOf("有任何修改意见请告诉我")>=0)return content;return content+"\n\n需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
@@ -999,7 +1018,7 @@ function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent
 if(chatKey==="0-2"&&currentIPModule){
  activeSystemPrompt+="\n\n# 当前界面选择\n用户当前选择的是：IP访谈策划工作台 > "+currentIPModule+" > "+currentIPTask+"。\n"+getIPTaskPrompt(currentIPModule,currentIPTaskIndex);
 }
-var msgs=[{role:"system",content:activeSystemPrompt}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只返回优化后的内容，不要解释过程。\n"+adjustText});fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}addMessage("assistant",appendMayuanDialogueFollowup(data.choices[0].message.content))}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
+var msgs=[{role:"system",content:activeSystemPrompt}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只返回优化后的内容，不要解释过程。\n"+adjustText});fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}var result=appendMayuanDialogueFollowup(data.choices[0].message.content);addMessage("assistant",result);updateMayuanDocStatusByContent(result,"result")}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
 if(chatKey==="0-2"&&/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){
@@ -1021,6 +1040,7 @@ if(chatKey==="0-2"&&currentIPModule){
 }
 var msgs=[{role:"system",content:activeSystemPrompt}];
 chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});
+updateMayuanDocStatusByContent(userMsg,"request");
 fetch(apiConfig.endpoint,{
 method:"POST",
 headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},
@@ -1029,7 +1049,9 @@ body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_toke
 hideTyping();
 if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}
 if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}
-addMessage("assistant",appendMayuanDialogueFollowup(data.choices[0].message.content));
+var result=appendMayuanDialogueFollowup(data.choices[0].message.content);
+addMessage("assistant",result);
+updateMayuanDocStatusByContent(result,"result");
 }).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)});
 }
 

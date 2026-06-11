@@ -376,12 +376,21 @@ function syncHistoryToCloud(items) {
   firestoreDB.collection("chat_history").doc(uid).set({ items: items, updated: Date.now() }).catch(function(){});
 }
 
+function getHistoryMergeId(h) {
+  var parts = [h.key];
+  if (h.workflowType) parts.push(h.workflowType);
+  if (h.moduleId) parts.push(h.moduleId);
+  if (typeof h.taskIndex === "number" && h.taskIndex >= 0) parts.push(String(h.taskIndex));
+  return parts.join("|");
+}
+
 function mergeHistories(local, remote) {
   var map = {};
-  local.forEach(function(h) { map[h.key] = h; });
+  local.forEach(function(h) { map[getHistoryMergeId(h)] = h; });
   remote.forEach(function(h) {
-    if (!map[h.key] || (h.time > map[h.key].time)) {
-      map[h.key] = h;
+    var id = getHistoryMergeId(h);
+    if (!map[id] || (h.time > map[id].time)) {
+      map[id] = h;
     }
   });
   var merged = Object.values(map);
@@ -400,30 +409,12 @@ function syncHistoryFromCloud() {
     var merged = mergeHistories(local, remote);
     if (JSON.stringify(merged) !== JSON.stringify(local)) {
       localStorage.setItem(storageKey, JSON.stringify(merged));
-      window.showConfirmDialog = function(msg, onOk) {
-    document.getElementById("confirm-msg").textContent = msg;
-    document.getElementById("confirm-btn-ok").onclick = function() {
-      closeConfirmDialog();
-      onOk();
-    };
-    document.getElementById("confirm-overlay").style.display = "flex";
-  }
-  window.closeConfirmDialog = function() {
-    var overlay = document.getElementById("confirm-overlay");
-    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
-      closeAppAlert();
-      return;
-    }
-    document.getElementById("confirm-overlay").style.display = "none";
-  }
-
-  renderHistory();
+      if (typeof renderHistory === "function") renderHistory();
     }
   }).catch(function(){});
 }
 </script>
 <script>
-// === <script>
 // === 历史记录 ===
 (function(){
   var LEGACY_STORAGE_KEY = 'fp_chat_history';
@@ -433,13 +424,31 @@ function syncHistoryFromCloud() {
     return uid ? ('fp_chat_history_' + uid) : 'fp_chat_history_guest';
   }
 
+  function textOnly(value) {
+    return String(value || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  }
+
+  function firstUserText(msgs) {
+    if (!Array.isArray(msgs)) return '';
+    for (var i = 0; i < msgs.length; i++) {
+      if (msgs[i] && msgs[i].role === 'user') return textOnly(msgs[i].content);
+    }
+    return '';
+  }
+
+  function historyId(h) {
+    var parts = [h.key];
+    if (h.workflowType) parts.push(h.workflowType);
+    if (h.moduleId) parts.push(h.moduleId);
+    if (typeof h.taskIndex === 'number' && h.taskIndex >= 0) parts.push(String(h.taskIndex));
+    return parts.join('|');
+  }
+
   function isValidHistoryItem(h) {
     if (!h || !h.key || typeof h.section !== 'number' || typeof h.mode !== 'number') return false;
     if (h.key !== h.section + '-' + h.mode) return false;
     if (!Array.isArray(h.msgs)) return false;
-    return h.msgs.some(function(m) {
-      return m && m.role === 'user' && String(m.content || '').replace(/<[^>]*>/g, '').trim().length > 0;
-    });
+    return firstUserText(h.msgs).length > 0;
   }
 
   function loadHistory() {
@@ -448,100 +457,91 @@ function syncHistoryFromCloud() {
   }
 
   function saveHistory() {
-    var items = loadHistory();
     var key = window.chatKey;
     var msgs = window.chatMessages;
-    if (!key || !msgs || msgs.length === 0) return;
+    if (!key || !Array.isArray(msgs) || msgs.length === 0) return;
+
     var section = window.currentSection;
     var mode = window.currentMode;
-    var draft = { key: key, section: section, mode: mode, msgs: msgs };
-    if (!isValidHistoryItem(draft)) return;
-    items = items.filter(function(h) { return h.key !== key; });
     var nameEl = document.getElementById('chat-agent-name');
     var iconEl = document.getElementById('chat-agent-icon');
-    items.unshift({
-      key: key, section: section, mode: mode,
+    var subEl = document.getElementById('chat-agent-sub');
+    var item = {
+      key: key,
+      section: section,
+      mode: mode,
       name: nameEl ? nameEl.textContent : '',
       icon: iconEl ? iconEl.textContent : '',
-      msgs: msgs.slice(0), time: Date.now()
-    });
-    items = items.filter(isValidHistoryItem);
-    if (items.length > 10) items = items.slice(0, 10);
-    localStorage.setItem(getHistoryStorageKey(), JSON.stringify(items));
-    syncHistoryToCloud(items);
-    window.showConfirmDialog = function(msg, onOk) {
-    document.getElementById("confirm-msg").textContent = msg;
-    document.getElementById("confirm-btn-ok").onclick = function() {
-      closeConfirmDialog();
-      onOk();
+      sub: subEl ? subEl.textContent : '',
+      msgs: msgs.slice(0),
+      time: Date.now(),
+      workflowType: '',
+      moduleId: '',
+      taskIndex: -1,
+      taskTitle: '',
+      preview: firstUserText(msgs).slice(0, 42)
     };
-    document.getElementById("confirm-overlay").style.display = "flex";
-  }
-  window.closeConfirmDialog = function() {
-    var overlay = document.getElementById("confirm-overlay");
-    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
-      closeAppAlert();
-      return;
+
+    if (key === '2-1' && window.currentKyrieModule) {
+      item.workflowType = 'kyrie';
+      item.moduleId = window.currentKyrieModule;
+      item.taskTitle = window.currentKyrieTask || '';
+      if (typeof getKyriePageModule === 'function' && item.taskTitle) {
+        var kyrieModule = getKyriePageModule(item.moduleId);
+        if (kyrieModule && Array.isArray(kyrieModule.tasks)) {
+          for (var t = 0; t < kyrieModule.tasks.length; t++) {
+            if (kyrieModule.tasks[t].title === item.taskTitle) {
+              item.taskIndex = t;
+              break;
+            }
+          }
+        }
+      }
+    } else if (key === '0-2' && window.currentIPModule) {
+      item.workflowType = 'ip';
+      item.moduleId = window.currentIPModule;
+      item.taskIndex = typeof window.currentIPTaskIndex === 'number' ? window.currentIPTaskIndex : -1;
+      item.taskTitle = window.currentIPTask || '';
     }
-    overlay.style.display = "none";
+
+    if (!isValidHistoryItem(item)) return;
+
+    var items = loadHistory().filter(isValidHistoryItem);
+    var id = historyId(item);
+    items = items.filter(function(h) { return historyId(h) !== id; });
+    items.unshift(item);
+    items.sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
+    items = items.slice(0, 20);
+    localStorage.setItem(getHistoryStorageKey(), JSON.stringify(items));
+    if (typeof syncHistoryToCloud === 'function') syncHistoryToCloud(items);
+    renderHistory();
   }
 
-  renderHistory();
-  }
-
-  var _pendingClear = null;
   function doClearAllHistory() {
     localStorage.removeItem(getHistoryStorageKey());
     localStorage.removeItem(LEGACY_STORAGE_KEY);
-    var uid = getHistoryUserId();
-    if (uid && typeof firestoreDB !== "undefined") {
-      firestoreDB.collection("chat_history").doc(uid).set({ items: [], updated: Date.now() }).catch(function(){});
+    var uid = typeof getHistoryUserId === 'function' ? getHistoryUserId() : null;
+    if (uid && typeof firestoreDB !== 'undefined') {
+      firestoreDB.collection('chat_history').doc(uid).set({ items: [], updated: Date.now() }).catch(function(){});
     }
-    window.showConfirmDialog = function(msg, onOk) {
-    document.getElementById("confirm-msg").textContent = msg;
-    document.getElementById("confirm-btn-ok").onclick = function() {
-      closeConfirmDialog();
-      onOk();
-    };
-    document.getElementById("confirm-overlay").style.display = "flex";
-  }
-  window.closeConfirmDialog = function() {
-    var overlay = document.getElementById("confirm-overlay");
-    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
-      closeAppAlert();
-      return;
-    }
-    overlay.style.display = "none";
+    renderHistory();
   }
 
-  renderHistory();
-  }
   window.clearAllHistory = function() {
-    showConfirmDialog("确定清空所有历史记录？此操作不可撤销。", doClearAllHistory); return;
-    localStorage.removeItem(getHistoryStorageKey());
-    localStorage.removeItem(LEGACY_STORAGE_KEY);
-    var uid = getHistoryUserId();
-    if (uid && typeof firestoreDB !== "undefined") {
-      firestoreDB.collection("chat_history").doc(uid).set({ items: [], updated: Date.now() }).catch(function(){});
-    }
-    window.showConfirmDialog = function(msg, onOk) {
-    document.getElementById("confirm-msg").textContent = msg;
-    document.getElementById("confirm-btn-ok").onclick = function() {
-      closeConfirmDialog();
-      onOk();
-    };
-    document.getElementById("confirm-overlay").style.display = "flex";
-  }
-  window.closeConfirmDialog = function() {
-    var overlay = document.getElementById("confirm-overlay");
-    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
-      closeAppAlert();
-      return;
-    }
-    overlay.style.display = "none";
+    showConfirmDialog('确定清空所有历史记录？此操作不可撤销。', doClearAllHistory);
+  };
+
+  function formatTime(ts) {
+    if (!ts) return '';
+    var d = new Date(ts);
+    var now = new Date();
+    var sameDay = d.toDateString() === now.toDateString();
+    var pad = function(n) { return n < 10 ? '0' + n : String(n); };
+    return (sameDay ? '今天 ' : (d.getMonth() + 1) + '/' + d.getDate() + ' ') + pad(d.getHours()) + ':' + pad(d.getMinutes());
   }
 
-  renderHistory();
+  function escapeAttr(value) {
+    return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   function renderHistory() {
@@ -554,18 +554,65 @@ function syncHistoryFromCloud() {
       return;
     }
     list.innerHTML = items.map(function(h) {
-      return '<div class="history-item" onclick="window._restoreHistory(\'' + h.key + '\')" style="cursor:pointer;padding:8px 10px;border-radius:6px;margin:2px 0;font-size:12px;color:var(--text-secondary);border:1px solid transparent" onmouseover="this.style.background=\'var(--bg-card)\';this.style.borderColor=\'var(--border-glow)\'" onmouseout="this.style.background=\'\';this.style.borderColor=\'transparent\'">' +
-        h.icon + ' ' + h.name + ' <span style="font-size:10px;color:var(--text-muted)">' + h.msgs.length + '条</span></div>';
+      var id = escapeAttr(historyId(h));
+      var title = escapeAttr(h.preview || firstUserText(h.msgs) || h.name || '未命名记录');
+      var meta = escapeAttr((h.taskTitle || h.name || '') + ' · ' + formatTime(h.time));
+      return '<div class="history-item" onclick="window._restoreHistoryById(&quot;' + id + '&quot;)" style="cursor:pointer;padding:8px 10px;border-radius:6px;margin:2px 0;font-size:12px;color:var(--text-secondary);border:1px solid transparent" onmouseover="this.style.background=\'var(--bg-card)\';this.style.borderColor=\'var(--border-glow)\'" onmouseout="this.style.background=\'\';this.style.borderColor=\'transparent\'">' +
+        '<div style="font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (h.icon || '💬') + ' ' + title + '</div>' +
+        '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + meta + ' · ' + h.msgs.length + '条</div></div>';
     }).join('');
   }
   window.renderHistory = renderHistory;
 
-  window._restoreHistory = function(key) {
-    var items = loadHistory();
+  function openHistoryChat(item) {
+    if (item.workflowType === 'kyrie' && item.moduleId) {
+      window.pendingKyrieModule = item.moduleId;
+      window.pendingKyrieTaskIndex = typeof item.taskIndex === 'number' ? item.taskIndex : -1;
+      if (window.pendingKyrieTaskIndex < 0 && typeof getKyriePageModule === 'function') {
+        var km = getKyriePageModule(item.moduleId);
+        if (km && item.taskTitle) {
+          for (var k = 0; k < km.tasks.length; k++) {
+            if (km.tasks[k].title === item.taskTitle) window.pendingKyrieTaskIndex = k;
+          }
+        }
+      }
+      if (window.pendingKyrieTaskIndex < 0) window.pendingKyrieTaskIndex = 0;
+      window.openChat(2, 1);
+      return;
+    }
+    if (item.workflowType === 'ip' && item.moduleId) {
+      window.pendingIPModule = item.moduleId;
+      window.pendingIPTaskIndex = typeof item.taskIndex === 'number' ? item.taskIndex : 0;
+      window.openChat(0, 2);
+      return;
+    }
+    window.openChat(item.section, item.mode);
+  }
+
+  function renderMessages(msgs) {
+    var el = document.getElementById('chat-messages');
+    if (!el || !Array.isArray(msgs)) return;
+    el.innerHTML = '';
+    msgs.forEach(function(m) {
+      var avatar = m.role === 'assistant' ? '🤖' : '👤';
+      var content = String(m.content || '');
+      if (content.indexOf('chat-bubble') === -1) {
+        content = '<div class="chat-avatar">' + avatar + '</div><div class="chat-bubble">' + content.replace(/\n/g, '<br>') + '</div>';
+      }
+      var d = document.createElement('div');
+      d.className = 'chat-msg ' + m.role;
+      d.innerHTML = content;
+      el.appendChild(d);
+    });
+    el.scrollTop = el.scrollHeight;
+  }
+
+  window._restoreHistoryById = function(id) {
     var section = typeof window.currentSection === 'number' ? window.currentSection : 0;
-    var item = items.find(function(h) { return h.key === key && isValidHistoryItem(h) && h.section === section; });
+    var item = loadHistory().find(function(h) { return isValidHistoryItem(h) && h.section === section && historyId(h) === id; });
     if (!item) return;
-    window.currentSection = item.section; window.currentMode = item.mode;
+    window.currentSection = item.section;
+    window.currentMode = item.mode;
     window.sectionModes = window.sectionModes || [-1, -1, -1];
     window.sectionModes[item.section] = item.mode;
     window.sectionSavedKey = window.sectionSavedKey || ['', '', ''];
@@ -573,76 +620,50 @@ function syncHistoryFromCloud() {
     document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
     var nav = document.querySelector('.nav-item[data-section="' + item.section + '"]');
     if (nav) nav.classList.add('active');
-    if (window.chatOpen) window.closeChat();
-    window.openChat(item.section, item.mode);
-    window.chatMessages = item.msgs;
-    setTimeout(function() {
-      var el = document.getElementById('chat-messages');
-      if (el && item.msgs) {
-        el.innerHTML = '';
-        item.msgs.forEach(function(m) {
-          var avatar = m.role === 'assistant' ? '🤖' : '👤';
-          var content = m.content;
-          if (content.indexOf('chat-bubble') === -1) {
-            content = '<div class="chat-avatar">' + avatar + '</div><div class="chat-bubble">' + content.replace(/\n/g, '<br>') + '</div>';
-          }
-          var d = document.createElement('div');
-          d.className = 'chat-msg ' + m.role;
-          d.innerHTML = content;
-          el.appendChild(d);
-        });
-        el.scrollTop = el.scrollHeight;
-      }
-    }, 100);
+    if (window.chatOpen) window.closeChat(true);
+    openHistoryChat(item);
+    window.chatMessages = item.msgs.slice(0);
+    setTimeout(function() { renderMessages(item.msgs); }, 100);
+  };
+
+  window._restoreHistory = function(key) {
+    var section = typeof window.currentSection === 'number' ? window.currentSection : 0;
+    var item = loadHistory().find(function(h) { return isValidHistoryItem(h) && h.section === section && h.key === key; });
+    if (item) window._restoreHistoryById(historyId(item));
   };
 
   var _origClose = window.closeChat;
-  window.closeChat = function() { saveHistory(); _origClose(); };
+  window.closeChat = function(skipKyrieReturn) {
+    saveHistory();
+    _origClose(skipKyrieReturn);
+  };
 
   window.showConfirmDialog = function(msg, onOk) {
-    document.getElementById("confirm-msg").textContent = msg;
-    document.getElementById("confirm-btn-ok").onclick = function() {
+    document.getElementById('confirm-msg').textContent = msg;
+    document.getElementById('confirm-btn-ok').onclick = function() {
       closeConfirmDialog();
       onOk();
     };
-    document.getElementById("confirm-overlay").style.display = "flex";
-  }
+    document.getElementById('confirm-overlay').style.display = 'flex';
+  };
   window.closeConfirmDialog = function() {
-    var overlay = document.getElementById("confirm-overlay");
-    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
+    var overlay = document.getElementById('confirm-overlay');
+    if (overlay && overlay.classList.contains('alert-mode') && typeof closeAppAlert === 'function') {
       closeAppAlert();
       return;
     }
-    overlay.style.display = "none";
-  }
+    if (overlay) overlay.style.display = 'none';
+  };
 
   renderHistory();
   setTimeout(syncHistoryFromCloud, 800);
-  // Clean corrupted entries on load
   setTimeout(function() {
     var items = loadHistory();
     var cleaned = items.filter(isValidHistoryItem);
     if (cleaned.length !== items.length) {
       localStorage.setItem(getHistoryStorageKey(), JSON.stringify(cleaned));
-      syncHistoryToCloud(cleaned);
-      window.showConfirmDialog = function(msg, onOk) {
-    document.getElementById("confirm-msg").textContent = msg;
-    document.getElementById("confirm-btn-ok").onclick = function() {
-      closeConfirmDialog();
-      onOk();
-    };
-    document.getElementById("confirm-overlay").style.display = "flex";
-  }
-  window.closeConfirmDialog = function() {
-    var overlay = document.getElementById("confirm-overlay");
-    if (overlay && overlay.classList.contains("alert-mode") && typeof closeAppAlert === "function") {
-      closeAppAlert();
-      return;
-    }
-    overlay.style.display = "none";
-  }
-
-  renderHistory();
+      if (typeof syncHistoryToCloud === 'function') syncHistoryToCloud(cleaned);
+      renderHistory();
     }
   }, 2000);
 })();

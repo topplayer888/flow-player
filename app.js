@@ -464,10 +464,100 @@ var presetQuestions=kyrieLaunch?getKyrieTaskQuestions(kyrieLaunch.id,pendingKyri
 document.getElementById("chat-questions").innerHTML=presetQuestions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");
 chatOpen=true;chatMessages=[];addHistory(section,mode);if(chatKey==='0-3'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else if(chatKey==='0-2'||chatKey.indexOf('2-')===0){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});var firstTab=document.querySelector('.chat-mode-tab');if(firstTab)firstTab.classList.add('active');
+renderMayuanDocumentTools();
 addMessage("assistant",ipLaunch?getIPTaskIntro(ipLaunch.id,pendingIPTaskIndex):(kyrieLaunch?getKyrieTaskIntro(kyrieLaunch.id,pendingKyrieTaskIndex):agent.opening));
 pendingKyrieModule="";pendingKyrieTaskIndex=-1;pendingIPModule="";pendingIPTaskIndex=-1;
 }
 var chatMode="qa";
+
+function setMayuanDocStatus(text,type){
+var el=document.getElementById("mayuan-doc-status");
+if(!el)return;
+var color=type==="error"?"#ef4444":(type==="ok"?"#10b981":"var(--text-muted)");
+el.style.color=color;
+el.textContent=text;
+}
+function renderMayuanDocumentTools(){
+var questions=document.getElementById("chat-questions");
+if(!questions||chatKey!=="1-0"||chatMode!=="qa")return;
+if(document.getElementById("mayuan-doc-tools"))return;
+var wrap=document.createElement("div");
+wrap.id="mayuan-doc-tools";
+wrap.style.cssText="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;padding:8px 10px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.04)";
+wrap.innerHTML='<button onclick="triggerMayuanDocUpload()" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-primary);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px">📎 上传本地文档</button><span id="mayuan-doc-status" style="font-size:11px;color:var(--text-muted)">支持 txt / md / csv / json / docx / pdf，读取后先填入输入框</span>';
+questions.insertBefore(wrap,questions.firstChild);
+}
+function triggerMayuanDocUpload(){
+if(chatKey!=="1-0"){return}
+var input=document.getElementById("mayuan-doc-upload");
+if(input){input.value="";input.click()}
+}
+function readMayuanTextFile(file){
+return new Promise(function(resolve,reject){
+var reader=new FileReader();
+reader.onload=function(){resolve(String(reader.result||""))};
+reader.onerror=function(){reject(new Error("读取文件失败"))};
+reader.readAsText(file,"utf-8");
+});
+}
+function readMayuanDocxFile(file){
+return new Promise(function(resolve,reject){
+if(!window.mammoth){reject(new Error("Word 解析组件加载失败，请刷新后重试"));return}
+var reader=new FileReader();
+reader.onload=function(){
+window.mammoth.extractRawText({arrayBuffer:reader.result}).then(function(result){resolve(result.value||"")}).catch(function(){reject(new Error("DOCX 内容解析失败"))});
+};
+reader.onerror=function(){reject(new Error("读取 DOCX 失败"))};
+reader.readAsArrayBuffer(file);
+});
+}
+function readMayuanPdfFile(file){
+return new Promise(function(resolve,reject){
+if(!window.pdfjsLib){reject(new Error("PDF 解析组件加载失败，请刷新后重试"));return}
+if(window.pdfjsLib.GlobalWorkerOptions){
+window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+}
+var reader=new FileReader();
+reader.onload=function(){
+window.pdfjsLib.getDocument({data:new Uint8Array(reader.result)}).promise.then(function(pdf){
+var jobs=[];
+for(var i=1;i<=pdf.numPages;i++){
+jobs.push(pdf.getPage(i).then(function(page){return page.getTextContent()}).then(function(tc){return tc.items.map(function(item){return item.str}).join(" ")}));
+}
+Promise.all(jobs).then(function(pages){resolve(pages.join("\n\n"))}).catch(function(){reject(new Error("PDF 文字提取失败"))});
+}).catch(function(){reject(new Error("PDF 打开失败，可能是扫描件或加密文件"))});
+};
+reader.onerror=function(){reject(new Error("读取 PDF 失败"))};
+reader.readAsArrayBuffer(file);
+});
+}
+function getMayuanDocumentText(file){
+var name=(file.name||"").toLowerCase();
+if(file.size>12*1024*1024)return Promise.reject(new Error("文件超过 12MB，请拆分后上传"));
+if(/\.(txt|md|csv|json)$/i.test(name)||/^text\//.test(file.type))return readMayuanTextFile(file);
+if(/\.docx$/i.test(name))return readMayuanDocxFile(file);
+if(/\.pdf$/i.test(name))return readMayuanPdfFile(file);
+return Promise.reject(new Error("暂不支持该格式，请上传 txt、md、docx 或 pdf"));
+}
+function handleMayuanDocUpload(event){
+var file=event&&event.target&&event.target.files?event.target.files[0]:null;
+if(!file)return;
+setMayuanDocStatus("正在读取："+file.name,"loading");
+getMayuanDocumentText(file).then(function(text){
+text=String(text||"").replace(/\u0000/g,"").replace(/[ \t]+\n/g,"\n").replace(/\n{4,}/g,"\n\n\n").trim();
+if(!text){throw new Error("没有识别到可用文字内容")}
+var max=12000;
+var clipped=text.length>max;
+var input=document.getElementById("chat-input");
+var prefix="我上传了一份本地文档，请基于文档内容，按马源内容体系帮我提炼产品信息、目标人群、核心卖点，并生成30-60秒引流脚本。\n\n【文档名称】"+file.name+"\n\n【文档内容】\n";
+input.value=prefix+text.slice(0,max)+(clipped?"\n\n【提示】文档较长，已先读取前"+max+"字，请基于以上内容处理。":"");
+input.style.height="auto";
+input.style.height=Math.min(input.scrollHeight,140)+"px";
+setMayuanDocStatus("已读取文档，可检查后点击发送","ok");
+}).catch(function(err){
+setMayuanDocStatus(err.message||"文档读取失败","error");
+});
+}
 
 function getKyrieSubMap(){return {
 "strategy":{key:"2-1",title:"直播策略",tasks:["设计一场完整直播方案","优化当前直播策略"]},
@@ -618,6 +708,7 @@ msgs.style.display="none";questions.style.display="none";inputArea.style.display
 if(chatKey==="0-1"){formPanel.style.display="none";rwPanel.style.display="none";var kj=document.getElementById("chat-form-kanjian");if(kj)kj.style.display="flex"}else if(chatKey==="0-3"){formPanel.style.display="none";rwPanel.style.display="flex";setTimeout(function(){rwBindApiCheck()},100);updateRewriteApiStatus()}else if(chatKey==="0-0"){formPanel.style.display="none";rwPanel.style.display="none";var xp=document.getElementById("chat-form-xuehui");if(xp){xp.style.display="flex";setTimeout(function(){xhBindApiCheck()},100)}xuehuiUpdateStatus()}else if(chatKey==="1-2"){formPanel.style.display="none";rwPanel.style.display="none";var tj=document.getElementById("chat-form-tiejia");if(tj){tj.style.display="flex";setTimeout(function(){tjBindApiCheck()},100)}tjUpdateStatus()}else{formPanel.style.display="flex";rwPanel.style.display="none"}
 }else{
 msgs.style.display="";questions.style.display="";inputArea.style.display="";
+renderMayuanDocumentTools();
 }
 }
 

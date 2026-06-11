@@ -484,7 +484,7 @@ if(!wrap)return;
 var visible=chatKey==="1-0"&&chatMode==="qa";
 wrap.style.display=visible?"block":"none";
 if(!visible&&menu)menu.style.display="none";
-if(visible)setMayuanDocStatus("上传后生成马源素材总结","idle");
+if(visible)setMayuanDocStatus("上传后提炼产品、人群和卖点","idle");
 }
 function toggleMayuanUploadMenu(e){
 if(e)e.stopPropagation();
@@ -563,7 +563,7 @@ function summarizeMayuanDocument(fileName,text){
 var chunks=splitMayuanDocumentText(text,9000);
 var system="你是马源内容体系的文档整理助手。你的任务是读取用户上传的文档内容，只做总结和素材提炼，不要直接生成完整脚本，除非用户后续明确要求。输出要清晰、口语化、便于继续生成广告引流脚本。";
 if(chunks.length<=1){
-return callMayuanDocumentSummaryAPI([{role:"system",content:system},{role:"user",content:"请总结这份本地文档，并按马源内容体系提炼可用于短视频引流脚本的信息。\n\n文档名称："+fileName+"\n\n请输出：\n1. 文档核心摘要\n2. 产品/业务信息\n3. 目标人群\n4. 用户痛点\n5. 核心卖点\n6. 可用案例或证据\n7. 适合使用的马源脚本手法\n8. 还缺哪些信息\n9. 下一步可以让用户选择：生成30-60秒脚本、提炼卖点、补充用户痛点。\n\n文档内容：\n"+text}],3500);
+return callMayuanDocumentSummaryAPI([{role:"system",content:system},{role:"user",content:"请总结这份本地文档，并按马源内容体系提炼可用于短视频引流脚本的信息。\n\n文档名称："+fileName+"\n\n请输出：\n1. 文档核心摘要\n2. 产品/业务信息\n3. 目标人群\n4. 用户痛点\n5. 核心卖点\n6. 可用案例或证据\n7. 适合使用的马源脚本手法\n8. 还缺哪些信息\n9. 最后询问用户：是否需要根据以上内容生成一条引流视频脚本。\n\n文档内容：\n"+text}],3500);
 }
 var partials=[];
 var chain=Promise.resolve();
@@ -575,19 +575,19 @@ return callMayuanDocumentSummaryAPI([{role:"system",content:system},{role:"user"
 });
 return chain.then(function(){
 setMayuanDocStatus("正在合成文档总摘要","loading");
-return callMayuanDocumentSummaryAPI([{role:"system",content:system},{role:"user",content:"请把以下分段摘要合成为一份完整的马源内容体系文档总结。不要生成完整脚本，只做素材整理。\n\n文档名称："+fileName+"\n\n输出：\n1. 文档核心摘要\n2. 产品/业务信息\n3. 目标人群\n4. 用户痛点\n5. 核心卖点\n6. 可用案例或证据\n7. 适合使用的马源脚本手法\n8. 还缺哪些信息\n9. 下一步可以让用户选择：生成30-60秒脚本、提炼卖点、补充用户痛点。\n\n分段摘要：\n"+partials.join("\n\n")}],3500);
+return callMayuanDocumentSummaryAPI([{role:"system",content:system},{role:"user",content:"请把以下分段摘要合成为一份完整的马源内容体系文档总结。不要生成完整脚本，只做素材整理。\n\n文档名称："+fileName+"\n\n输出：\n1. 文档核心摘要\n2. 产品/业务信息\n3. 目标人群\n4. 用户痛点\n5. 核心卖点\n6. 可用案例或证据\n7. 适合使用的马源脚本手法\n8. 还缺哪些信息\n9. 最后询问用户：是否需要根据以上内容生成一条引流视频脚本。\n\n分段摘要：\n"+partials.join("\n\n")}],3500);
 });
 }
 function handleMayuanDocUpload(event){
 var file=event&&event.target&&event.target.files?event.target.files[0]:null;
 if(!file)return;
 if(!apiConfig.apikey||apiConfig.apikey.length<10){
-setMayuanDocStatus("请先配置 API，再上传文档总结","error");
+setMayuanDocStatus("请先完成模型配置，再上传文档","error");
 showApiConfigPrompt();
 return;
 }
 if(!apiConfig.model){
-setMayuanDocStatus("请先选择模型，再上传文档总结","error");
+setMayuanDocStatus("请先选择模型，再上传文档","error");
 showApiConfigPrompt();
 return;
 }
@@ -597,12 +597,12 @@ text=String(text||"").replace(/\u0000/g,"").replace(/[ \t]+\n/g,"\n").replace(/\
 if(!text){throw new Error("没有识别到可用文字内容")}
 addMessage("user","📎 已上传文档："+file.name+"\n请先帮我总结文档内容，并按马源内容体系提炼可用素材。");
 showTyping();
-setMayuanDocStatus("正在调用 API 总结文档","loading");
+setMayuanDocStatus("正在提炼文档内容","loading");
 return summarizeMayuanDocument(file.name,text);
 }).then(function(summary){
 hideTyping();
-addMessage("assistant",summary+"\n\n你可以继续告诉我：要生成30-60秒引流脚本，还是先继续提炼卖点/痛点。");
-setMayuanDocStatus("文档总结完成，可继续提出生成要求","ok");
+addMessage("assistant",summary+"\n\n是否需要我根据以上内容，继续生成一条30-60秒的引流视频脚本？");
+setMayuanDocStatus("文档提炼完成，可继续生成引流视频","ok");
 }).catch(function(err){
 hideTyping();
 setMayuanDocStatus(err.message||"文档读取失败","error");

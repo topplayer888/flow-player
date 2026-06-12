@@ -1729,23 +1729,4 @@ xuehuiRecommendOpenings();
 },300);
 }
 };
-// DOM-dependent auto-recommend initialization
-document.addEventListener("DOMContentLoaded",function(){
-xuehuiRenderOpenings();
-var elIndustry=document.getElementById("xh-industry");
-var elAudience=document.getElementById("xh-audience");
-if(!elIndustry||!elAudience)return;
-var recTimer=null;
-function autoRecElements(){
-clearTimeout(recTimer);
-recTimer=setTimeout(function(){
-if(elIndustry.value.trim().length>=2&&elAudience.value.trim().length>=2){
-xuehuiRecommendElements();
-}
-},1000);
-}
-elIndustry.addEventListener("input",autoRecElements);
-elAudience.addEventListener("input",autoRecElements);
-});
-
 document.addEventListener("DOMContentLoaded",function(){var diag=document.getElementById("diag");if(diag){var ak=Object.keys(agents).join(",");var a20=!!agents["2-0"];var ar="origSelectTopic" in window;diag.textContent="agents:"+ak+" | 2-0:"+a20+" | autoRec:"+ar;}});

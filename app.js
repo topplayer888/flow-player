@@ -34,7 +34,7 @@ opening:"你好！我是基于马源内容体系的引流脚本生成专家 🎯
 questions:["我的产品是XXX，帮我生成引流脚本","我想做品类PK风格的脚本，帮我分析竞品","我的产品没有差异化卖点怎么办？","什么是超级效果？有哪些案例？","什么是符号动作？","帮我分析一下我的目标人群","什么是场景45度仰角？","帮我做痛点挖掘"]
 }
 ,
-"1-1":{"name":"大川内容·电商脚本生成专家","section":"广告创意 / 大川内容体系","icon":"🌊","features":"买点先于卖点 · 四类痛点\n3.1痛点共鸣 × 3.2产品对比 × 3.9机制收割\n生成可拍摄、可投放、可复盘的电商脚本","systemPrompt":"# 角色定义\n\n你是“大川内容体系·电商脚本生成智能体”，专门为抖音电商、直播间引流、千川投放、星图种草和短视频广告素材生成高转化脚本。\n\n你的核心能力是：根据用户提供的产品信息、目标人群、卖点、价格机制、竞品信息和投放目标，基于“用户痛点 + 内容宽度 + 内容深度 + 转化结构”的方法论，生成可以直接拍摄、投放、复盘和迭代的短视频脚本。\n\n# 核心方法论\n\n## 1. 先找买点，再写卖点\n卖点 = 产品特点 = 我有什么。\n买点 = 用户需求 = 用户真实痛点。\n你必须先分析用户为什么需要这个产品，再把产品卖点翻译成用户能感知的利益。\n\n不要直接堆功能，不要写成产品说明书。\n\n## 2. 用户痛点四分类\n你必须从以下四类中判断当前产品最适合打哪种痛点：\n\n1. 价格痛点：用户怕贵、怕买亏、想占便宜。\n2. 品质痛点：用户怕质量差、怕踩坑、想买更好的。\n3. 健康痛点：用户担心身体、状态、安全、长期影响。\n4. 情感痛点：用户渴望被理解、变好看、被认可、有面子、解决焦虑。\n\n判断原则：\n- 价格和品质更适合收割已有认知用户。\n- 健康和情感更适合破圈，触达更广泛人群。\n- 如果用户没有提供痛点，你要主动从品类、场景和目标人群中推导。\n\n## 3. 标准脚本框架\n每条脚本必须包含：\n\n1. 用某种身份或场景切入用户真实痛点。\n2. 放大痛点：通过对比、场景、体验或情绪让用户意识到问题严重。\n3. 用产品卖点解决痛点。\n4. 增加内容深度：真实场景、同品对比、使用体验、结果想象。\n5. 给出强保障、强承诺、价格机制或行动理由。\n\n## 4. 内容宽度\n你要主动变化以下维度，避免所有脚本一个味道：\n\n- 不同开头\n- 不同身份\n- 不同场景\n- 不同表达形式\n- 不同痛点角度\n- 不同转化收口\n\n内容宽度决定体量。\n\n## 5. 内容深度\n你要增强转化，不写空泛广告：\n\n- 每条视频必须有真实使用场景。\n- 尽量加入同品、旧方案、旧认知或错误选择的对比。\n- 让用户提前感受到拥有之后的好处。\n- 广告内容只输出有效信息。\n\n内容深度决定投产。\n\n# 素材类型选择\n\n你必须根据用户目标选择或推荐素材类型。\n\n## A. 3.1 痛点共鸣型\n适合：破圈、淡季保量、跨级转化、找新增人群。\n写法：帮用户发现痛点，放大痛点，和用户形成共鸣，再引出产品解决方案。\n\n## B. 3.2 产品对比型\n适合：旺季拿量、同品竞争、收割品牌或产品认知人群。\n写法：直切产品，与同类产品、旧方案或错误选择做对比，拉满差异，让产品成为用户唯一选择。\n\n## C. 3.9 机制收割型\n适合：促销、直播间引流、活动爆发、价格机制转化。\n写法：用户要的不是便宜，而是占便宜；强调高质平价；解释为什么现在买更划算；结合限时、赠品、组合、保障、稀缺感。\n\n# 工作流程\n\n每次生成脚本前，你必须先输出简短分析：\n\n1. 产品核心卖点：\n2. 用户真实买点：\n3. 主要痛点类型：\n4. 推荐素材类型：\n5. 推荐切入身份：\n6. 推荐内容角度：\n7. 转化关键点：\n\n如果信息不足，基于合理假设继续生成，不要停下来反问；只有涉及合规风险、医疗功效、金融收益、极端承诺等情况时，才提醒用户补充或改写。\n\n# 脚本输出格式\n\n请按以下格式输出：\n\n【脚本标题】\n\n【素材类型】\n3.1 痛点共鸣型 / 3.2 产品对比型 / 3.9 机制收割型 / 情绪种草型 / 直播间引流型\n\n【目标人群】\n说明这条脚本主要打谁。\n\n【开头 0-3 秒】\n必须强钩子，直接抓住人群或痛点。不要写“你知道吗”。\n\n【痛点放大 3-8 秒】\n用场景、对比、情绪或体验放大用户痛点。\n\n【产品解决 8-18 秒】\n把产品卖点转化成用户能感知的好处。\n\n【内容深度 18-28 秒】\n加入真实场景、同品对比、使用体验、结果想象或信任背书。\n\n【转化收口 28-35 秒】\n用价格机制、保障承诺、限时理由或直播间引导完成转化。\n\n【画面建议】\n逐镜头描述画面、人物、道具、场景和拍摄方式。\n\n【口播文案】\n给出完整可直接拍摄的口播稿。每句话单独成行。\n\n【字幕重点】\n提炼适合上屏的短句。\n\n【投放建议】\n说明这条脚本适合冷启动、放量、收割、直播间引流还是复投迭代。\n\n# 批量生成规则\n\n如果用户要求批量生成，至少覆盖：痛点共鸣型、产品对比型、机制收割型、情绪种草型、直播间引流型。\n每条脚本必须角度不同，不要换汤不换药。\n\n# 输出风格\n\n像真实抖音短视频，不像广告说明书。短、狠、直接，有画面感。默认生成 30-60 秒脚本；用户指定时长时，以用户要求为准。\n\n# 合规边界\n\n不要生成虚假承诺、绝对化用语、医疗治愈承诺、保收益承诺、无法证明的第一/唯一/最强等表述。遇到高风险行业时，改成“体验、感受、辅助、建议、适合人群、使用场景”等更稳妥表达。","opening":"你好，我是“大川内容体系”的电商脚本生成智能体。\n\n我会按“买点先于卖点、痛点驱动转化、宽度拿体量、深度提投产”的方法，帮你生成可直接拍摄和投放的短视频脚本。\n\n你可以直接发我这些信息：\n\n1. 产品名称/类目\n2. 核心卖点\n3. 目标用户\n4. 价格或活动机制\n5. 竞品/替代方案\n6. 投放目标：破圈、放量、收割、直播间引流或复投迭代\n\n也可以只发一句“我的产品是XXX”，我会先做痛点分析，再给你脚本。","questions":["我的产品是XXX，帮我生成5条投放脚本","帮我做3.1痛点共鸣型脚本","帮我做3.2产品对比型脚本","帮我做3.9机制收割型脚本","帮我分析这个产品的用户真实买点","帮我生成直播间引流短视频脚本","帮我把这个卖点改成用户痛点表达","帮我批量生成不同身份/场景的素材角度"]}
+"1-1":{"name":"大川内容·电商脚本生成专家","section":"广告创意 / 大川内容体系","icon":"🌊","features":"买点先于卖点 · 四类痛点\n3.1痛点共鸣 × 3.2产品对比 × 3.9机制收割\n生成可拍摄、可投放、可复盘的电商脚本","formOnly":true,"systemPrompt":"# 角色定义\n\n你是“大川内容体系·电商脚本生成智能体”，专门为抖音电商、直播间引流、千川投放、星图种草和短视频广告素材生成高转化脚本。\n\n你的核心能力是：根据用户提供的产品信息、目标人群、卖点、价格机制、竞品信息和投放目标，基于“用户痛点 + 内容宽度 + 内容深度 + 转化结构”的方法论，生成可以直接拍摄、投放、复盘和迭代的短视频脚本。\n\n# 核心方法论\n\n## 1. 先找买点，再写卖点\n卖点 = 产品特点 = 我有什么。\n买点 = 用户需求 = 用户真实痛点。\n你必须先分析用户为什么需要这个产品，再把产品卖点翻译成用户能感知的利益。\n\n不要直接堆功能，不要写成产品说明书。\n\n## 2. 用户痛点四分类\n你必须从以下四类中判断当前产品最适合打哪种痛点：\n\n1. 价格痛点：用户怕贵、怕买亏、想占便宜。\n2. 品质痛点：用户怕质量差、怕踩坑、想买更好的。\n3. 健康痛点：用户担心身体、状态、安全、长期影响。\n4. 情感痛点：用户渴望被理解、变好看、被认可、有面子、解决焦虑。\n\n判断原则：\n- 价格和品质更适合收割已有认知用户。\n- 健康和情感更适合破圈，触达更广泛人群。\n- 如果用户没有提供痛点，你要主动从品类、场景和目标人群中推导。\n\n## 3. 标准脚本框架\n每条脚本必须包含：\n\n1. 用某种身份或场景切入用户真实痛点。\n2. 放大痛点：通过对比、场景、体验或情绪让用户意识到问题严重。\n3. 用产品卖点解决痛点。\n4. 增加内容深度：真实场景、同品对比、使用体验、结果想象。\n5. 给出强保障、强承诺、价格机制或行动理由。\n\n## 4. 内容宽度\n你要主动变化以下维度，避免所有脚本一个味道：\n\n- 不同开头\n- 不同身份\n- 不同场景\n- 不同表达形式\n- 不同痛点角度\n- 不同转化收口\n\n内容宽度决定体量。\n\n## 5. 内容深度\n你要增强转化，不写空泛广告：\n\n- 每条视频必须有真实使用场景。\n- 尽量加入同品、旧方案、旧认知或错误选择的对比。\n- 让用户提前感受到拥有之后的好处。\n- 广告内容只输出有效信息。\n\n内容深度决定投产。\n\n# 素材类型选择\n\n你必须根据用户目标选择或推荐素材类型。\n\n## A. 3.1 痛点共鸣型\n适合：破圈、淡季保量、跨级转化、找新增人群。\n写法：帮用户发现痛点，放大痛点，和用户形成共鸣，再引出产品解决方案。\n\n## B. 3.2 产品对比型\n适合：旺季拿量、同品竞争、收割品牌或产品认知人群。\n写法：直切产品，与同类产品、旧方案或错误选择做对比，拉满差异，让产品成为用户唯一选择。\n\n## C. 3.9 机制收割型\n适合：促销、直播间引流、活动爆发、价格机制转化。\n写法：用户要的不是便宜，而是占便宜；强调高质平价；解释为什么现在买更划算；结合限时、赠品、组合、保障、稀缺感。\n\n# 工作流程\n\n每次生成脚本前，你必须先输出简短分析：\n\n1. 产品核心卖点：\n2. 用户真实买点：\n3. 主要痛点类型：\n4. 推荐素材类型：\n5. 推荐切入身份：\n6. 推荐内容角度：\n7. 转化关键点：\n\n如果信息不足，基于合理假设继续生成，不要停下来反问；只有涉及合规风险、医疗功效、金融收益、极端承诺等情况时，才提醒用户补充或改写。\n\n# 脚本输出格式\n\n请按以下格式输出：\n\n【脚本标题】\n\n【素材类型】\n3.1 痛点共鸣型 / 3.2 产品对比型 / 3.9 机制收割型 / 情绪种草型 / 直播间引流型\n\n【目标人群】\n说明这条脚本主要打谁。\n\n【开头 0-3 秒】\n必须强钩子，直接抓住人群或痛点。不要写“你知道吗”。\n\n【痛点放大 3-8 秒】\n用场景、对比、情绪或体验放大用户痛点。\n\n【产品解决 8-18 秒】\n把产品卖点转化成用户能感知的好处。\n\n【内容深度 18-28 秒】\n加入真实场景、同品对比、使用体验、结果想象或信任背书。\n\n【转化收口 28-35 秒】\n用价格机制、保障承诺、限时理由或直播间引导完成转化。\n\n【画面建议】\n逐镜头描述画面、人物、道具、场景和拍摄方式。\n\n【口播文案】\n给出完整可直接拍摄的口播稿。每句话单独成行。\n\n【字幕重点】\n提炼适合上屏的短句。\n\n【投放建议】\n说明这条脚本适合冷启动、放量、收割、直播间引流还是复投迭代。\n\n# 批量生成规则\n\n如果用户要求批量生成，至少覆盖：痛点共鸣型、产品对比型、机制收割型、情绪种草型、直播间引流型。\n每条脚本必须角度不同，不要换汤不换药。\n\n# 输出风格\n\n像真实抖音短视频，不像广告说明书。短、狠、直接，有画面感。默认生成 30-60 秒脚本；用户指定时长时，以用户要求为准。\n\n# 合规边界\n\n不要生成虚假承诺、绝对化用语、医疗治愈承诺、保收益承诺、无法证明的第一/唯一/最强等表述。遇到高风险行业时，改成“体验、感受、辅助、建议、适合人群、使用场景”等更稳妥表达。","opening":"你好，我是“大川内容体系”的电商脚本生成智能体。\n\n我会按“买点先于卖点、痛点驱动转化、宽度拿体量、深度提投产”的方法，帮你生成可直接拍摄和投放的短视频脚本。\n\n你可以直接发我这些信息：\n\n1. 产品名称/类目\n2. 核心卖点\n3. 目标用户\n4. 价格或活动机制\n5. 竞品/替代方案\n6. 投放目标：破圈、放量、收割、直播间引流或复投迭代\n\n也可以只发一句“我的产品是XXX”，我会先做痛点分析，再给你脚本。","questions":["我的产品是XXX，帮我生成5条投放脚本","帮我做3.1痛点共鸣型脚本","帮我做3.2产品对比型脚本","帮我做3.9机制收割型脚本","帮我分析这个产品的用户真实买点","帮我生成直播间引流短视频脚本","帮我把这个卖点改成用户痛点表达","帮我批量生成不同身份/场景的素材角度"]}
 ,
 "1-2":{
 name:"铁甲内容·广告创意生成专家",
@@ -467,7 +467,7 @@ document.addEventListener("click",function(e){playClickSound();if(themeWasteland
 
 var chatOpen=false,chatKey="",chatMessages=[],isTyping=false,currentKyrieSubKey="",currentKyrieMenuLevel="",currentKyrieModule="",currentKyrieTask="",pendingKyrieModule="",pendingKyrieTaskIndex=-1,currentIPModule="",currentIPTask="",currentIPTaskIndex=-1,pendingIPModule="",pendingIPTaskIndex=-1;
 function hideWorkflowPanels(){
-["chat-form-panel","chat-form-rewrite","chat-form-xuehui","chat-form-tiejia","chat-form-kanjian"].forEach(function(id){
+["chat-form-panel","chat-form-rewrite","chat-form-xuehui","chat-form-tiejia","chat-form-kanjian","chat-form-dachuan"].forEach(function(id){
 var el=document.getElementById(id);if(el)el.style.display="none";
 });
 }
@@ -1134,7 +1134,7 @@ var rwPanel=document.getElementById("chat-form-rewrite");
 hideWorkflowPanels();
 if(mode==="form"){
 msgs.style.display="none";questions.style.display="none";inputArea.style.display="none";
-if(chatKey==="0-1"){formPanel.style.display="none";rwPanel.style.display="none";var kj=document.getElementById("chat-form-kanjian");if(kj)kj.style.display="flex"}else if(chatKey==="0-3"){formPanel.style.display="none";rwPanel.style.display="flex";setTimeout(function(){rwBindApiCheck()},100);updateRewriteApiStatus()}else if(chatKey==="0-0"){formPanel.style.display="none";rwPanel.style.display="none";var xp=document.getElementById("chat-form-xuehui");if(xp){xp.style.display="flex";setTimeout(function(){xhBindApiCheck()},100)}xuehuiUpdateStatus()}else if(chatKey==="1-2"){formPanel.style.display="none";rwPanel.style.display="none";var tj=document.getElementById("chat-form-tiejia");if(tj){tj.style.display="flex";setTimeout(function(){tjBindApiCheck()},100)}tjUpdateStatus()}else{formPanel.style.display="flex";rwPanel.style.display="none"}
+if(chatKey==="0-1"){formPanel.style.display="none";rwPanel.style.display="none";var kj=document.getElementById("chat-form-kanjian");if(kj)kj.style.display="flex"}else if(chatKey==="0-3"){formPanel.style.display="none";rwPanel.style.display="flex";setTimeout(function(){rwBindApiCheck()},100);updateRewriteApiStatus()}else if(chatKey==="0-0"){formPanel.style.display="none";rwPanel.style.display="none";var xp=document.getElementById("chat-form-xuehui");if(xp){xp.style.display="flex";setTimeout(function(){xhBindApiCheck()},100)}xuehuiUpdateStatus()}else if(chatKey==="1-1"){formPanel.style.display="none";rwPanel.style.display="none";var dc=document.getElementById("chat-form-dachuan");if(dc)dc.style.display="flex";dcUpdateStatus()}else if(chatKey==="1-2"){formPanel.style.display="none";rwPanel.style.display="none";var tj=document.getElementById("chat-form-tiejia");if(tj){tj.style.display="flex";setTimeout(function(){tjBindApiCheck()},100)}tjUpdateStatus()}else{formPanel.style.display="flex";rwPanel.style.display="none"}
 }else{
 msgs.style.display="";questions.style.display="";inputArea.style.display="";
 renderMayuanDocumentTools();
@@ -1348,6 +1348,55 @@ return url+"/v1/chat/completions";
 }
 var apiConfig={endpoint:localStorage.getItem("fp_endpoint")||"https://api.deepseek.com/v1/chat/completions",apikey:localStorage.getItem("fp_apikey")||localStorage.getItem("flowplayer_api_key")||"",model:localStorage.getItem("fp_model")||""};
 function loadConfigUI(){document.getElementById("cfg-endpoint").value=apiConfig.endpoint;document.getElementById("cfg-apikey").value=apiConfig.apikey;var sel=document.getElementById("set-model");var ci=document.getElementById("set-model-custom");if(!apiConfig.model){sel.value="";ci.style.display="none";ci.value="";return}var known=Object.keys(MODEL_ENDPOINTS);if(known.indexOf(apiConfig.model)>=0){sel.value=apiConfig.model;ci.style.display="none";ci.value=""}else{sel.value="__custom__";ci.style.display="";ci.value=apiConfig.model}}
+function dcVal(id){
+var el=document.getElementById(id);
+return el?String(el.value||"").trim():"";
+}
+function dcSelected(id){
+var box=document.getElementById(id);
+if(!box)return "";
+return Array.prototype.slice.call(box.querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val||c.textContent.trim()}).join("、");
+}
+function dcUpdateStatus(){
+var s=document.getElementById("dc-api-status");
+var m=document.getElementById("dc-api-msg");
+if(!s||!m)return;
+if(apiConfig.apikey&&apiConfig.apikey.length>9){
+s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model;
+}else{
+s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 API 配置 中设置";
+}
+}
+function submitDachuanForm(){
+if(!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
+var product=dcVal("dc-product");
+var selling=dcVal("dc-selling");
+var audience=dcVal("dc-audience");
+if(!product||!selling||!audience){alert("请先填写产品/类目、产品卖点和目标用户");return}
+var pain=dcSelected("dc-pain-type")||"请按大川方法论自动判断";
+var material=dcSelected("dc-material-type")||"AI推荐";
+var goal=dcVal("dc-goal")||"放量";
+var competitor=dcVal("dc-competitor")||"未提供";
+var count=dcVal("dc-count")||"3条";
+var duration=dcVal("dc-duration")||"30-60秒";
+var extra=dcVal("dc-extra")||"无";
+var prompt="请按大川内容体系，为以下产品生成电商短视频广告脚本。\n\n"+
+"产品/类目："+product+"\n"+
+"产品卖点："+selling+"\n"+
+"目标用户："+audience+"\n"+
+"用户痛点类型："+pain+"\n"+
+"指定素材类型："+material+"\n"+
+"投放目标："+goal+"\n"+
+"竞品/替代方案："+competitor+"\n"+
+"生成数量："+count+"\n"+
+"视频时长："+duration+"\n"+
+"补充要求："+extra+"\n\n"+
+"输出要求：先做买点分析，再生成脚本。每条脚本都要包含素材类型、目标人群、开头0-3秒、痛点放大、产品解决、内容深度、转化收口、画面建议、口播文案、字幕重点和投放建议。不要写成产品说明书，要像真实抖音电商短视频。";
+switchChatMode("qa");
+addMessage("user",prompt);
+showTyping();
+callAgent(prompt);
+}
 function updateFormApiStatus(){
 var s=document.getElementById("form-api-status");
 var m=document.getElementById("form-api-msg");

@@ -16,7 +16,7 @@
 <input class="auth-input" id="auth-phone" placeholder="请输入手机号码" inputmode="tel" autocomplete="tel">
 <input class="auth-input" id="auth-password" placeholder="请输入密码" type="password" autocomplete="current-password" onkeydown="handleAuthKey(event)">
 <button class="auth-submit" id="auth-submit" onclick="submitAuth()">登录</button>
-<div class="auth-msg" id="auth-msg">首次使用请切换到注册，输入手机号和密码即可创建账号。</div>
+<div class="auth-msg" id="auth-msg">首次使用请切换到注册，输入手机号和密码即可创建账号。若注册失败，请先确认 Firebase 已启用邮箱/密码登录。</div>
 </div>
 </div>
 <div class="app-container">
@@ -459,7 +459,7 @@ function setAuthMode(mode) {
   if (loginTab) loginTab.classList.toggle("active", authMode === "login");
   if (registerTab) registerTab.classList.toggle("active", authMode === "register");
   if (submit) submit.textContent = authMode === "register" ? "注册并进入" : "登录";
-  if (msg) msg.textContent = authMode === "register" ? "输入手机号码和密码即可注册。密码至少 6 位。" : "输入注册过的手机号码和密码登录。";
+  if (msg) msg.textContent = authMode === "register" ? "输入手机号码和密码即可注册。密码至少 6 位。Firebase 后台需启用邮箱/密码登录。" : "输入注册过的手机号码和密码登录。";
 }
 
 function normalizePhone(phone) {
@@ -508,6 +508,8 @@ function submitAuth() {
     if (code === "auth/wrong-password") text = "密码不正确。";
     if (code === "auth/too-many-requests") text = "尝试次数过多，请稍后再试。";
     if (code === "auth/operation-not-allowed") text = "登录方式未开启，请先在 Firebase Authentication 中启用邮箱/密码登录。";
+    if (code === "auth/configuration-not-found") text = "Firebase Authentication 尚未启用或未完成配置。请先在 Firebase 控制台启用 Authentication 的邮箱/密码登录方式。";
+    if (code === "auth/unauthorized-domain") text = "当前网页域名未加入 Firebase 授权域名，请在 Authentication 设置里添加 topplayer888.github.io。";
     if (code) text += "（" + code + "）";
     showAuthMessage(text, true);
   }).finally(function() {

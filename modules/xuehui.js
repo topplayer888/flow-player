@@ -141,8 +141,6 @@ function xhRenderTopics(topics) {
       '<div style="font-size:11px;color:var(--text-muted);margin-top:4px">' + xhEscapeHtml(t.idea || t.reason || "") + "</div></div>";
   }).join("");
   document.getElementById("xh-step2").style.display = "";
-  document.getElementById("xh-step3").style.display = "none";
-  document.getElementById("xh-step4").style.display = "none";
   document.getElementById("xh-results").style.display = "none";
 }
 
@@ -408,10 +406,12 @@ function xuehuiRecommendOpenings() {
 }
 
 function xuehuiBackTo(step) {
-  ["xh-step1", "xh-step2", "xh-step3", "xh-step4", "xh-results"].forEach(function(id) {
+  ["xh-step1", "xh-step2", "xh-step3", "xh-step4"].forEach(function(id) {
     var el = document.getElementById(id);
-    if (el) el.style.display = id === "xh-step1" || id === step ? "" : "none";
+    if (el) el.style.display = "";
   });
+  var results = document.getElementById("xh-results");
+  if (results && step !== "xh-results") results.style.display = "none";
 }
 
 function xuehuiReset() {
@@ -422,7 +422,10 @@ function xuehuiReset() {
   document.getElementById("xh-audience").value = "";
   document.querySelectorAll("#xh-elements .select-chip.selected,#xh-templates .select-chip.selected,#xh-openings .select-chip.selected").forEach(function(c) { c.classList.remove("selected"); });
   xhState = { industry: "", audience: "", elements: [], topics: [], selectedTopic: null, templates: [], openings: [], selectedOpenings: [], results: [] };
-  ["xh-step2", "xh-step3", "xh-step4", "xh-results"].forEach(function(id) { var el = document.getElementById(id); if (el) el.style.display = "none"; });
+  ["xh-step2", "xh-step3", "xh-step4"].forEach(function(id) { var el = document.getElementById(id); if (el) el.style.display = ""; });
+  var results = document.getElementById("xh-results");
+  if (results) results.style.display = "none";
+  xuehuiRenderOpenings();
 }
 
 function xhBuildGenerationPrompt(topic, openingRules, tmplRules) {
@@ -489,3 +492,7 @@ function xhRenderResults(results) {
   container.innerHTML = html;
   document.getElementById("xh-results").style.display = "";
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+  xuehuiRenderOpenings();
+});

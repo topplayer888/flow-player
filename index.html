@@ -153,12 +153,12 @@
 <button class="chat-form-submit" id="xh-hot-topic-btn" onclick="xuehuiStep1Hot()">&#x1f525; 结合热点生成爆款选题</button>
 </div>
 </div>
-<div id="xh-step2" style="display:none">
+<div id="xh-step2">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 2/4 · 选择爆款选题</span></div>
 <div id="xh-topics-list" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto"></div>
 
 </div>
-<div id="xh-step3" style="display:none">
+<div id="xh-step3">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 3/4 · 选择文案模板</span></div>
 <div class="chat-form-field"><label><span class="field-icon">&#x1f4cb;</span> 文案模板 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（最多选2个）</span></label>
 <div class="select-chips" id="xh-templates" style="display:flex;flex-wrap:wrap;gap:8px">
@@ -169,7 +169,7 @@
 </div></div>
 
 </div>
-<div id="xh-step4" style="display:none">
+<div id="xh-step4">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 4/4 · 选择开头类型</span></div>
 <div class="chat-form-field"><label><span class="field-icon">&#x1f3a4;</span> 开头类型 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（最多选3个）</span></label>
 <div class="select-chips" id="xh-openings" style="display:flex;flex-wrap:wrap;gap:6px;max-height:260px;overflow-y:auto"></div></div>
@@ -396,12 +396,12 @@
 </aside>
 </div>
 <script src="modules/mayuan.js?v=202606051330"></script>
-<script src="modules/xuehui.js?v=202606121241"></script>
+<script src="modules/xuehui.js?v=202606121242"></script>
 <script src="modules/kanjian.js?v=202606051330"></script>
 <script src="modules/tiejia.js?v=202606051330"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606121233"></script>
+<script src="app.js?v=202606121234"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">

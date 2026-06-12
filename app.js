@@ -820,9 +820,18 @@ renderMayuanDocumentTools();
 addMessage("assistant",ipLaunch?getIPTaskIntro(ipLaunch.id,pendingIPTaskIndex):(kyrieLaunch?getKyrieTaskIntro(kyrieLaunch.id,pendingKyrieTaskIndex):agent.opening));
 pendingKyrieModule="";pendingKyrieTaskIndex=-1;pendingIPModule="";pendingIPTaskIndex=-1;
 }
-if(agents["1-1"]&&agents["1-1"].opening.indexOf("右上角 → 表单式")<0){
-agents["1-1"].opening+="\n\n你也可以直接在右边表单式界面填写产品相关信息，点击右上角 → 表单式。";
+var formModeGuideText="也可以点击右上角 → 表单式，输入产品相关信息。";
+function appendFormModeGuide(agentKey){
+var agent=agents[agentKey];
+if(!agent||!agent.opening)return;
+agent.opening=agent.opening
+.replace(/也可以点击右上角\s*→\s*表单式，选择身份视角后生成。/g,formModeGuideText)
+.replace(/你也可以直接在右边表单式界面填写产品相关信息，点击右上角\s*→\s*表单式。/g,formModeGuideText);
+if(agent.opening.indexOf(formModeGuideText)<0){
+agent.opening+="\n\n"+formModeGuideText;
 }
+}
+["1-0","1-1","1-2","1-3"].forEach(appendFormModeGuide);
 var chatMode="qa";
 
 function isMayuanChat(){

@@ -1,6 +1,7 @@
 html,body{margin:0;padding:0;height:100%}
 :root{--bg-deep:#0a0c14;--bg-panel:#0f121e;--bg-card:#141828;--border-glow:#1a1f35;--cyan:#00e5ff;--cyan-dim:rgba(0,229,255,.15);--purple:#a855f7;--purple-dim:rgba(168,85,247,.15);--gold:#f59e0b;--gold-dim:rgba(245,158,11,.15);--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--radius:12px;--radius-sm:8px}
-.auth-locked .app-container,.auth-locked .settings-overlay,.auth-locked .chat-overlay{pointer-events:none;filter:blur(8px);opacity:.24}
+.auth-checking .app-container,.auth-locked .app-container,.auth-locked .settings-overlay,.auth-locked .chat-overlay{pointer-events:none;filter:blur(8px);opacity:.24}
+.auth-checking .auth-overlay{display:none}
 .auth-overlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 0%,rgba(0,229,255,.11),transparent 32%),rgba(5,7,12,.78);backdrop-filter:blur(14px)}
 .auth-locked .auth-overlay{display:flex}
 .auth-card{width:360px;max-width:92vw;padding:28px;border-radius:16px;border:1px solid var(--border-glow);background:rgba(15,18,30,.94);box-shadow:0 28px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04);color:var(--text-primary)}

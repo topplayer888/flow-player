@@ -426,7 +426,7 @@ if(chatOpen){sectionSavedKey[prevSection]=chatKey;closeChat(true)}
 document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active","entering")});
 e.classList.add("active","entering");
 setTimeout(function(){e.classList.remove("entering")},600);
-currentSection=nextSection;closeMobileMenu();if(sectionSavedKey[currentSection]){var parts=sectionSavedKey[currentSection].split("-");var m=parseInt(parts[1]);currentMode=m;sectionModes[currentSection]=m;renderRightModes();openChat(parseInt(parts[0]),m)}else{renderContent();renderRightModes();renderHistory()}
+currentSection=nextSection;currentMode=sectionModes[currentSection];closeMobileMenu();renderContent();renderRightModes();renderHistory()
 });
 });
 var canvas=document.getElementById("bg-canvas"),ctx=canvas.getContext("2d"),particles=[],rainDrops=[],gridOffset=0,sparks=[],mx=-1,my=-1,pmx=-1,pmy=-1;

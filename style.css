@@ -500,3 +500,17 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .theme-light .chat-msg.user .chat-avatar{background:#eaf2ff!important;color:#2563eb!important}
 .theme-light .chat-send,.theme-light .sidebar-api-save,.theme-light .api-config-hint{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;box-shadow:0 8px 18px rgba(37,99,235,.18)!important}
 .theme-light .chat-send:hover,.theme-light .sidebar-api-save:hover,.theme-light .api-config-hint:hover{background:#1d4ed8!important;box-shadow:0 10px 22px rgba(37,99,235,.22)!important}
+
+/* Wasteland final polish layer */
+.theme-wasteland body::before,.theme-wasteland .app-container::after{display:none!important}
+.theme-wasteland body::after{opacity:.55;background:radial-gradient(ellipse at center,transparent 58%,rgba(0,0,0,.22) 100%),repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.018) 3px,rgba(0,0,0,.018) 5px)!important}
+.theme-wasteland .content-area{background:#1c1710!important;overflow:hidden}
+.theme-wasteland .content-area::before{background:#1c1710 url(wasteland-bg.jpg) center/cover no-repeat!important;opacity:1;filter:saturate(.92) contrast(1.03) brightness(.9)}
+.theme-wasteland .content-area::after{content:"";position:fixed;inset:-4px;pointer-events:none;z-index:0;background:linear-gradient(180deg,rgba(12,8,4,.18),rgba(12,8,4,.32)),radial-gradient(circle at 50% 28%,rgba(255,190,90,.05),transparent 42%)}
+.theme-wasteland .content-area>*{position:relative;z-index:1}
+@keyframes wastelandQuake{0%{transform:translate3d(0,0,0) scale(1.002)}25%{transform:translate3d(-.5px,.5px,0) scale(1.002)}50%{transform:translate3d(.7px,-.4px,0) scale(1.002)}75%{transform:translate3d(-.4px,0,0) scale(1.002)}100%{transform:translate3d(0,0,0) scale(1.002)}}
+.theme-wasteland.wasteland-shake .content-area::before{animation:wastelandQuake .1s cubic-bezier(.36,.07,.19,.97) both}
+.theme-wasteland .mode-card{background:rgba(28,23,16,.88)!important;border:1px solid rgba(200,132,42,.28)!important;box-shadow:0 10px 28px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,220,160,.035)!important}
+.theme-wasteland .mode-card:hover{border-color:rgba(200,132,42,.55)!important;box-shadow:0 14px 34px rgba(0,0,0,.36),0 0 18px rgba(200,132,42,.12)!important}
+.theme-wasteland .mode-card-features-area{background:rgba(12,8,4,.24)!important;border-color:rgba(200,132,42,.16)!important}
+.theme-wasteland .sidebar-left,.theme-wasteland .sidebar-right{background:linear-gradient(180deg,rgba(28,23,16,.98),rgba(18,14,9,.98))!important}

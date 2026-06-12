@@ -489,6 +489,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .theme-light .logo-icon{background:#2563eb!important;box-shadow:0 8px 18px rgba(37,99,235,.16)!important}
 .theme-light .content-title .accent{background:none!important;-webkit-text-fill-color:initial!important;color:#2563eb!important}
 .theme-light .nav-icon{background:#eef4ff!important;color:#2563eb!important}
+.theme-light .nav-badge,.theme-light .nav-item:nth-child(1) .nav-badge,.theme-light .nav-item:nth-child(2) .nav-badge,.theme-light .nav-item:nth-child(3) .nav-badge{background:#f1f5f9!important;color:#64748b!important}
 .theme-light .nav-item.active{background:#eef4ff!important;border-color:#dbeafe!important;border-left-color:#2563eb!important}
 .theme-light .mode-card-icon{background:#f1f5f9!important;color:#2563eb!important;box-shadow:none!important}
 .theme-light .mode-card:nth-child(1) .mode-card-icon,.theme-light .mode-card:nth-child(2) .mode-card-icon,.theme-light .mode-card:nth-child(3) .mode-card-icon,.theme-light .mode-card:nth-child(4) .mode-card-icon{background:#f1f5f9!important;color:#2563eb!important;box-shadow:none!important}

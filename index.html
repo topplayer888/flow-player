@@ -367,7 +367,7 @@
 <div class="stat-row"><span class="stat-label">内容体系</span><span class="stat-value purple" id="stat-systems">6</span></div>
 <div class="stat-row"><span class="stat-label">可用状态</span><span class="stat-value gold" id="stat-overall">待更新</span></div>
 </div>
-<div class="right-modes" id="right-modes"></div><div class="history-section" id="history-section"><div class="history-title">📋 历史记录 <button class="history-clear-btn" onclick="clearAllHistory()" title="清空全部记录">🗑 清空</button></div><div class="history-list" id="history-list"></div></div>
+<div class="right-modes" id="right-modes"></div><div class="history-section" id="history-section"><div class="history-title">📋 历史记录 <button class="history-clear-btn" onclick="clearCurrentWorkspaceHistory()" title="清空当前工作区记录">🗑 清空当前</button></div><div class="history-list" id="history-list"></div></div>
 
 
 
@@ -630,18 +630,28 @@ function syncHistoryFromCloud() {
     renderHistory();
   }
 
-  function doClearAllHistory() {
-    localStorage.removeItem(getHistoryStorageKey());
-    localStorage.removeItem(LEGACY_STORAGE_KEY);
+  function doClearCurrentWorkspaceHistory() {
+    var items = loadHistory().filter(isValidHistoryItem);
+    var kept = items.filter(function(h) { return !matchesCurrentWorkspace(h); });
+    localStorage.setItem(getHistoryStorageKey(), JSON.stringify(kept));
     var uid = typeof getHistoryUserId === 'function' ? getHistoryUserId() : null;
     if (uid && typeof firestoreDB !== 'undefined') {
-      firestoreDB.collection('chat_history').doc(uid).set({ items: [], updated: Date.now() }).catch(function(){});
+      firestoreDB.collection('chat_history').doc(uid).set({ items: kept, updated: Date.now() }).catch(function(){});
     }
     renderHistory();
   }
 
+  window.clearCurrentWorkspaceHistory = function() {
+    var count = loadHistory().filter(matchesCurrentWorkspace).length;
+    if (count === 0) {
+      renderHistory();
+      return;
+    }
+    showConfirmDialog('确定清空当前工作区的 ' + count + ' 条历史记录？其它工作区记录会保留。', doClearCurrentWorkspaceHistory);
+  };
+
   window.clearAllHistory = function() {
-    showConfirmDialog('确定清空所有历史记录？此操作不可撤销。', doClearAllHistory);
+    window.clearCurrentWorkspaceHistory();
   };
 
   function formatTime(ts) {

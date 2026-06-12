@@ -76,7 +76,10 @@
     <div id="dc-full-result" style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);font-size:13px"></div>
   </div>
   <div style="margin-top:12px;padding:14px;border-radius:12px;border:1px solid rgba(16,185,129,.28);background:rgba(16,185,129,.06)">
-    <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:8px">🎤 纯口播文案</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
+      <div style="font-size:13px;font-weight:700;color:var(--text-primary)">🎤 纯口播文案</div>
+      <button onclick="copyDachuanOralScript()" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(16,185,129,.35);background:rgba(16,185,129,.12);color:var(--text-primary);font-size:12px;cursor:pointer">复制</button>
+    </div>
     <div id="dc-oral-result" style="white-space:pre-wrap;line-height:1.9;color:var(--text-primary);font-size:14px"></div>
   </div>
   <div style="margin-top:12px;padding:12px;border-radius:12px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)">
@@ -354,7 +357,7 @@
 <script src="modules/tiejia.js?v=202606051330"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606121130"></script>
+<script src="app.js?v=202606121140"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">

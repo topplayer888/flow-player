@@ -1399,7 +1399,9 @@ return prompt;
 var dachuanLastPrompt="",dachuanLastResult="";
 function dcExtractOralScript(content){
 var text=String(content||"").trim();
-var re=/(?:^|\n)\s*(?:#{1,4}\s*)?(?:【纯口播文案】|纯口播文案|【口播文案】|口播文案)\s*[:：]?\s*\n?([\s\S]*?)(?=\n\s*(?:#{1,4}\s*)?(?:【[^】]+】|字幕重点|投放建议|画面建议|拍摄画面|转化收口|修改)|$)/g;
+var oralTitle="(?:【[^】]*(?:纯口播文案|口播文案|口播逐字稿|完整口播稿|纯口播稿|口播稿)[^】]*】|(?:纯口播文案|口播文案|口播逐字稿|完整口播稿|纯口播稿|口播稿))";
+var nextTitle="(?:【[^】]+】|#{1,4}\\s+[^\\n]+|字幕重点|投放建议|画面建议|拍摄画面|转化收口|修改|执行建议)";
+var re=new RegExp("(?:^|\\n)\\s*(?:#{1,4}\\s*)?"+oralTitle+"\\s*[:：]?\\s*\\n?([\\s\\S]*?)(?=\\n\\s*(?:#{1,4}\\s*)?"+nextTitle+"|$)","g");
 var parts=[],m;
 while((m=re.exec(text))!==null){
 if(m[1]&&m[1].trim())parts.push(m[1].trim().replace(/^[:：\s]+/,"").trim());
@@ -1408,9 +1410,23 @@ return parts.join("\n\n");
 }
 function dcRemoveOralSection(content){
 var text=String(content||"").trim();
-return text.replace(/(?:^|\n)\s*(?:#{1,4}\s*)?(?:【纯口播文案】|纯口播文案|【口播文案】|口播文案)\s*[:：]?\s*\n?[\s\S]*?(?=\n\s*(?:#{1,4}\s*)?(?:【[^】]+】|字幕重点|投放建议|画面建议|拍摄画面|转化收口|修改)|$)/g,function(match){
+var oralTitle="(?:【[^】]*(?:纯口播文案|口播文案|口播逐字稿|完整口播稿|纯口播稿|口播稿)[^】]*】|(?:纯口播文案|口播文案|口播逐字稿|完整口播稿|纯口播稿|口播稿))";
+var nextTitle="(?:【[^】]+】|#{1,4}\\s+[^\\n]+|字幕重点|投放建议|画面建议|拍摄画面|转化收口|修改|执行建议)";
+var re=new RegExp("(?:^|\\n)\\s*(?:#{1,4}\\s*)?"+oralTitle+"\\s*[:：]?\\s*\\n?[\\s\\S]*?(?=\\n\\s*(?:#{1,4}\\s*)?"+nextTitle+"|$)","g");
+return text.replace(re,function(match){
 return /\n\s*(?:#{1,4}\s*)?(?:【[^】]+】|字幕重点|投放建议|画面建议|拍摄画面|转化收口|修改|$)/.test(match)?"\n":"";
 }).trim();
+}
+function copyDachuanOralScript(){
+var el=document.getElementById("dc-oral-result");
+var text=el?String(el.textContent||"").trim():"";
+if(!text||text.indexOf("未识别到独立口播文案")>=0){alert("暂无可复制的口播文案");return}
+if(navigator.clipboard&&navigator.clipboard.writeText){
+navigator.clipboard.writeText(text).then(function(){alert("口播文案已复制")}).catch(function(){fallbackCopyText(text)});
+}else{fallbackCopyText(text)}
+}
+function fallbackCopyText(text){
+var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);alert("口播文案已复制");
 }
 function dcRenderFormResult(content){
 dachuanLastResult=content||"";

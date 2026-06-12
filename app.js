@@ -821,9 +821,13 @@ addMessage("assistant",ipLaunch?getIPTaskIntro(ipLaunch.id,pendingIPTaskIndex):(
 pendingKyrieModule="";pendingKyrieTaskIndex=-1;pendingIPModule="";pendingIPTaskIndex=-1;
 }
 var formModeGuideText="也可以点击右上角 → 表单式，输入产品相关信息。";
+var dachuanIdentityIntroText="\n\n现在会同步判断 3 种身份视角：\n1. 商家视角：讲清产品区别、真实场景、效果对比和信任建立。\n2. 用户视角：突出真实体验、使用感受、场景代入和提前拥有的快感。\n3. 权威专业IP视角：用专业身份、专业讲解和场景化判断降低决策成本。";
 function appendFormModeGuide(agentKey){
 var agent=agents[agentKey];
 if(!agent||!agent.opening)return;
+if(agentKey==="1-1"){
+agent.opening=agent.opening.replace(dachuanIdentityIntroText,"");
+}
 agent.opening=agent.opening
 .replace(/也可以点击右上角\s*→\s*表单式，选择身份视角后生成。/g,formModeGuideText)
 .replace(/你也可以直接在右边表单式界面填写产品相关信息，点击右上角\s*→\s*表单式。/g,formModeGuideText);

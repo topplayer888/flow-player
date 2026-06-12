@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
 <link rel="preload" as="image" href="wasteland-bg.jpg">
-<link rel="stylesheet" href="style.css?v=166"></head><body class="auth-locked">
+<link rel="stylesheet" href="style.css?v=167"></head><body class="auth-locked">
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="auth-overlay" id="auth-overlay">
 <div class="auth-card">
@@ -28,7 +28,7 @@
 <div class="nav-item" data-section="1"><div class="nav-icon">💡</div><span class="nav-label">广告创意</span><span class="nav-badge">4 模式</span></div>
 <div class="nav-item" data-section="2"><div class="nav-icon">📡</div><span class="nav-label">直播策略</span><span class="nav-badge">2 模式</span></div>
 </nav>
-<div class="sidebar-settings-btn" onclick="openSettings()"><div class="sidebar-settings-icon">⚙</div><span>设置</span></div><div class="sidebar-footer"><div id="auth-user-label">未登录</div><button class="auth-logout-btn" onclick="logoutAuth()">退出登录</button></div>
+<div class="sidebar-settings-btn" onclick="openSettings()"><div class="sidebar-settings-icon">⚙</div><span>设置</span></div>
 <button class="menu-toggle" id="menu-toggle" onclick="toggleMobileMenu()" title="菜单">☰</button>
 </aside>
 <main class="content-area" id="content-area">
@@ -409,6 +409,7 @@
 <button class="settings-tab active" onclick="switchSettingsTab('api',this)">🔑 API 配置</button>
 <button class="settings-tab" onclick="switchSettingsTab('sound',this)">🔊 音效设置</button>
 <button class="settings-tab" onclick="switchSettingsTab('theme',this)">🎨 主题设置</button>
+<button class="settings-tab" onclick="switchSettingsTab('account',this)">👤 账号设置</button>
 </div>
 <div class="settings-body">
 <div class="settings-tab-content active" id="settings-tab-api">
@@ -428,6 +429,14 @@
 <div class="settings-placeholder">🎨 主题设置</div>
 <div style="margin-bottom:14px"><label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:6px">选择主题风格</label><select id="set-theme-mode" onchange="applyTheme(this.value)" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;outline:none;cursor:pointer"><option value="cyberpunk">🌃 赛博朋克</option><option value="wasteland">🏜️ 废土</option><option value="light">☀️ 极简白</option><option value="pureblack">🖤 纯黑</option></select></div>
 <div style="text-align:center"><button class="sidebar-api-save" onclick="saveThemeSettings()">保存主题设置</button></div>
+</div>
+<div class="settings-tab-content" id="settings-tab-account">
+<div class="settings-placeholder">👤 账号设置</div>
+<div class="account-settings-card">
+<div class="account-settings-label">当前账号</div>
+<div class="account-settings-value" id="auth-user-label">未登录</div>
+<button class="auth-logout-btn" onclick="logoutAuth()">退出登录</button>
+</div>
 </div>
 </div>
 </div>

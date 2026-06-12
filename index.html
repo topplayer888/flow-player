@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
 <link rel="preload" as="image" href="wasteland-bg.jpg">
-<link rel="stylesheet" href="style.css?v=169"></head><body class="auth-locked">
+<link rel="stylesheet" href="style.css?v=170"></head><body class="auth-locked">
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="auth-overlay" id="auth-overlay">
 <div class="auth-card">
@@ -17,7 +17,7 @@
 <input class="auth-input" id="auth-password" placeholder="请输入密码" type="password" autocomplete="current-password" onkeydown="handleAuthKey(event)">
 <input class="auth-input auth-confirm-input" id="auth-password-confirm" placeholder="请再次输入密码" type="password" autocomplete="new-password" onkeydown="handleAuthKey(event)">
 <button class="auth-submit" id="auth-submit" onclick="submitAuth()">登录</button>
-<div class="auth-msg" id="auth-msg">首次使用请切换到注册，输入手机号和密码即可创建账号。若注册失败，请先确认 Firebase 已启用邮箱/密码登录。</div>
+<div class="auth-msg" id="auth-msg">输入手机号和密码登录。首次使用请先切换到注册。</div>
 </div>
 </div>
 <div class="app-container">
@@ -476,7 +476,7 @@ function setAuthMode(mode) {
     confirmInput.classList.toggle("show", authMode === "register");
     confirmInput.value = "";
   }
-  if (msg) msg.textContent = authMode === "register" ? "输入手机号码和密码即可注册。密码至少 6 位。Firebase 后台需启用邮箱/密码登录。" : "输入注册过的手机号码和密码登录。";
+  if (msg) msg.textContent = authMode === "register" ? "设置登录密码并再次确认，注册成功后即可进入。" : "输入手机号和密码登录。首次使用请先切换到注册。";
 }
 
 function normalizePhone(phone) {

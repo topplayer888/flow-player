@@ -494,7 +494,10 @@ function submitAuth() {
   if (btn) { btn.disabled = true; btn.textContent = authMode === "register" ? "注册中..." : "登录中..."; }
   var action = authMode === "register"
     ? firebaseAuth.createUserWithEmailAndPassword(email, password).then(function(cred) {
-        return firestoreDB.collection("users").doc(cred.user.uid).set({ phone: phone, createdAt: Date.now() }, { merge: true });
+        if (typeof firestoreDB !== "undefined") {
+          firestoreDB.collection("users").doc(cred.user.uid).set({ phone: phone, createdAt: Date.now() }, { merge: true }).catch(function(){});
+        }
+        return cred;
       })
     : firebaseAuth.signInWithEmailAndPassword(email, password);
   action.catch(function(err) {
@@ -505,6 +508,7 @@ function submitAuth() {
     if (code === "auth/wrong-password") text = "密码不正确。";
     if (code === "auth/too-many-requests") text = "尝试次数过多，请稍后再试。";
     if (code === "auth/operation-not-allowed") text = "登录方式未开启，请先在 Firebase Authentication 中启用邮箱/密码登录。";
+    if (code) text += "（" + code + "）";
     showAuthMessage(text, true);
   }).finally(function() {
     if (btn) { btn.disabled = false; btn.textContent = authMode === "register" ? "注册并进入" : "登录"; }

@@ -86,6 +86,42 @@ xuehuiCallAPI(sysPrompt,userPrompt,function(json){
  document.getElementById("xh-step2").style.display="";
 }, {response_format:{type:"json_object"}});
 }
+function xhTodayText(){
+ var d=new Date();
+ var y=d.getFullYear();
+ var m=String(d.getMonth()+1).padStart(2,"0");
+ var day=String(d.getDate()).padStart(2,"0");
+ return y+"-"+m+"-"+day;
+}
+function xhRenderTopics(topics){
+ xhState.topics=topics;
+ xhState.selectedTopic=null;
+ var list=document.getElementById("xh-topics-list");
+ if(!list)return;
+ list.innerHTML=topics.map(function(t,i){return '<div class="xh-topic-card" onclick="xuehuiSelectTopic('+i+',this)" style="padding:12px 14px;border-radius:10px;border:2px solid var(--border-glow);background:var(--bg-card);cursor:pointer;transition:all .2s"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap"><span style="font-size:12px;color:var(--purple);font-weight:700">#'+(i+1)+'</span><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:var(--purple-dim);color:var(--purple)">'+(t.element||"热点选题")+'</span>'+(t.hotTopic?'<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(245,158,11,.14);color:#f59e0b">热点：'+t.hotTopic+'</span>':"")+'</div><div style="font-size:13px;font-weight:600;color:var(--text-primary)">'+t.title+'</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">'+(t.idea||t.reason||"")+'</div></div>'}).join("");
+ document.getElementById("xh-step2").style.display="";
+}
+function xuehuiStep1Hot(){if(!apiConfig||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return;}
+ xhState.industry=document.getElementById("xh-industry").value.trim();
+ xhState.audience=document.getElementById("xh-audience").value.trim();
+ var els=Array.from(document.getElementById("xh-elements").querySelectorAll(".select-chip.selected")).map(function(c){return c.dataset.val});
+ if(!xhState.industry||!xhState.audience){alert("请填写行业和目标人群");return}
+ if(els.length===0){alert("请至少选择一个爆款元素");return}
+ xhState.elements=els;
+ var perEl=els.length===1?8:4;
+ var today=xhTodayText();
+ var elementRules=xhState.elements.map(function(n){var d=xhElementDetails[n];if(!d)return"【"+n+"】无详细规则";return"【"+n+"】句式："+d.rules+" 示例："+d.example;}).join("\n\n");
+ var sysPrompt="你是短视频热点爆款选题研究员，精通薛辉内容体系。你需要根据用户行业、目标人群、已选择的爆款元素，结合当前日期附近的互联网热点事件、平台话题、社会情绪和内容趋势，生成可直接进入后续文案流程的爆款选题。\n\n硬性要求：\n1. 优先参考当前日期附近最近30天的热点，其次最近90天。\n2. 不要把旧年份热点、旧梗、旧事件伪装成最新热点；除非它近期重新被讨论，并在idea里说明。\n3. 如果当前模型不能真实联网，不要编造具体新闻事实；可以基于当前日期和公开趋势做保守推断，并在idea里标注“趋势推断”。\n4. 每个选题必须同时符合所选爆款元素的句式逻辑和热点话题的传播情绪。\n5. 标题要口语化、有冲突、有点击欲，像短视频爆款标题。\n6. 只输出JSON对象，不要markdown，不要解释。";
+ var userPrompt="当前日期："+today+"\n行业："+xhState.industry+"\n目标人群："+xhState.audience+"\n爆款元素："+els.join("、")+"\n每个元素生成数量："+perEl+"\n\n爆款元素规则：\n"+elementRules+"\n\n请结合当下热点事件或话题生成选题。输出格式：{\"topics\":[{\"id\":1,\"title\":\"选题标题\",\"element\":\"爆款元素名\",\"hotTopic\":\"关联的热点事件/话题/趋势\",\"idea\":\"为什么这个热点适合这个人群，以及如何符合该爆款元素\"}]}";
+ var btn=document.getElementById("xh-hot-topic-btn");
+ if(btn){btn.textContent="结合热点生成中...";btn.disabled=true;}
+ xuehuiCallAPI(sysPrompt,userPrompt,function(json){
+  if(btn){btn.textContent="🔥 结合热点生成爆款选题";btn.disabled=false;}
+  var topics=json.topics||[];
+  if(!Array.isArray(topics)||topics.length===0){alert("热点选题生成失败，请重试");return}
+  xhRenderTopics(topics);
+ }, {response_format:{type:"json_object"},temperature:0.45,max_tokens:3500});
+}
 function xuehuiSelectTopic_orig(idx,el){
 document.querySelectorAll(".xh-topic-card").forEach(function(c){c.style.borderColor="var(--border-glow)";c.style.background="var(--bg-card)"});
 el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";

@@ -1399,17 +1399,29 @@ return prompt;
 var dachuanLastPrompt="",dachuanLastResult="";
 function dcExtractOralScript(content){
 var text=String(content||"").trim();
-var m=text.match(/(?:【纯口播文案】|#?\s*纯口播文案|【口播文案】|#?\s*口播文案)([\s\S]*?)(?=\n\s*(?:【|#\s|字幕重点|投放建议|画面建议|修改|$))/);
-return (m&&m[1]?m[1].trim():text).replace(/^[:：\s]+/,"").trim();
+var re=/(?:^|\n)\s*(?:#{1,4}\s*)?(?:【纯口播文案】|纯口播文案|【口播文案】|口播文案)\s*[:：]?\s*\n?([\s\S]*?)(?=\n\s*(?:#{1,4}\s*)?(?:【[^】]+】|字幕重点|投放建议|画面建议|拍摄画面|转化收口|修改)|$)/g;
+var parts=[],m;
+while((m=re.exec(text))!==null){
+if(m[1]&&m[1].trim())parts.push(m[1].trim().replace(/^[:：\s]+/,"").trim());
+}
+return parts.join("\n\n");
+}
+function dcRemoveOralSection(content){
+var text=String(content||"").trim();
+return text.replace(/(?:^|\n)\s*(?:#{1,4}\s*)?(?:【纯口播文案】|纯口播文案|【口播文案】|口播文案)\s*[:：]?\s*\n?[\s\S]*?(?=\n\s*(?:#{1,4}\s*)?(?:【[^】]+】|字幕重点|投放建议|画面建议|拍摄画面|转化收口|修改)|$)/g,function(match){
+return /\n\s*(?:#{1,4}\s*)?(?:【[^】]+】|字幕重点|投放建议|画面建议|拍摄画面|转化收口|修改|$)/.test(match)?"\n":"";
+}).trim();
 }
 function dcRenderFormResult(content){
 dachuanLastResult=content||"";
 var wrap=document.getElementById("dc-form-result-area");
 var full=document.getElementById("dc-full-result");
 var oral=document.getElementById("dc-oral-result");
+var oralText=dcExtractOralScript(content||"");
+var cleanFull=dcRemoveOralSection(content||"");
 if(wrap)wrap.style.display="block";
-if(full)full.innerHTML=escapeChatText(content||"");
-if(oral)oral.innerHTML=escapeChatText(dcExtractOralScript(content||""));
+if(full)full.innerHTML=escapeChatText(cleanFull||"已提取到下方纯口播文案。");
+if(oral)oral.innerHTML=escapeChatText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”或在修改意见里要求：只输出纯口播文案。");
 }
 function dcSetFormLoading(isLoading,label){
 var buttons=document.querySelectorAll("#chat-form-dachuan .chat-form-submit");
@@ -1435,7 +1447,7 @@ dcRenderFormResult(data.choices[0].message.content);
 function submitDachuanForm(){
 var prompt=buildDachuanFormPrompt();
 if(!prompt){alert("请先填写产品/类目、产品卖点和目标用户");return}
-dachuanLastPrompt=prompt+"\n\n请额外单独输出一个【纯口播文案】板块，只保留可以直接拍摄朗读的口播逐字稿，不要混入画面建议、字幕重点、投放建议或分析说明。";
+dachuanLastPrompt=prompt+"\n\n输出时请把口播逐字稿统一放在最后的【纯口播文案】板块里；前面的生成结果只保留策略、结构、画面建议、字幕重点和投放建议，不要重复出现【口播文案】。";
 dcCallFormApi([{role:"system",content:agents["1-1"].systemPrompt},{role:"user",content:dachuanLastPrompt}],"生成中...");
 }
 function adjustDachuanFormResult(){
@@ -1443,16 +1455,16 @@ var input=document.getElementById("dc-adjust-input");
 var adjust=input?String(input.value||"").trim():"";
 if(!adjust){alert("请先输入修改意见");return}
 if(!dachuanLastResult){alert("请先生成一次脚本");return}
-var prompt="请根据以下修改意见，重新优化上一版大川电商脚本。保留大川内容体系的方法论，只返回优化后的完整结果，并继续单独输出【纯口播文案】板块。\n\n修改意见："+adjust+"\n\n上一版内容：\n"+dachuanLastResult;
+var prompt="请根据以下修改意见，重新优化上一版大川电商脚本。保留大川内容体系的方法论，只返回优化后的完整结果。输出时请把口播逐字稿统一放在最后的【纯口播文案】板块里；前面的生成结果不要重复出现【口播文案】。\n\n修改意见："+adjust+"\n\n上一版内容：\n"+dachuanLastResult;
 dcCallFormApi([{role:"system",content:agents["1-1"].systemPrompt},{role:"user",content:prompt}],"修改中...");
 }
 function regenerateDachuanForm(){
 if(!dachuanLastPrompt){
 var prompt=buildDachuanFormPrompt();
 if(!prompt){alert("请先填写产品/类目、产品卖点和目标用户");return}
-dachuanLastPrompt=prompt+"\n\n请额外单独输出一个【纯口播文案】板块，只保留可以直接拍摄朗读的口播逐字稿，不要混入画面建议、字幕重点、投放建议或分析说明。";
+dachuanLastPrompt=prompt+"\n\n输出时请把口播逐字稿统一放在最后的【纯口播文案】板块里；前面的生成结果只保留策略、结构、画面建议、字幕重点和投放建议，不要重复出现【口播文案】。";
 }
-dcCallFormApi([{role:"system",content:agents["1-1"].systemPrompt},{role:"user",content:dachuanLastPrompt+"\n\n请重新生成一版，角度、开头钩子和表达方式要和上一版有明显差异，并继续单独输出【纯口播文案】板块。"}],"重新生成中...");
+dcCallFormApi([{role:"system",content:agents["1-1"].systemPrompt},{role:"user",content:dachuanLastPrompt+"\n\n请重新生成一版，角度、开头钩子和表达方式要和上一版有明显差异。口播逐字稿只放在最后的【纯口播文案】板块，前面的生成结果不要重复出现【口播文案】。"}],"重新生成中...");
 }
 function submitDachuanFormToChat(){
 if(!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}

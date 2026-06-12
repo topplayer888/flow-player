@@ -453,7 +453,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .theme-light{--bg-deep:#f6f8fb;--bg-panel:#ffffff;--bg-card:#f8fafc;--border-glow:#d9e1ec;--cyan:#2563eb;--cyan-dim:rgba(37,99,235,.1);--purple:#4f46e5;--purple-dim:rgba(79,70,229,.1);--gold:#d97706;--gold-dim:rgba(217,119,6,.1);--text-primary:#111827;--text-secondary:#4b5563;--text-muted:#8a94a6}
 .theme-light #bg-canvas{opacity:0}
 .theme-light .data-stream{display:none}
-.theme-light .app-container{background:radial-gradient(circle at 48% 0%,rgba(37,99,235,.09),transparent 32%),linear-gradient(180deg,#fbfdff 0%,#f6f8fb 48%,#f2f5f9 100%)}
+.theme-light .app-container{background:#f7f9fc}
 .theme-light .sidebar-left,.theme-light .sidebar-right{background:rgba(255,255,255,.92);border-color:#d9e1ec;box-shadow:0 12px 34px rgba(15,23,42,.05);backdrop-filter:blur(10px)}
 .theme-light .logo-area,.theme-light .right-header,.theme-light .sidebar-footer{border-color:#e3e9f2}
 .theme-light .logo-icon{background:linear-gradient(135deg,#2563eb,#7c3aed);box-shadow:0 10px 24px rgba(37,99,235,.18);color:#fff}

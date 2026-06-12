@@ -1427,7 +1427,7 @@ function dcSetFormLoading(isLoading,label){
 var buttons=document.querySelectorAll("#chat-form-dachuan .chat-form-submit");
 buttons.forEach(function(btn){btn.disabled=!!isLoading});
 var first=document.querySelector("#chat-form-dachuan .chat-form-submit");
-if(first)first.textContent=isLoading?(label||"生成中..."):"🌊 生成电商脚本";
+if(first)first.textContent=isLoading?(label||"生成中..."):"🌊 直接生成脚本";
 }
 function dcCallFormApi(messages,label){
 if(!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}

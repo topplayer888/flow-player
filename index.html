@@ -67,7 +67,7 @@
 <div class="chat-form-field"><label><span class="field-icon">⚙️</span> 生成设置</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><select id="dc-count"><option value="1条">1条脚本</option><option value="3条" selected>3条脚本</option><option value="5条">5条脚本</option></select><select id="dc-duration"><option value="30秒以内">30秒以内</option><option value="30-60秒" selected>30-60秒</option><option value="60-90秒">60-90秒</option><option value="90-120秒">90-120秒</option><option value="120秒以上">120秒以上</option></select></div></div>
 <div class="chat-form-field"><label><span class="field-icon">📝</span> 补充要求（选填）</label><textarea id="dc-extra" placeholder="例如：语气更狠一点、适合千川投放、不要夸大功效、要有直播间引导..."></textarea></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
-<button class="chat-form-submit" onclick="submitDachuanForm()">🌊 生成电商脚本</button>
+<button class="chat-form-submit" onclick="submitDachuanForm()">🌊 直接生成脚本</button>
 <button class="chat-form-submit" onclick="submitDachuanFormToChat()">↗ 跳转到对话式并生成脚本</button>
 </div>
 <div id="dc-form-result-area" style="display:none;margin-top:14px">
@@ -354,7 +354,7 @@
 <script src="modules/tiejia.js?v=202606051330"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606121110"></script>
+<script src="app.js?v=202606121120"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">

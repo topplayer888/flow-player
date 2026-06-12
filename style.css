@@ -483,3 +483,19 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .theme-light .select-chip.selected,.theme-light .chat-question-chip:hover{background:#eef5ff;border-color:#93c5fd;color:#1d4ed8}
 .theme-light .sidebar-settings-btn{--settings-accent:#2563eb;--settings-bg:#f3f7ff;--settings-border:#bfdbfe;--settings-icon-bg:rgba(37,99,235,.1);color:var(--settings-accent)}
 .theme-light .sidebar-settings-btn:hover{background:#eef5ff;border-color:#93c5fd;box-shadow:0 8px 18px rgba(37,99,235,.12)}
+
+.theme-light #bg-canvas,.theme-light #fx-canvas{display:none!important}
+.theme-light{--cyan:#2563eb;--purple:#475569;--gold:#64748b;--cyan-dim:rgba(37,99,235,.08);--purple-dim:rgba(71,85,105,.08);--gold-dim:rgba(100,116,139,.08)}
+.theme-light .logo-icon{background:#2563eb!important;box-shadow:0 8px 18px rgba(37,99,235,.16)!important}
+.theme-light .content-title .accent{background:none!important;-webkit-text-fill-color:initial!important;color:#2563eb!important}
+.theme-light .nav-icon{background:#eef4ff!important;color:#2563eb!important}
+.theme-light .nav-item.active{background:#eef4ff!important;border-color:#dbeafe!important;border-left-color:#2563eb!important}
+.theme-light .mode-card-icon{background:#f1f5f9!important;color:#2563eb!important;box-shadow:none!important}
+.theme-light .mode-card:nth-child(1) .mode-card-icon,.theme-light .mode-card:nth-child(2) .mode-card-icon,.theme-light .mode-card:nth-child(3) .mode-card-icon,.theme-light .mode-card:nth-child(4) .mode-card-icon{background:#f1f5f9!important;color:#2563eb!important;box-shadow:none!important}
+.theme-light .mode-card::before,.theme-light .mode-card-scanline,.theme-light .mode-card-corner{display:none!important}
+.theme-light .mode-card-enter,.theme-light .mode-card-enter-arrow,.theme-light .mode-card-status.active{color:#2563eb!important}
+.theme-light .mode-card-dot.active,.theme-light .right-mode-dot{background:#2563eb!important;box-shadow:none!important}
+.theme-light .chat-msg.assistant .chat-avatar{background:#f1f5f9!important;color:#475569!important}
+.theme-light .chat-msg.user .chat-avatar{background:#eaf2ff!important;color:#2563eb!important}
+.theme-light .chat-send,.theme-light .sidebar-api-save,.theme-light .api-config-hint{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;box-shadow:0 8px 18px rgba(37,99,235,.18)!important}
+.theme-light .chat-send:hover,.theme-light .sidebar-api-save:hover,.theme-light .api-config-hint:hover{background:#1d4ed8!important;box-shadow:0 10px 22px rgba(37,99,235,.22)!important}

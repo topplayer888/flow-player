@@ -1508,6 +1508,118 @@ if(el.classList.contains("selected")){el.classList.remove("selected");return}
 if(selected.length>=max){selected[0].classList.remove("selected")}
 el.classList.add("selected");
 }
+var mayuanFormLastPrompt="",mayuanFormLastResult="";
+function myVal(id){
+var el=document.getElementById(id);
+return el?String(el.value||"").trim():"";
+}
+function buildMayuanFormPrompt(){
+var product=myVal("form-product");
+var usp=myVal("form-usp");
+var audience=myVal("form-audience");
+if(!product||!usp||!audience)return null;
+var goal=myVal("form-goal")||"种草";
+var duration=myVal("form-duration")||"30-60秒";
+var scripts=dcSelected("script-chips")||"AI推荐";
+var visuals=dcSelected("visual-chips")||"AI推荐";
+var extra=myVal("form-extra")||"无";
+var isV2=chatKey==="1-3";
+var prompt=(isV2?"请按马源2.0内容专项体系，为以下产品生成可测试的广告素材方案和短视频脚本。\n\n":"请按马源内容体系，为以下产品生成短视频引流脚本。\n\n")+
+"产品信息："+product+"\n"+
+"核心卖点："+usp+"\n"+
+"目标人群："+audience+"\n"+
+"营销目标："+goal+"\n"+
+"视频时长："+duration+"\n"+
+"脚本手法："+scripts+"\n"+
+"视觉手法："+visuals+"\n"+
+"补充信息："+extra+"\n\n";
+if(isV2){
+prompt+="输出要求：先提炼内容专项机会、目标人群、用户痛点、核心卖点、脚本手法、视觉手法和测试假设，再生成脚本。最后单独输出【纯口播文案】板块，只保留可直接朗读拍摄的逐字稿。";
+}else{
+prompt+="输出要求：先做策略、人群、脚本手法和视觉手法分析，再生成完整脚本。最后单独输出【纯口播文案】板块，只保留可直接朗读拍摄的逐字稿。";
+}
+return prompt;
+}
+function myExtractOralScript(content){
+return dcExtractOralScript(content);
+}
+function myRemoveOralSection(content){
+return dcRemoveOralSection(content);
+}
+function renderMayuanFormResult(content){
+mayuanFormLastResult=content||"";
+var wrap=document.getElementById("form-result-area");
+var full=document.getElementById("my-full-result");
+var oral=document.getElementById("my-oral-result");
+var oralText=myExtractOralScript(content||"");
+var cleanFull=myRemoveOralSection(content||"");
+if(wrap)wrap.style.display="block";
+if(full)full.innerHTML=escapeChatText(cleanFull||"已提取到下方纯口播文案。");
+if(oral)oral.innerHTML=escapeChatText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”或在修改意见里要求：只输出纯口播文案。");
+}
+function setMayuanFormLoading(isLoading,label){
+var buttons=document.querySelectorAll("#chat-form-panel .chat-form-submit");
+buttons.forEach(function(btn){btn.disabled=!!isLoading});
+var first=document.querySelector("#chat-form-panel .chat-form-submit");
+if(first)first.textContent=isLoading?(label||"生成中..."):"🚀 直接生成脚本";
+}
+function callMayuanFormApi(messages,label){
+if(!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
+var wrap=document.getElementById("form-result-area");
+var full=document.getElementById("my-full-result");
+var oral=document.getElementById("my-oral-result");
+if(wrap)wrap.style.display="block";
+if(full)full.textContent=label||"生成中...";
+if(oral)oral.textContent="正在整理纯口播文案...";
+setMayuanFormLoading(true,label||"生成中...");
+fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:messages,temperature:.7,max_tokens:5000})}).then(function(r){return r.json()}).then(function(data){
+if(data.error){renderMayuanFormResult("API 错误："+data.error.message);return}
+if(!data.choices||!data.choices[0]||!data.choices[0].message){renderMayuanFormResult("API 返回格式异常");return}
+renderMayuanFormResult(data.choices[0].message.content);
+}).catch(function(e){renderMayuanFormResult("网络请求失败："+e.message)}).finally(function(){setMayuanFormLoading(false)});
+}
+function submitFormScript(){
+var agent=getActiveChatAgent()||agents["1-0"];
+var prompt=buildMayuanFormPrompt();
+if(!prompt){alert("请先填写产品信息、核心卖点和目标人群");return}
+mayuanFormLastPrompt=prompt+"\n\n口播逐字稿只放在最后的【纯口播文案】板块，前面的生成结果不要重复出现【口播文案】。";
+callMayuanFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)},{role:"user",content:mayuanFormLastPrompt}],"生成中...");
+}
+function submitFormScriptToChat(){
+if(!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
+var prompt=buildMayuanFormPrompt();
+if(!prompt){alert("请先填写产品信息、核心卖点和目标人群");return}
+switchChatMode("qa");
+addMessage("user",prompt);
+showTyping();
+callAgent(prompt);
+}
+function adjustMayuanFormResult(){
+var input=document.getElementById("my-adjust-input");
+var adjust=input?String(input.value||"").trim():"";
+if(!adjust){alert("请先输入修改意见");return}
+if(!mayuanFormLastResult){alert("请先生成一次脚本");return}
+var agent=getActiveChatAgent()||agents["1-0"];
+var prompt="请根据以下修改意见，重新优化上一版内容。只返回优化后的完整结果，并把口播逐字稿统一放在最后的【纯口播文案】板块，前面的生成结果不要重复出现【口播文案】。\n\n修改意见："+adjust+"\n\n上一版内容：\n"+mayuanFormLastResult;
+callMayuanFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)},{role:"user",content:prompt}],"修改中...");
+}
+function regenerateMayuanForm(){
+var agent=getActiveChatAgent()||agents["1-0"];
+if(!mayuanFormLastPrompt){
+var prompt=buildMayuanFormPrompt();
+if(!prompt){alert("请先填写产品信息、核心卖点和目标人群");return}
+mayuanFormLastPrompt=prompt+"\n\n口播逐字稿只放在最后的【纯口播文案】板块，前面的生成结果不要重复出现【口播文案】。";
+}
+callMayuanFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)},{role:"user",content:mayuanFormLastPrompt+"\n\n请重新生成一版，角度、开头钩子和表达方式要和上一版有明显差异。"}],"重新生成中...");
+}
+function copyMayuanOralScript(){
+var el=document.getElementById("my-oral-result");
+var text=el?String(el.textContent||"").trim():"";
+if(!text||text.indexOf("未识别到独立口播文案")>=0){alert("暂无可复制的口播文案");return}
+if(navigator.clipboard&&navigator.clipboard.writeText){
+navigator.clipboard.writeText(text).then(function(){alert("口播文案已复制")}).catch(function(){fallbackCopyText(text)});
+}else{fallbackCopyText(text)}
+}
 function openSettings(e){var o=document.getElementById("settings-overlay");o.classList.add("open");loadConfigUI();updateSoundUI();updateThemeUI();var b=document.querySelector("#settings-tab-theme .sidebar-api-save");if(b){b.onclick=saveThemeSettings}}function closeSettings(e){if(e&&e.target!==document.getElementById("settings-overlay"))return;document.getElementById("settings-overlay").classList.remove("open")}function switchSettingsTab(tab,btn){document.querySelectorAll(".settings-tab").forEach(function(t){t.classList.remove("active")});btn.classList.add("active");document.querySelectorAll(".settings-tab-content").forEach(function(c){c.classList.remove("active")});document.getElementById("settings-tab-"+tab).classList.add("active")}
 var MODEL_ENDPOINTS={"deepseek-v4-flash":"https://api.deepseek.com/v1/chat/completions","deepseek-v4-pro":"https://api.deepseek.com/v1/chat/completions","gpt-4o":"https://api.openai.com/v1/chat/completions","gpt-4o-mini":"https://api.openai.com/v1/chat/completions","gpt-4-turbo":"https://api.openai.com/v1/chat/completions","qwen-plus":"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions","qwen-max":"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions","glm-4":"https://open.bigmodel.cn/api/paas/v4/chat/completions","moonshot-v1-8k":"https://api.moonshot.cn/v1/chat/completions"};function onModelSelectChange(){var sel=document.getElementById("set-model");var ci=document.getElementById("set-model-custom");if(!sel.value){ci.style.display="none";ci.value="";return}if(sel.value==="__custom__"){ci.style.display="";ci.focus()}else{ci.style.display="none";ci.value="";var ep=MODEL_ENDPOINTS[sel.value];if(ep){document.getElementById("set-endpoint").value=ep}}}function saveSettingsApi(){apiConfig.endpoint=normalizeEndpoint(document.getElementById("set-endpoint").value.trim());apiConfig.apikey=document.getElementById("set-apikey").value.trim();var sel=document.getElementById("set-model");var model=sel.value==="__custom__"?document.getElementById("set-model-custom").value.trim():sel.value;if(!model){alert("请先在模型选择栏选择你的模型");return}apiConfig.model=model;localStorage.setItem("fp_endpoint",apiConfig.endpoint);localStorage.setItem("fp_apikey",apiConfig.apikey);localStorage.setItem("fp_model",apiConfig.model);document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus()}function clearSettingsApi(){document.getElementById("set-endpoint").value="";document.getElementById("set-apikey").value="";document.getElementById("set-model").value="";document.getElementById("set-model-custom").style.display="none";document.getElementById("set-model-custom").value="";apiConfig.endpoint="https://api.deepseek.com/v1/chat/completions";apiConfig.apikey="";apiConfig.model="";localStorage.removeItem("fp_endpoint");localStorage.removeItem("fp_apikey");localStorage.removeItem("fp_model");document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus()}
 function updateApiStatus(){var btn=document.querySelector(".sidebar-settings-btn");if(!btn)return;if(apiConfig.apikey){if(themeWasteland){btn.style.color="#d4a830";btn.style.borderColor="rgba(200,132,42,.4)"}else{btn.style.color="#10b981";btn.style.borderColor="rgba(16,185,129,.3)"}}else{btn.style.color="var(--text-muted)";btn.style.borderColor="var(--border-glow)"}}

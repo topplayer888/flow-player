@@ -53,8 +53,31 @@
 <div class="chat-form-field"><label><span class="field-icon">👁️</span> 视觉手法 <span style="font-size:10px;color:var(--text-muted);font-weight:400">（选择 1-2 种）</span></label><div class="select-chips" id="visual-chips"><span class="select-chip" data-val="同框" onclick="toggleChip(this,'visual-chips',2)">同框</span><span class="select-chip" data-val="超级效果" onclick="toggleChip(this,'visual-chips',2)">超级效果</span><span class="select-chip" data-val="蒙太奇" onclick="toggleChip(this,'visual-chips',2)">蒙太奇</span><span class="select-chip" data-val="符号动作" onclick="toggleChip(this,'visual-chips',2)">符号动作</span><span class="select-chip" data-val="重复" onclick="toggleChip(this,'visual-chips',2)">重复</span><span class="select-chip" data-val="共情" onclick="toggleChip(this,'visual-chips',2)">共情</span></div></div>
 <div style="font-size:12px;color:var(--purple);font-weight:600;margin:14px 0 10px">步骤 4/4 · 补充信息与生成</div>
 <div class="chat-form-field"><label><span class="field-icon">📝</span> 补充信息（选填）</label><textarea id="form-extra" placeholder="价格区间、主要竞品、使用场景、是否有权威背书、独特视觉要素..."></textarea></div>
-<button class="chat-form-submit" onclick="submitFormScript()">🚀 生成引流脚本</button>
-<div id="form-result-area" style="display:none;margin-top:12px"></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+<button class="chat-form-submit" onclick="submitFormScript()">🚀 直接生成脚本</button>
+<button class="chat-form-submit" onclick="submitFormScriptToChat()">↗ 跳转到对话式并生成脚本</button>
+</div>
+<div id="form-result-area" style="display:none;margin-top:14px">
+  <div style="padding:14px;border-radius:12px;border:1px solid var(--border-glow);background:rgba(15,23,42,.55)">
+    <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:8px">🚀 生成结果</div>
+    <div id="my-full-result" style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);font-size:13px"></div>
+  </div>
+  <div style="margin-top:12px;padding:14px;border-radius:12px;border:1px solid rgba(16,185,129,.28);background:rgba(16,185,129,.06)">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
+      <div style="font-size:13px;font-weight:700;color:var(--text-primary)">🎤 纯口播文案</div>
+      <button onclick="copyMayuanOralScript()" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(16,185,129,.35);background:rgba(16,185,129,.12);color:var(--text-primary);font-size:12px;cursor:pointer">复制</button>
+    </div>
+    <div id="my-oral-result" style="white-space:pre-wrap;line-height:1.9;color:var(--text-primary);font-size:14px"></div>
+  </div>
+  <div style="margin-top:12px;padding:12px;border-radius:12px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)">
+    <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px">✏️ 修改与重新生成</div>
+    <textarea id="my-adjust-input" placeholder="输入修改意见，例如：只保留口播文案、开头更抓人、压缩到30秒、换成小红书风格..." style="width:100%;min-height:70px;padding:10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px">
+      <button class="chat-form-submit" onclick="adjustMayuanFormResult()">提交修改</button>
+      <button class="chat-form-submit" onclick="regenerateMayuanForm()">重新生成</button>
+    </div>
+  </div>
+</div>
 </div>
 <div class="chat-form-panel" id="chat-form-dachuan" style="display:none">
 <div class="chat-form-field"><label><span class="field-icon">📦</span> 产品/类目</label><textarea id="dc-product" placeholder="例如：儿童护眼台灯、低脂即食鸡胸肉、英语启蒙课程..."></textarea></div>
@@ -357,7 +380,7 @@
 <script src="modules/tiejia.js?v=202606051330"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606121140"></script>
+<script src="app.js?v=202606121150"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">

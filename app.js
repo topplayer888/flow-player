@@ -814,11 +814,14 @@ questions:[
 var presetQuestions=kyrieLaunch?getKyrieTaskQuestions(kyrieLaunch.id,pendingKyrieTaskIndex):(ipLaunch?getIPTaskQuestions(ipLaunch.id,pendingIPTaskIndex):agent.questions);
 document.getElementById("chat-questions").innerHTML=presetQuestions.map(function(q){return '<span class="chat-question-chip" onclick="sendPreset(this.textContent)">'+q+"</span>"}).join("");
 document.getElementById("chat-overlay").classList.add("open");
-chatOpen=true;chatMessages=[];addHistory(section,mode);if(chatKey==='0-3'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else if(chatKey==='0-2'||chatKey.indexOf('2-')===0){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(chatKey==='1-1'){document.getElementById('chat-mode-tabs').style.display='';switchChatMode('form')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});var activeTab=document.querySelectorAll('.chat-mode-tab')[chatMode==='form'?1:0];if(activeTab)activeTab.classList.add('active');
+chatOpen=true;chatMessages=[];addHistory(section,mode);if(chatKey==='0-3'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else if(chatKey==='0-2'||chatKey.indexOf('2-')===0){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(chatKey==='1-1'){document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});var activeTab=document.querySelectorAll('.chat-mode-tab')[chatMode==='form'?1:0];if(activeTab)activeTab.classList.add('active');
 if(isMayuanChat())window.mayuanDocActiveStatus=false;
 renderMayuanDocumentTools();
 addMessage("assistant",ipLaunch?getIPTaskIntro(ipLaunch.id,pendingIPTaskIndex):(kyrieLaunch?getKyrieTaskIntro(kyrieLaunch.id,pendingKyrieTaskIndex):agent.opening));
 pendingKyrieModule="";pendingKyrieTaskIndex=-1;pendingIPModule="";pendingIPTaskIndex=-1;
+}
+if(agents["1-1"]&&agents["1-1"].opening.indexOf("右上角 → 表单式")<0){
+agents["1-1"].opening+="\n\n你也可以直接在右边表单式界面填写产品相关信息，点击右上角 → 表单式。";
 }
 var chatMode="qa";
 

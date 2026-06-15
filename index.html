@@ -369,10 +369,12 @@
 <div id="mayuan-upload-wrap" style="display:none;position:relative;align-self:flex-end">
 <button id="mayuan-upload-plus" onclick="toggleMayuanUploadMenu(event)" title="上传本地文档" style="width:34px;height:34px;border-radius:50%;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</button>
 <div id="mayuan-upload-menu" style="display:none;position:absolute;left:0;bottom:44px;width:260px;padding:12px;border-radius:12px;border:1px solid var(--border-glow);background:var(--bg-panel);box-shadow:0 18px 50px rgba(0,0,0,.35);z-index:20">
+<div id="upload-menu-content">
 <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:6px">上传本地文档</div>
 <div style="font-size:11px;line-height:1.7;color:var(--text-secondary);margin-bottom:10px">支持 txt / md / csv / json / docx / pdf。上传后会根据文档内容提炼产品信息、目标人群和核心卖点，并把整理结果输出到聊天区。</div>
 <button onclick="triggerMayuanDocUpload()" style="width:100%;padding:8px 10px;border-radius:8px;border:0;background:var(--purple);color:#fff;font-size:12px;font-weight:600;cursor:pointer">选择文档</button>
 <div id="mayuan-doc-status" style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-top:8px">上传后提炼产品、人群和卖点</div>
+</div>
 </div>
 </div>
 <textarea class="chat-input" id="chat-input" placeholder="输入你的需求..." rows="1" onkeydown="handleChatKey(event)"></textarea>
@@ -401,8 +403,10 @@
 <script src="modules/tiejia.js?v=202606051330"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606151008"></script>
+<script src="app.js?v=202606151009"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
+<input id="kyrie-image-upload" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" style="display:none" onchange="handleKyrieImageUpload(event)">
+<input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
 <div class="settings-panel" onclick="event.stopPropagation()">

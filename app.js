@@ -1705,6 +1705,18 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&chatOpen)cl
 function toggleMobileMenu(){var s=document.querySelector(".sidebar-left");var o=document.getElementById("mobile-overlay");if(s.classList.contains("mobile-open")){closeMobileMenu()}else{s.classList.add("mobile-open");o.classList.add("open")}}
 function closeMobileMenu(){document.querySelector(".sidebar-left").classList.remove("mobile-open");document.getElementById("mobile-overlay").classList.remove("open")}
 function handleResize(){var m=document.getElementById("menu-toggle");if(window.innerWidth<=768){m.style.display="flex"}else{m.style.display="none";closeMobileMenu()}}
+function refreshAfterAuthReady(){
+closeMobileMenu();
+handleResize();
+renderContent();
+renderRightModes();
+renderHistory();
+setTimeout(function(){
+handleResize();
+window.dispatchEvent(new Event("resize"));
+},80);
+}
+window.refreshAfterAuthReady=refreshAfterAuthReady;
 window.addEventListener("resize",handleResize);
 handleResize();
 renderContent();

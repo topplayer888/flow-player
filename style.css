@@ -423,7 +423,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .chat-send:hover{box-shadow:0 0 16px rgba(168,85,247,.3);transform:scale(1.05)}
 .chat-send:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 .kyrie-back-btn{margin:0 0 18px 2px;padding:10px 16px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(255,255,255,.04);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
-.kyrie-back-btn:hover{border-color:rgba(0,229,255,.45);color:var(--cyan);background:rgba(0,229,255,.08);transform:translateX(-2px)}
+.kyrie-back-btn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-dim);transform:translateX(-2px)}
 .kyrie-menu-grid,.kyrie-sub-grid{align-items:stretch}
 .kyrie-level-card .mode-card-desc,.kyrie-task-card .mode-card-desc{min-height:48px}
 .api-config-hint{display:inline-block;padding:6px 16px;border-radius:8px;background:linear-gradient(135deg,var(--purple),rgba(168,85,247,.6));color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none}
@@ -539,3 +539,10 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .theme-wasteland .mode-card:hover{border-color:rgba(200,132,42,.55)!important;box-shadow:0 14px 34px rgba(0,0,0,.36),0 0 18px rgba(200,132,42,.12)!important}
 .theme-wasteland .mode-card-features-area{background:rgba(12,8,4,.24)!important;border-color:rgba(200,132,42,.16)!important}
 .theme-wasteland .sidebar-left,.theme-wasteland .sidebar-right{background:linear-gradient(180deg,rgba(28,23,16,.98),rgba(18,14,9,.98))!important}
+
+.theme-wasteland .kyrie-back-btn{background:rgba(28,23,16,.72)!important;border-color:rgba(200,132,42,.34)!important;color:#d4a830!important;box-shadow:inset 0 1px 0 rgba(255,220,160,.04)!important}
+.theme-wasteland .kyrie-back-btn:hover{background:rgba(200,132,42,.12)!important;border-color:rgba(200,132,42,.62)!important;color:#ffd080!important;box-shadow:0 0 18px rgba(200,132,42,.12)!important}
+.theme-pureblack .kyrie-back-btn{background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.12)!important;color:#b8beca!important}
+.theme-pureblack .kyrie-back-btn:hover{background:rgba(255,255,255,.09)!important;border-color:rgba(255,255,255,.24)!important;color:#fff!important;box-shadow:none!important}
+.theme-light .kyrie-back-btn{background:#ffffff!important;border-color:#dbe3ee!important;color:#475569!important;box-shadow:0 8px 18px rgba(15,23,42,.045)!important}
+.theme-light .kyrie-back-btn:hover{background:#eef5ff!important;border-color:#93c5fd!important;color:#1d4ed8!important;box-shadow:0 10px 22px rgba(37,99,235,.1)!important}

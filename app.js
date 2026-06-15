@@ -1708,8 +1708,6 @@ function handleResize(){var m=document.getElementById("menu-toggle");if(window.i
 function refreshAfterAuthReady(){
 closeMobileMenu();
 handleResize();
-renderContent();
-renderRightModes();
 renderHistory();
 setTimeout(function(){
 handleResize();

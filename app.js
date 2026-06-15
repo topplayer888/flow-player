@@ -233,7 +233,7 @@ var override=modeDocOverrides[key]||{};
 if(/^\d+-\d+$/.test(key)){
 var p=key.split("-"),s=parseInt(p[0]),m=parseInt(p[1]),mode=sections[s]&&sections[s].modes[m],agent=agents[key];
 if(!mode)return null;
-return {key:key,kicker:"模式说明",title:override.title||mode.name,subtitle:(sections[s].title||"")+" / "+mode.name,icon:mode.icon,action:{type:"main",section:s,mode:m},what:override.what||mode.desc,audience:override.audience||["需要使用该模式完成内容生成或策略分析的用户"],prepare:override.prepare||["基础业务信息","目标用户","当前问题或生成目标"],input:override.input||"请按当前模式要求，描述你的产品、用户、目标和具体需求。",outputs:override.outputs||[mode.desc,agent&&agent.features?agent.features:"对应模式的生成结果"],scenarios:override.scenarios||["内容生成","策略分析","脚本优化"],tips:override.tips||["信息越具体，输出越可执行","生成后可以继续提交修改意见"]};
+return {key:key,kicker:"模式说明",title:override.title||mode.name,subtitle:(sections[s].title||"")+" / "+mode.name,icon:mode.icon,action:{type:"main",section:s,mode:m},what:override.what||mode.desc,methodology:override.methodology,audience:override.audience||["需要使用该模式完成内容生成或策略分析的用户"],prepare:override.prepare||["基础业务信息","目标用户","当前问题或生成目标"],input:override.input||"请按当前模式要求，描述你的产品、用户、目标和具体需求。",outputs:override.outputs||[mode.desc,agent&&agent.features?agent.features:"对应模式的生成结果"],scenarios:override.scenarios||["内容生成","策略分析","脚本优化"],tips:override.tips||["信息越具体，输出越可执行","生成后可以继续提交修改意见"]};
 }
 var parts=key.split(":");
 if(parts[0]==="kyrie"){

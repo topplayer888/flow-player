@@ -360,25 +360,55 @@ function xuehuiRecommendElements() {
 function xuehuiRecommendTemplates() {
   var industry = document.getElementById("xh-industry").value.trim();
   var audience = document.getElementById("xh-audience").value.trim();
-  if (!industry || !audience) return;
+  var container = document.getElementById("xh-templates");
+  if (!container) return;
   var element = xhState.selectedTopic ? xhState.selectedTopic.element : "";
-  var prompt = "行业：" + industry + "\n人群：" + audience + "\n选题：" + (xhState.selectedTopic ? xhState.selectedTopic.title : "") + "\n选题元素：" + element + "\n\n从以下4种模板推荐1-2个：讲故事类、共鸣型段子类、教知识类、晒过程类。只输出JSON数组。";
+  var title = xhState.selectedTopic ? xhState.selectedTopic.title : "";
+  var fallback = xhPickTemplateRecommendations(element, title);
+  xhApplyTemplateRecommendations(fallback);
+  if (!industry || !audience) return;
+  var prompt = "行业：" + industry + "\n人群：" + audience + "\n选题：" + title + "\n选题元素：" + element + "\n\n从以下4种模板中推荐1-2个最适合的文案模板：讲故事类、共鸣型段子类、教知识类、晒过程类。\n要求：只输出JSON数组，例如：[\"讲故事类\",\"教知识类\"]。不要输出解释。";
   xuehuiCallAPI("你是文案模板推荐专家。只输出JSON数组，不要markdown。", prompt, function(json) {
     var recs = xhParseJsonArray(json);
-    var container = document.getElementById("xh-templates");
-    if (!container || !recs.length) return;
-    container.querySelectorAll(".select-chip .rec-badge").forEach(function(b) { b.remove(); });
-    recs.forEach(function(key) {
-      var chip = container.querySelector('.select-chip[data-val="' + key + '"]');
-      if (chip && !chip.querySelector(".rec-badge")) {
-        var badge = document.createElement("span");
-        badge.className = "rec-badge";
-        badge.textContent = "推荐";
-        chip.appendChild(badge);
-        chip.classList.add("recommended");
-      }
-    });
+    xhApplyTemplateRecommendations(recs.length ? recs : fallback);
   }, { temperature: 0.3, max_tokens: 800 });
+}
+
+function xhPickTemplateRecommendations(element, title) {
+  var text = (element || "") + " " + (title || "");
+  if (/怀旧|故事|头牌|具体|场景|经历|过程/.test(text)) return ["讲故事类", "晒过程类"];
+  if (/荷尔蒙|对立|共鸣|情绪|吐槽|差别|反差|痛点/.test(text)) return ["共鸣型段子类", "讲故事类"];
+  if (/成本|避坑|最差|猎奇|知识|方法|清单|教程/.test(text)) return ["教知识类", "共鸣型段子类"];
+  return ["讲故事类", "教知识类"];
+}
+
+function xhNormalizeTemplateName(item) {
+  var text = typeof item === "string" ? item : (item && (item.name || item.template || item.type || item.title)) || "";
+  if (text.indexOf("故事") >= 0) return "讲故事类";
+  if (text.indexOf("共鸣") >= 0 || text.indexOf("段子") >= 0) return "共鸣型段子类";
+  if (text.indexOf("知识") >= 0 || text.indexOf("干货") >= 0 || text.indexOf("教程") >= 0) return "教知识类";
+  if (text.indexOf("过程") >= 0 || text.indexOf("记录") >= 0) return "晒过程类";
+  return text;
+}
+
+function xhApplyTemplateRecommendations(recs) {
+  var container = document.getElementById("xh-templates");
+  if (!container) return;
+  container.querySelectorAll(".select-chip .rec-badge").forEach(function(b) { b.remove(); });
+  container.querySelectorAll(".select-chip.recommended").forEach(function(c) { c.classList.remove("recommended"); });
+  var seen = {};
+  (recs || []).map(xhNormalizeTemplateName).forEach(function(key) {
+    if (seen[key]) return;
+    seen[key] = true;
+    var chip = container.querySelector('.select-chip[data-val="' + key + '"]');
+    if (chip && !chip.querySelector(".rec-badge")) {
+      var badge = document.createElement("span");
+      badge.className = "rec-badge";
+      badge.textContent = "推荐";
+      chip.appendChild(badge);
+      chip.classList.add("recommended");
+    }
+  });
 }
 
 function xuehuiRecommendOpenings() {

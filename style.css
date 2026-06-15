@@ -302,6 +302,9 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .mode-doc-section-text{font-size:13px;line-height:1.85;color:var(--text-secondary)}
 .mode-doc-section-text ul{margin:0;padding-left:18px}
 .mode-doc-section-text li{margin:3px 0}
+.mode-doc-method-block{padding:10px 0;border-top:1px dashed rgba(148,163,184,.16)}
+.mode-doc-method-block:first-child{padding-top:0;border-top:0}
+.mode-doc-method-title{font-size:12px;font-weight:800;color:var(--cyan);margin-bottom:6px}
 .mode-doc-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--border-glow);background:rgba(15,23,42,.18)}
 .mode-doc-primary,.mode-doc-secondary{border-radius:10px;padding:9px 15px;font-size:13px;font-weight:800;cursor:pointer}
 .mode-doc-primary{border:0;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff}

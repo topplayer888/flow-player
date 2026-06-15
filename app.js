@@ -179,7 +179,8 @@ var modeDocOverrides={
 };
 var currentModeDocAction=null;
 function modeDocButton(key){return '<button type="button" class="mode-doc-btn" data-doc-key="'+key+'">功能介绍</button>'}
-function modeCardTitle(title,key){return '<div class="mode-card-title-row"><div class="mode-card-name">'+title+'</div>'+modeDocButton(key)+'</div>'}
+function modeCardTop(icon,index,key){return '<div class="mode-card-top"><div class="mode-card-icon">'+icon+'</div><div class="mode-card-top-right"><div class="mode-card-index">'+index+'</div>'+modeDocButton(key)+'</div></div>'}
+function modeCardTitle(title){return '<div class="mode-card-name">'+title+'</div>'}
 function bindModeDocButtons(root){
 (root||document).querySelectorAll(".mode-doc-btn").forEach(function(btn){
 btn.addEventListener("click",function(e){
@@ -253,7 +254,7 @@ setTimeout(function(){
 var e=sections[_s];
 var n='<div class="content-header"><div class="content-title"><span class="accent">'+e.accent+"</span>"+e.title.replace(e.accent,"")+'</div><div class="content-desc">'+e.subtitle+" · "+e.desc+'</div></div><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid">'+e.modes.map(function(m,i){
 var ak=_s+"-"+i,has=!!agents[ak];
-return '<div class="mode-card'+(has?' active-agent':'')+'" data-mode="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+m.icon+'</div><div class="mode-card-index">NO.0'+(i+1)+'</div></div>'+modeCardTitle(m.name,ak)+(has?'<div class="mode-card-features-area"><div class="mode-card-features-text">'+(agents[ak].features||'')+'</div></div>':'')+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status'+(has?' active':'')+'"><span class="mode-card-dot'+(has?' active':'')+'"></span>'+(has?'已激活':'待更新')+'</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
+return '<div class="mode-card'+(has?' active-agent':'')+'" data-mode="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(m.icon,"NO.0"+(i+1),ak)+modeCardTitle(m.name)+(has?'<div class="mode-card-features-area"><div class="mode-card-features-text">'+(agents[ak].features||'')+'</div></div>':'')+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status'+(has?' active':'')+'"><span class="mode-card-dot'+(has?' active':'')+'"></span>'+(has?'已激活':'待更新')+'</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+"</div>";
 ca.innerHTML=n;ca.classList.remove("fading");
 var overall=document.getElementById("stat-overall");
@@ -334,7 +335,7 @@ ca.classList.add("fading");
 setTimeout(function(){
 var modules=getKyriePageModules();
 ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">Kyrie</span>直播方法论</div><div class="content-desc">直播策略 · 分层菜单式智能体</div></div><button class="kyrie-back-btn" type="button" onclick="renderContent()">← 返回上一层</button><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid kyrie-menu-grid">'+modules.map(function(m,i){
-return '<div class="mode-card kyrie-level-card" data-kyrie-module="'+m.id+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+m.icon+'</div><div class="mode-card-index">0'+(i+1)+'</div></div>'+modeCardTitle(m.title,"kyrie:"+m.id)+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>进入二级菜单</div><div class="mode-card-enter">选择 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
+return '<div class="mode-card kyrie-level-card" data-kyrie-module="'+m.id+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(m.icon,"0"+(i+1),"kyrie:"+m.id)+modeCardTitle(m.title)+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>进入二级菜单</div><div class="mode-card-enter">选择 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+'</div>';
 ca.classList.remove("fading");
 var overall=document.getElementById("stat-overall");if(overall){overall.textContent="已激活4";overall.className="stat-value"}
@@ -360,7 +361,7 @@ var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 setTimeout(function(){
 ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">'+module.title+'</span></div><div class="content-desc">Kyrie直播方法论 · 输入返回可回到上一级</div></div><button class="kyrie-back-btn" type="button" onclick="renderKyrieMenuPage()">← 返回上一级</button><div class="mode-grid kyrie-sub-grid">'+module.tasks.map(function(t,i){
-return '<div class="mode-card kyrie-task-card" data-kyrie-module="'+module.id+'" data-kyrie-task="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+module.icon+'</div><div class="mode-card-index">'+(i+1)+'</div></div>'+modeCardTitle(t.title,"kyrie:"+module.id+":"+i)+'<div class="mode-card-desc">'+t.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>开始执行</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
+return '<div class="mode-card kyrie-task-card" data-kyrie-module="'+module.id+'" data-kyrie-task="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(module.icon,(i+1),"kyrie:"+module.id+":"+i)+modeCardTitle(t.title)+'<div class="mode-card-desc">'+t.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>开始执行</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+'</div>';
 ca.classList.remove("fading");
 ca.querySelectorAll(".kyrie-task-card").forEach(function(card){
@@ -435,7 +436,7 @@ ca.classList.add("fading");
 setTimeout(function(){
 var modules=getIPPageModules();
 ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">IP访谈</span>策划工作台</div><div class="content-desc">爆款脚本创作 · 分层菜单式智能体</div></div><button class="kyrie-back-btn" type="button" onclick="renderContent()">← 返回上一层</button><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid kyrie-menu-grid ip-menu-grid">'+modules.map(function(m,i){
-return '<div class="mode-card kyrie-level-card ip-level-card" data-ip-module="'+m.id+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+m.icon+'</div><div class="mode-card-index">0'+(i+1)+'</div></div>'+modeCardTitle(m.title,"ip:"+m.id)+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>进入二级菜单</div><div class="mode-card-enter">选择 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
+return '<div class="mode-card kyrie-level-card ip-level-card" data-ip-module="'+m.id+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(m.icon,"0"+(i+1),"ip:"+m.id)+modeCardTitle(m.title)+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>进入二级菜单</div><div class="mode-card-enter">选择 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+'</div>';
 ca.classList.remove("fading");
 var overall=document.getElementById("stat-overall");if(overall){overall.textContent="已激活";overall.className="stat-value"}
@@ -461,7 +462,7 @@ var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 setTimeout(function(){
 ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">'+module.title+'</span></div><div class="content-desc">IP访谈策划工作台 · 输入返回可回到上一级</div></div><button class="kyrie-back-btn" type="button" onclick="renderIPMenuPage()">← 返回上一级</button><div class="mode-grid kyrie-sub-grid ip-sub-grid">'+module.tasks.map(function(t,i){
-return '<div class="mode-card kyrie-task-card ip-task-card" data-ip-module="'+module.id+'" data-ip-task="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner"><div class="mode-card-top"><div class="mode-card-icon">'+module.icon+'</div><div class="mode-card-index">'+(i+1)+'</div></div>'+modeCardTitle(t.title,"ip:"+module.id+":"+i)+'<div class="mode-card-desc">'+t.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>开始执行</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
+return '<div class="mode-card kyrie-task-card ip-task-card" data-ip-module="'+module.id+'" data-ip-task="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(module.icon,(i+1),"ip:"+module.id+":"+i)+modeCardTitle(t.title)+'<div class="mode-card-desc">'+t.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>开始执行</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+'</div>';
 ca.classList.remove("fading");
 ca.querySelectorAll(".ip-task-card").forEach(function(card){
@@ -1958,6 +1959,13 @@ origSend();
 };
 
 document.getElementById("chat-overlay").addEventListener("click",function(e){if(e.target===this)closeChat()});
+document.addEventListener("click",function(e){
+var btn=e.target&&e.target.closest?e.target.closest(".mode-doc-btn"):null;
+if(!btn)return;
+e.preventDefault();
+e.stopPropagation();
+openModeDoc(btn.dataset.docKey,e);
+},true);
 document.addEventListener("click",function(e){
 var menu=document.getElementById("mayuan-upload-menu");
 var wrap=document.getElementById("mayuan-upload-wrap");

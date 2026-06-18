@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
 <link rel="preload" as="image" href="wasteland-bg.jpg">
-<link rel="stylesheet" href="style.css?v=178"></head><body class="auth-checking">
+<link rel="stylesheet" href="style.css?v=179"></head><body class="auth-checking">
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="auth-overlay" id="auth-overlay">
 <div class="auth-card">
@@ -21,7 +21,7 @@
 </div>
 </div>
 <div class="app-container">
-<div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div><div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
 <aside class="sidebar-left">
 <div class="logo-area" id="logo-area" onclick="goHome()"><div class="logo-icon">⚡</div><div class="logo-title">头号流量玩家</div><div class="logo-subtitle">TOP TRAFFIC PLAYER</div></div>
 <nav class="nav-list">
@@ -420,7 +420,7 @@
 <script src="modules/tiejia.js?v=202606151020"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606151021"></script>
+<script src="app.js?v=202606180901"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-image-upload" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" style="display:none" onchange="handleKyrieImageUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
@@ -479,11 +479,27 @@ var firebaseConfig = {
   messagingSenderId: "617914185871",
   appId: "1:617914185871:web:d173ae95656282f56c98fa"
 };
-firebase.initializeApp(firebaseConfig);
-var firestoreDB = firebase.firestore();
-var firebaseAuth = firebase.auth();
+var firestoreDB = null;
+var firebaseAuth = null;
 var authMode = "login";
 var currentAppUser = null;
+
+function failAuthBootstrap(message) {
+  document.body.classList.remove("auth-checking");
+  document.body.classList.add("auth-locked");
+  document.body.classList.remove("auth-ready");
+  showAuthMessage(message || "登录服务加载失败，请刷新页面重试。", true);
+}
+
+if (window.firebase && firebase.initializeApp && firebase.auth) {
+  firebase.initializeApp(firebaseConfig);
+  firestoreDB = firebase.firestore ? firebase.firestore() : null;
+  firebaseAuth = firebase.auth();
+} else {
+  setTimeout(function() {
+    failAuthBootstrap("登录服务加载失败，请检查网络后刷新页面重试。");
+  }, 0);
+}
 
 function setAuthMode(mode) {
   authMode = mode === "register" ? "register" : "login";
@@ -577,22 +593,24 @@ function switchAuthAccount() {
   if (firebaseAuth) firebaseAuth.signOut().finally(function() { if (phoneInput) phoneInput.focus(); });
 }
 
-firebaseAuth.onAuthStateChanged(function(user) {
-  currentAppUser = user || null;
-  document.body.classList.remove("auth-checking");
-  document.body.classList.toggle("auth-locked", !user);
-  document.body.classList.toggle("auth-ready", !!user);
-  var label = document.getElementById("auth-user-label");
-  if (label) {
-    var phone = user && user.email ? user.email.split("@")[0] : "";
-    label.textContent = phone ? "账号：" + phone : "未登录";
-  }
-  if (user) {
-    if (typeof refreshAfterAuthReady === "function") setTimeout(refreshAfterAuthReady, 0);
-    if (typeof syncHistoryFromCloud === "function") setTimeout(syncHistoryFromCloud, 0);
-    if (typeof renderHistory === "function") setTimeout(renderHistory, 0);
-  }
-});
+if (firebaseAuth) {
+  firebaseAuth.onAuthStateChanged(function(user) {
+    currentAppUser = user || null;
+    document.body.classList.remove("auth-checking");
+    document.body.classList.toggle("auth-locked", !user);
+    document.body.classList.toggle("auth-ready", !!user);
+    var label = document.getElementById("auth-user-label");
+    if (label) {
+      var phone = user && user.email ? user.email.split("@")[0] : "";
+      label.textContent = phone ? "账号：" + phone : "未登录";
+    }
+    if (user) {
+      if (typeof refreshAfterAuthReady === "function") setTimeout(refreshAfterAuthReady, 0);
+      if (typeof syncHistoryFromCloud === "function") setTimeout(syncHistoryFromCloud, 0);
+      if (typeof renderHistory === "function") setTimeout(renderHistory, 0);
+    }
+  });
+}
 
 function getHistoryUserId() {
   if (typeof currentAppUser !== "undefined" && currentAppUser && currentAppUser.uid) return currentAppUser.uid;

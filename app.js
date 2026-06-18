@@ -2069,9 +2069,9 @@ return;
 });
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&chatOpen)closeChat()});
 
-function toggleMobileMenu(){var s=document.querySelector(".sidebar-left");var o=document.getElementById("mobile-overlay");if(s.classList.contains("mobile-open")){closeMobileMenu()}else{s.classList.add("mobile-open");o.classList.add("open")}}
-function closeMobileMenu(){document.querySelector(".sidebar-left").classList.remove("mobile-open");document.getElementById("mobile-overlay").classList.remove("open")}
-function handleResize(){var m=document.getElementById("menu-toggle");if(window.innerWidth<=768){m.style.display="flex"}else{m.style.display="none";closeMobileMenu()}}
+function toggleMobileMenu(){var s=document.querySelector(".sidebar-left");var o=document.getElementById("mobile-overlay");if(!s)return;if(s.classList.contains("mobile-open")){closeMobileMenu()}else{s.classList.add("mobile-open");if(o)o.classList.add("open")}}
+function closeMobileMenu(){var s=document.querySelector(".sidebar-left");var o=document.getElementById("mobile-overlay");if(s)s.classList.remove("mobile-open");if(o)o.classList.remove("open")}
+function handleResize(){var m=document.getElementById("menu-toggle");if(!m)return;if(window.innerWidth<=768){m.style.display="flex"}else{m.style.display="none";closeMobileMenu()}}
 function refreshAfterAuthReady(){
 closeMobileMenu();
 handleResize();

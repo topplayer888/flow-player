@@ -20,7 +20,7 @@ prompt+="\n\n请严格按照马源内容体系工作流程输出：\n1. 策略�
 var fa=document.getElementById("form-result-area");
 fa.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:20px">⏳ 生成中...</div>';
 fa.style.display="";
-var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt}];
+var msgs=[{role:"system",content:appendCopyCoherenceRule(agent.systemPrompt)},{role:"user",content:appendCopyCoherenceRule(prompt)}];
 apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:16000})}).then(function(r){return r.json()}).then(function(data){
 if(data.error){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ API 错误：'+data.error.message+'</div>';return}
 if(!data.choices||!data.choices[0]||!data.choices[0].message){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ API 返回格式异常</div>';return}
@@ -81,7 +81,7 @@ function formRegenerate(){
  var userPrompt="优化意见："+fb+"\n\n原文案：\n"+content;
  document.getElementById("form-regen-loading").style.display="";
  document.getElementById("form-regen-result").style.display="none";
- apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:sysPrompt},{role:"user",content:userPrompt}],temperature:.3,max_tokens:8000})}).then(function(r){return r.json()}).then(function(data){
+ apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:appendCopyCoherenceRule(sysPrompt)},{role:"user",content:appendCopyCoherenceRule(userPrompt)}],temperature:.3,max_tokens:8000})}).then(function(r){return r.json()}).then(function(data){
  document.getElementById("form-regen-loading").style.display="none";
   if(data.error){document.getElementById("form-regen-result").innerHTML='<div style="color:#ef4444">❌ '+data.error.message+'</div>';document.getElementById("form-regen-result").style.display="";return}
   if(!data.choices||!data.choices[0]||!data.choices[0].message){document.getElementById("form-regen-result").innerHTML='<div style="color:#ef4444">❌ API 返回格式异常</div>';document.getElementById("form-regen-result").style.display="";return}

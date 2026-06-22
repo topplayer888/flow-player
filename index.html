@@ -71,8 +71,8 @@
 <div style="font-size:12px;color:var(--purple);font-weight:600;margin:14px 0 10px">步骤 4/4 · 补充信息与生成</div>
 <div class="chat-form-field"><label><span class="field-icon">📝</span> 补充信息（选填）</label><textarea id="form-extra" placeholder="价格区间、主要竞品、使用场景、是否有权威背书、独特视觉要素..."></textarea></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
-<button class="chat-form-submit" onclick="submitFormScript()">🚀 直接生成脚本</button>
-<button class="chat-form-submit" onclick="submitFormScriptToChat()">↗ 跳转到对话式并生成脚本</button>
+<button id="my-submit-btn" class="chat-form-submit" onclick="submitFormScript()">🚀 直接生成脚本</button>
+<button id="my-tochat-btn" class="chat-form-submit" onclick="submitFormScriptToChat()">↗ 跳转到对话式并生成脚本</button>
 </div>
 <div id="form-result-area" style="display:none;margin-top:14px">
   <div style="padding:14px;border-radius:12px;border:1px solid var(--border-glow);background:rgba(15,23,42,.55)">
@@ -90,8 +90,8 @@
     <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px">✏️ 修改与重新生成</div>
     <textarea id="my-adjust-input" placeholder="输入修改意见，例如：开头更抓人、压缩到30秒、换成小红书风格、强化用户痛点..." style="width:100%;min-height:70px;padding:10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px">
-      <button class="chat-form-submit" onclick="adjustMayuanFormResult()">提交修改</button>
-      <button class="chat-form-submit" onclick="regenerateMayuanForm()">重新生成</button>
+      <button id="my-adjust-btn" class="chat-form-submit" onclick="adjustMayuanFormResult()">提交修改</button>
+      <button id="my-regen-btn" class="chat-form-submit" onclick="regenerateMayuanForm()">重新生成</button>
     </div>
   </div>
 </div>
@@ -108,8 +108,8 @@
 <div class="chat-form-field"><label><span class="field-icon">⚙️</span> 生成设置</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><select id="dc-count"><option value="1条" selected>1条脚本</option><option value="3条">3条脚本</option><option value="5条">5条脚本</option></select><select id="dc-duration"><option value="30秒以内">30秒以内</option><option value="30-60秒">30-60秒</option><option value="60-90秒" selected>60-90秒</option><option value="90-120秒">90-120秒</option><option value="120秒以上">120秒以上</option></select></div></div>
 <div class="chat-form-field"><label><span class="field-icon">📝</span> 补充要求（选填）</label><textarea id="dc-extra" placeholder="例如：语气更狠一点、适合千川投放、不要夸大功效、要有直播间引导..."></textarea></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
-<button class="chat-form-submit" onclick="submitDachuanForm()">🌊 直接生成脚本</button>
-<button class="chat-form-submit" onclick="submitDachuanFormToChat()">↗ 跳转到对话式并生成脚本</button>
+<button id="dc-submit-btn" class="chat-form-submit" onclick="submitDachuanForm()">🌊 直接生成脚本</button>
+<button id="dc-tochat-btn" class="chat-form-submit" onclick="submitDachuanFormToChat()">↗ 跳转到对话式并生成脚本</button>
 </div>
 <div id="dc-form-result-area" style="display:none;margin-top:14px">
   <div style="padding:14px;border-radius:12px;border:1px solid var(--border-glow);background:rgba(15,23,42,.55)">
@@ -127,13 +127,13 @@
     <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px">✏️ 修改与重新生成</div>
     <textarea id="dc-adjust-input" placeholder="输入修改意见，例如：开头更狠一点、语气更像宝妈真实吐槽、压缩到30秒、强化产品差异..." style="width:100%;min-height:70px;padding:10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px">
-      <button class="chat-form-submit" onclick="adjustDachuanFormResult()">提交修改</button>
-      <button class="chat-form-submit" onclick="regenerateDachuanForm()">重新生成</button>
+      <button id="dc-adjust-btn" class="chat-form-submit" onclick="adjustDachuanFormResult()">提交修改</button>
+      <button id="dc-regen-btn" class="chat-form-submit" onclick="regenerateDachuanForm()">重新生成</button>
     </div>
   </div>
 </div>
 </div>
-<div class="chat-form-panel" id="chat-form-rewrite" style="display:none"><div id="rw-step1"><div class="chat-form-field"><label><span class="field-icon">📝</span> 粘贴视频文案</label><textarea id="rw-text" placeholder="请粘贴短视频逐字文案，AI 会先分析原视频结构，再进入仿写..." rows="5"></textarea></div><button class="chat-form-submit" onclick="submitRewriteStep1()">🔍 开始分析拆解</button></div><div id="rw-step2" style="display:none"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><button onclick="goBackRewriteStep1()" style="background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-primary);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px">← 返回上一步</button><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 2/2 · 选择仿写模式</span></div><div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px"><button id="rw-mode-a" class="rw-mode-btn selected" onclick="selectRewriteModeBtn(this,'A')" style="width:100%;padding:14px 18px;border-radius:12px;border:2px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:all .2s;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px">🔄 A · 原汁原味仿写</span><span style="font-size:11px;color:var(--text-muted);font-weight:400">保留原视频的行业赛道和IP人设，用相同风格和结构写出同主题爆款文案</span></button><button id="rw-mode-b" class="rw-mode-btn" onclick="selectRewriteModeBtn(this,'B')" style="width:100%;padding:14px 18px;border-radius:12px;border:2px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:all .2s;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px">🎯 B · 自定义定位仿写</span><span style="font-size:11px;color:var(--text-muted);font-weight:400">将原视频的爆款结构套用到你指定的新行业赛道和IP人设上进行仿写</span></button></div><div class="chat-form-field" id="rw-custom-group2" style="display:none"><label><span class="field-icon">🏷️</span> 自定义赛道与人设</label><textarea id="rw-custom2" placeholder="例如：我想做一个面向新手宝妈的家庭理财科普号，人设是温柔耐心的邻家姐姐..." rows="3"></textarea></div><button class="chat-form-submit" onclick="submitRewriteStep2()">✍️ 开始仿写</button></div></div><div class="chat-form-panel" id="chat-form-xuehui" style="display:none">
+<div class="chat-form-panel" id="chat-form-rewrite" style="display:none"><div id="rw-step1"><div class="chat-form-field"><label><span class="field-icon">📝</span> 粘贴视频文案</label><textarea id="rw-text" placeholder="请粘贴短视频逐字文案，AI 会先分析原视频结构，再进入仿写..." rows="5"></textarea></div><button id="rw-analyze-btn" class="chat-form-submit" onclick="submitRewriteStep1()">🔍 开始分析拆解</button></div><div id="rw-step2" style="display:none"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><button onclick="goBackRewriteStep1()" style="background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-primary);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px">← 返回上一步</button><span style="font-size:12px;color:var(--purple);font-weight:600">步骤 2/2 · 选择仿写模式</span></div><div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px"><button id="rw-mode-a" class="rw-mode-btn selected" onclick="selectRewriteModeBtn(this,'A')" style="width:100%;padding:14px 18px;border-radius:12px;border:2px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:all .2s;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px">🔄 A · 原汁原味仿写</span><span style="font-size:11px;color:var(--text-muted);font-weight:400">保留原视频的行业赛道和IP人设，用相同风格和结构写出同主题爆款文案</span></button><button id="rw-mode-b" class="rw-mode-btn" onclick="selectRewriteModeBtn(this,'B')" style="width:100%;padding:14px 18px;border-radius:12px;border:2px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:all .2s;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px">🎯 B · 自定义定位仿写</span><span style="font-size:11px;color:var(--text-muted);font-weight:400">将原视频的爆款结构套用到你指定的新行业赛道和IP人设上进行仿写</span></button></div><div class="chat-form-field" id="rw-custom-group2" style="display:none"><label><span class="field-icon">🏷️</span> 自定义赛道与人设</label><textarea id="rw-custom2" placeholder="例如：我想做一个面向新手宝妈的家庭理财科普号，人设是温柔耐心的邻家姐姐..." rows="3"></textarea></div><button id="rw-generate-btn" class="chat-form-submit" onclick="submitRewriteStep2()">✍️ 开始仿写</button></div></div><div class="chat-form-panel" id="chat-form-xuehui" style="display:none">
 <div id="xh-step1">
 <div class="chat-form-field"><label><span class="field-icon">&#x1f3ed;</span> 你的行业</label><input id="xh-industry" placeholder="如：美妆、教育、餐饮、健身..."></div>
 <div class="chat-form-field"><label><span class="field-icon">&#x1f465;</span> 目标人群</label><input id="xh-audience" placeholder="如：25-35岁女性白领、新手宝妈..."></div>
@@ -329,7 +329,7 @@
 <span class="select-chip" data-val="幽默轻松" onclick="tjPick(this,'tj-tone',1)">😄 幽默轻松</span>
 <span class="select-chip" data-val="制造焦虑" onclick="tjPick(this,'tj-tone',1)">😰 制造焦虑</span>
 </div></div>
-<button class="chat-form-submit" onclick="tjStep3()" style="margin-top:12px">✍️ 生成完整文案</button>
+<button id="tj-generate-btn" class="chat-form-submit" onclick="tjStep3()" style="margin-top:12px">✍️ 生成完整文案</button>
 </div>
 
 <div id="tj-step4">
@@ -355,7 +355,7 @@
 <div id="tj-regen-wrap" style="margin-top:16px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)">
   <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 其它调整</div>
   <textarea id="tj-regen-input" placeholder="输入调整意见，例如：换一种钩子类型、语气更活泼、增加产品功效描述…" style="width:100%;min-height:60px;padding:10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea>
-  <button onclick="tjRegen()" style="margin-top:8px;padding:8px 16px;border-radius:8px;border:none;background:var(--purple);color:#fff;font-size:12px;cursor:pointer;font-weight:600">🔄 重新生成</button>
+  <button id="tj-regen-btn" onclick="tjRegen()" style="margin-top:8px;padding:8px 16px;border-radius:8px;border:none;background:var(--purple);color:#fff;font-size:12px;cursor:pointer;font-weight:600">🔄 重新生成</button>
   <div id="tj-iterate-result" style="display:none"></div>
 </div>
 </div>
@@ -415,13 +415,13 @@
 </div>
 </div>
 </div>
-<script src="modules/mayuan.js?v=202606221145"></script>
-<script src="modules/xuehui.js?v=202606181130"></script>
-<script src="modules/kanjian.js?v=202606221405"></script>
-<script src="modules/tiejia.js?v=202606181130"></script>
+<script src="modules/mayuan.js?v=202606221530"></script>
+<script src="modules/xuehui.js?v=202606221530"></script>
+<script src="modules/kanjian.js?v=202606221530"></script>
+<script src="modules/tiejia.js?v=202606221530"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606221345"></script>
+<script src="app.js?v=202606221530"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 

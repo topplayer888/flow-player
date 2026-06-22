@@ -165,7 +165,7 @@ function kjRenderStructures(recs, note) {
     });
     html += '</div>';
   }
-  html += '<button class="chat-form-submit" onclick="kjGenerate()" style="margin-top:12px">✍️ 生成爆款文案</button>';
+  html += '<button id="kj-generate-btn" class="chat-form-submit" onclick="kjGenerate()" style="margin-top:12px">✍️ 生成爆款文案</button>';
   area.innerHTML = html;
 }
 
@@ -355,14 +355,19 @@ function kjGenerate() { if (!kjCheckApi()) return; if (!kjCheckApi()) return;
   var durationGuide = kjDurationGuide(duration);
   var durationHardRule = "【看见体系时长硬性规则】用户选择的视频时长是：" + duration + "。\n" + durationGuide + "\n必须只让【完整口播稿】正文符合这个范围；如果正文过短或过长，输出前必须先重写到合格范围。";
   
-  document.getElementById("kj-loading").style.display = "";
+  var kjBtn = document.getElementById("kj-generate-btn");
+  if (typeof setGenerateButtonLoading === "function") setGenerateButtonLoading(kjBtn, true, "生成中...");
+  var kjLoading = document.getElementById("kj-loading");
+  if (kjLoading) kjLoading.style.display = "none";
   
   var systemPrompt = "你是顶级短视频口播逐字稿策划专家，掌握《爆款菜谱》全部方法论。\n\n你的目标是生成高完播率、高点赞率、高转发率、高涨粉率的短视频脚本。\n\n## 核心要求\n- 开头3秒必须有强钩子\n- 每句话不超过25字\n- 适合字幕展示\n- 具备情绪起伏\n- 包含传播点\n- 包含至少1个金句\n- 必须严格执行用户选择的视频时长和字数范围，不能明显超出或不足\n\n## 重要格式要求\n- 必须严格按用户给出的板块顺序输出\n- 【完整口播稿】这一板块只能输出真人可直接照读的逐字稿正文\n- 【完整口播稿】里不要标题、不要分镜、不要画面描述、不要旁白标签、不要时间轴、不要项目符号、不要解释说明\n- 【完整口播稿】每行一句自然口语，句子短，方便主播直接朗读\n- 字数统计只统计【完整口播稿】正文，不统计标题建议、封面文案、评论区互动文案和优化建议\n- 输出前必须自检【完整口播稿】字数和行数；不符合用户选择的时长要求时，先自行重写到合格范围再输出\n\n禁止输出JSON，禁止输出Markdown表格，禁止输出额外解释。\n\n" + durationHardRule + kjNarrativeLogicRule();
   
   var userPrompt = "IP定位：" + ip + "\n行业：" + industry + "\n目标用户：" + audience + "\n内容主题：" + topic + "\n视频时长：" + duration + "\n" + durationHardRule + "\n平台：" + platform + "\n应用场景：" + scene + "\n风格：" + style + "\n使用结构：" + structure.name + "（" + structure.formula + "）\n\n请严格按以下格式输出，不要增删板块：\n\n【推荐结构】\n结构名称：" + structure.name + "\n使用逻辑：用1-2句话说明为什么适合。\n\n【爆款评分】\n总分：__分\n钩子：__分；情绪：__分；共鸣：__分；反差：__分；价值：__分；传播性：__分\n优化判断：如果低于90分，必须先自我优化后再输出最终稿。\n\n【标题建议】\n1. \n2. \n3. \n4. \n5. \n6. \n7. \n8. \n9. \n10. \n\n【封面文案】\n1. \n2. \n3. \n4. \n5. \n\n【完整口播稿】\n从这里开始，只写可直接朗读的口播逐字稿正文。\n不要出现“开头/中段/结尾/镜头/画面/旁白/主播/说明/标题”等标签。\n不要用项目符号或编号。\n每行一句自然口语。\n必须完整覆盖：开头钩子、用户痛点、反差或冲突、观点/方法、具体价值、金句、自然收尾。\n正文篇幅必须严格符合用户选择的时长：" + duration + "。\n" + durationHardRule + "\n\n【评论区互动文案】\n1. \n2. \n3. \n4. \n5. \n\n【优化建议】\n1. \n2. \n3. ";
   
   xuehuiCallAPI(systemPrompt, userPrompt, function(json) {
-    document.getElementById("kj-loading").style.display = "none";
+    if (typeof setGenerateButtonLoading === "function") setGenerateButtonLoading(kjBtn, false);
+    var kjLoadingDone = document.getElementById("kj-loading");
+    if (kjLoadingDone) kjLoadingDone.style.display = "none";
     if (json && json.error) {
       var errArea = document.getElementById("kj-result-area") || document.getElementById("kj-step4");
       errArea.innerHTML = '<div style="color:#ef4444;padding:12px">❌ API 错误：' + kjEscapeHtml(json.error.message || "生成失败") + '</div>';

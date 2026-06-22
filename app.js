@@ -1625,19 +1625,22 @@ function goBackRewriteStep1(){document.getElementById("rw-step2").style.display=
 function submitRewriteStep1(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
 var content=document.getElementById("rw-text").value.trim();
 if(!content){alert("请输入文案内容");return}
+var rwBtn=document.getElementById("rw-analyze-btn");
+setGenerateButtonLoading(rwBtn,true,"分析中...");
 switchChatMode("qa");document.getElementById("chat-back-row").style.display="";addMessage("user","[提交文案]\n"+content.substring(0,300)+(content.length>300?"...":""));showTyping();
 var prompt="请分析以下视频文案：\n\n"+content+"\n\n请输出逐字稿和原视频分析，包括行业、IP人设、内容结构、情绪曲线、关键钩子";
 var msgs=[{role:"system",content:appendCopyCoherenceRule(agent.systemPrompt)},{role:"user",content:appendCopyCoherenceRule(prompt)}];
 apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})})
 .then(function(r){return r.json()})
 .then(function(data){
+ setGenerateButtonLoading(rwBtn,false);
  hideTyping();
  if(data.error){addMessage("assistant","API错误："+data.error.message);return}
  if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}
  addMessage("assistant",data.choices[0].message.content);
  document.getElementById("rw-step1").style.display="none";document.getElementById("rw-step2").style.display="";
-}).catch(function(e){hideTyping();addMessage("assistant","请求失败："+e.message)});
-}function submitRewriteStep2(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10)return;var custom=document.getElementById("rw-custom2").value.trim();if(rwMode==="B"&&!custom){alert("请填写自定义赛道与人设");return}var prompt="请基于上一轮的逐字稿和分析，按以下模式进行仿写：\n\n仿写模式："+(rwMode==="A"?"模式A 原汁原味仿写":"模式B 自定义定位仿写")+(rwMode==="B"?"\n新赛道/新人设："+custom:"")+"\n\n请直接输出仿写文案和仿写逻辑说明";switchChatMode("qa");addMessage("user","✍️ [仿写提交]\n模式："+(rwMode==="A"?"原汁原味":"自定义")+(rwMode==="B"?"\n赛道/人设："+custom:""));showTyping();var msgs=[{role:"system",content:appendCopyCoherenceRule(agent.systemPrompt)}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:appendCopyCoherenceRule(prompt)});apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return};if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}addMessage("assistant",data.choices[0].message.content)}).catch(function(e){hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})}
+}).catch(function(e){setGenerateButtonLoading(rwBtn,false);hideTyping();addMessage("assistant","请求失败："+e.message)});
+}function submitRewriteStep2(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10)return;var custom=document.getElementById("rw-custom2").value.trim();if(rwMode==="B"&&!custom){alert("请填写自定义赛道与人设");return}var rwBtn=document.getElementById("rw-generate-btn");setGenerateButtonLoading(rwBtn,true,"仿写中...");var prompt="请基于上一轮的逐字稿和分析，按以下模式进行仿写：\n\n仿写模式："+(rwMode==="A"?"模式A 原汁原味仿写":"模式B 自定义定位仿写")+(rwMode==="B"?"\n新赛道/新人设："+custom:"")+"\n\n请直接输出仿写文案和仿写逻辑说明";switchChatMode("qa");addMessage("user","✍️ [仿写提交]\n模式："+(rwMode==="A"?"原汁原味":"自定义")+(rwMode==="B"?"\n赛道/人设："+custom:""));showTyping();var msgs=[{role:"system",content:appendCopyCoherenceRule(agent.systemPrompt)}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:appendCopyCoherenceRule(prompt)});apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){setGenerateButtonLoading(rwBtn,false);hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return};if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}addMessage("assistant",data.choices[0].message.content)}).catch(function(e){setGenerateButtonLoading(rwBtn,false);hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})}
 function addMessageHTML(role,html){
 chatMessages.push({role:role,content:html});
 var msgs=document.getElementById("chat-messages");
@@ -1747,6 +1750,24 @@ msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
 }
 function hideTyping(){
 isTyping=false;var el=document.getElementById("typing-indicator");if(el)el.remove();
+}
+function setGenerateButtonLoading(btn,isLoading,loadingText,normalText){
+if(!btn)return;
+if(typeof btn==="string")btn=document.querySelector(btn);
+if(!btn)return;
+if(isLoading){
+if(!btn.dataset.normalText)btn.dataset.normalText=btn.textContent;
+btn.textContent=loadingText||"生成中...";
+btn.disabled=true;
+btn.style.opacity=".72";
+btn.style.cursor="wait";
+}else{
+btn.textContent=normalText||btn.dataset.normalText||btn.textContent;
+btn.disabled=false;
+btn.style.opacity="";
+btn.style.cursor="";
+delete btn.dataset.normalText;
+}
 }
 function sendMessage(){
 var input=document.getElementById("chat-input");var text=input.value.trim();
@@ -1933,23 +1954,28 @@ if(full)full.innerHTML=escapeChatText(cleanFull||"已提取到下方纯口播文
 if(oral)oral.innerHTML=escapeChatText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”，或在修改意见里补充语气、时长、重点后重新生成。");
 updateDynamicQuickChips("assistant",content||"");
 }
-function dcSetFormLoading(isLoading,label){
+var dcActiveFormButton=null;
+function dcSetFormLoading(isLoading,label,activeSelector){
 var buttons=document.querySelectorAll("#chat-form-dachuan .chat-form-submit");
-buttons.forEach(function(btn){btn.disabled=!!isLoading});
-var first=document.querySelector("#chat-form-dachuan .chat-form-submit");
-if(first)first.textContent=isLoading?(label||"生成中..."):"🌊 直接生成脚本";
+if(isLoading){
+dcActiveFormButton=activeSelector?document.querySelector(activeSelector):(document.getElementById("dc-submit-btn")||document.querySelector("#chat-form-dachuan .chat-form-submit"));
+buttons.forEach(function(btn){btn.disabled=true});
+setGenerateButtonLoading(dcActiveFormButton,true,label||"生成中...");
+}else{
+setGenerateButtonLoading(dcActiveFormButton,false);
+buttons.forEach(function(btn){btn.disabled=false});
+dcActiveFormButton=null;
 }
-function dcCallFormApi(messages,label){
+}
+function dcCallFormApi(messages,label,activeSelector){
 if(!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
 messages=(messages||[]).slice();
 messages.push({role:"user",content:getCopyCoherenceRule()});
 var full=document.getElementById("dc-full-result");
 var oral=document.getElementById("dc-oral-result");
 var wrap=document.getElementById("dc-form-result-area");
-if(wrap)wrap.style.display="block";
-if(full)full.textContent=label||"生成中...";
-if(oral)oral.textContent="正在整理纯口播文案...";
-dcSetFormLoading(true,label||"生成中...");
+if(wrap&&!dachuanLastResult)wrap.style.display="none";
+dcSetFormLoading(true,label||"生成中...",activeSelector);
 apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:messages,temperature:.7,max_tokens:5000})}).then(function(r){return r.json()}).then(function(data){
 if(data.error){dcRenderFormResult("API 错误："+data.error.message);return}
 if(!data.choices||!data.choices[0]||!data.choices[0].message){dcRenderFormResult("API 返回格式异常");return}
@@ -1960,7 +1986,7 @@ function submitDachuanForm(){
 var prompt=buildDachuanFormPrompt();
 if(!prompt){alert("请先填写产品/类目、产品卖点和目标用户");return}
 dachuanLastPrompt=prompt+getMergedShotScriptRule()+"\n\n输出时请把口播逐字稿统一放在最后的【纯口播文案】板块里；前面的生成结果保留策略、结构、完整脚本、字幕重点和投放建议，不要重复出现独立的【口播文案】板块。";
-dcCallFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agents["1-1"].systemPrompt)},{role:"user",content:dachuanLastPrompt}],"生成中...");
+dcCallFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agents["1-1"].systemPrompt)},{role:"user",content:dachuanLastPrompt}],"生成中...","#dc-submit-btn");
 }
 function adjustDachuanFormResult(){
 var input=document.getElementById("dc-adjust-input");
@@ -1968,7 +1994,7 @@ var adjust=input?String(input.value||"").trim():"";
 if(!adjust){alert("请先输入修改意见");return}
 if(!dachuanLastResult){alert("请先生成一次脚本");return}
 var prompt="请根据以下修改意见，重新优化上一版大川电商脚本。保留大川内容体系的方法论，只返回优化后的完整结果，必须保留或重新明确身份视角。"+getMergedShotScriptRule()+"\n\n输出时请把口播逐字稿统一放在最后的【纯口播文案】板块里；前面的生成结果不要重复出现独立的【口播文案】板块。\n\n修改意见："+adjust+"\n\n上一版内容：\n"+dachuanLastResult;
-dcCallFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agents["1-1"].systemPrompt)},{role:"user",content:prompt}],"修改中...");
+dcCallFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agents["1-1"].systemPrompt)},{role:"user",content:prompt}],"修改中...","#dc-adjust-btn");
 }
 function regenerateDachuanForm(){
 if(!dachuanLastPrompt){
@@ -1976,12 +2002,14 @@ var prompt=buildDachuanFormPrompt();
 if(!prompt){alert("请先填写产品/类目、产品卖点和目标用户");return}
 dachuanLastPrompt=prompt+getMergedShotScriptRule()+"\n\n输出时请把口播逐字稿统一放在最后的【纯口播文案】板块里；前面的生成结果保留策略、结构、完整脚本、字幕重点和投放建议，不要重复出现独立的【口播文案】板块。";
 }
-dcCallFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agents["1-1"].systemPrompt)},{role:"user",content:dachuanLastPrompt+"\n\n请重新生成一版，身份视角、角度、开头钩子和表达方式要和上一版有明显差异；如果用户指定了身份视角，则严格保留该身份视角。"+getMergedShotScriptRule()+"\n\n口播逐字稿只放在最后的【纯口播文案】板块，前面的生成结果不要重复出现独立的【口播文案】板块。"}],"重新生成中...");
+dcCallFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agents["1-1"].systemPrompt)},{role:"user",content:dachuanLastPrompt+"\n\n请重新生成一版，身份视角、角度、开头钩子和表达方式要和上一版有明显差异；如果用户指定了身份视角，则严格保留该身份视角。"+getMergedShotScriptRule()+"\n\n口播逐字稿只放在最后的【纯口播文案】板块，前面的生成结果不要重复出现独立的【口播文案】板块。"}],"重新生成中...","#dc-regen-btn");
 }
 function submitDachuanFormToChat(){
 if(!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
 var prompt=buildDachuanFormPrompt();
 if(!prompt){alert("请先填写产品/类目、产品卖点和目标用户");return}
+setGenerateButtonLoading(document.getElementById("dc-tochat-btn"),true,"跳转中...");
+setTimeout(function(){setGenerateButtonLoading(document.getElementById("dc-tochat-btn"),false)},600);
 switchChatMode("qa");
 addMessage("user",prompt);
 showTyping();
@@ -2056,23 +2084,28 @@ if(full)full.innerHTML=escapeChatText(cleanFull||"已提取到下方纯口播文
 if(oral)oral.innerHTML=escapeChatText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”，或在修改意见里补充语气、时长、重点后重新生成。");
 updateDynamicQuickChips("assistant",content||"");
 }
-function setMayuanFormLoading(isLoading,label){
+var mayuanActiveFormButton=null;
+function setMayuanFormLoading(isLoading,label,activeSelector){
 var buttons=document.querySelectorAll("#chat-form-panel .chat-form-submit");
-buttons.forEach(function(btn){btn.disabled=!!isLoading});
-var first=document.querySelector("#chat-form-panel .chat-form-submit");
-if(first)first.textContent=isLoading?(label||"生成中..."):"🚀 直接生成脚本";
+if(isLoading){
+mayuanActiveFormButton=activeSelector?document.querySelector(activeSelector):(document.getElementById("my-submit-btn")||document.querySelector("#chat-form-panel .chat-form-submit"));
+buttons.forEach(function(btn){btn.disabled=true});
+setGenerateButtonLoading(mayuanActiveFormButton,true,label||"生成中...");
+}else{
+setGenerateButtonLoading(mayuanActiveFormButton,false);
+buttons.forEach(function(btn){btn.disabled=false});
+mayuanActiveFormButton=null;
 }
-function callMayuanFormApi(messages,label){
+}
+function callMayuanFormApi(messages,label,activeSelector){
 if(!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
 messages=(messages||[]).slice();
 messages.push({role:"user",content:getCopyCoherenceRule()});
 var wrap=document.getElementById("form-result-area");
 var full=document.getElementById("my-full-result");
 var oral=document.getElementById("my-oral-result");
-if(wrap)wrap.style.display="block";
-if(full)full.textContent=label||"生成中...";
-if(oral)oral.textContent="正在整理纯口播文案...";
-setMayuanFormLoading(true,label||"生成中...");
+if(wrap&&!mayuanFormLastResult)wrap.style.display="none";
+setMayuanFormLoading(true,label||"生成中...",activeSelector);
 apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:messages,temperature:.7,max_tokens:5000})}).then(function(r){return r.json()}).then(function(data){
 if(data.error){renderMayuanFormResult("API 错误："+data.error.message);return}
 if(!data.choices||!data.choices[0]||!data.choices[0].message){renderMayuanFormResult("API 返回格式异常");return}
@@ -2084,12 +2117,14 @@ var agent=getActiveChatAgent()||agents["1-0"];
 var prompt=buildMayuanFormPrompt();
 if(!prompt){alert("请先填写产品信息、核心卖点和目标人群");return}
 mayuanFormLastPrompt=prompt+getMergedShotScriptRule()+"\n\n口播逐字稿只放在最后的【纯口播文案】板块，前面的生成结果不要重复出现独立的【口播文案】板块。";
-callMayuanFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)},{role:"user",content:mayuanFormLastPrompt}],"生成中...");
+callMayuanFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)},{role:"user",content:mayuanFormLastPrompt}],"生成中...","#my-submit-btn");
 }
 function submitFormScriptToChat(){
 if(!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
 var prompt=buildMayuanFormPrompt();
 if(!prompt){alert("请先填写产品信息、核心卖点和目标人群");return}
+setGenerateButtonLoading(document.getElementById("my-tochat-btn"),true,"跳转中...");
+setTimeout(function(){setGenerateButtonLoading(document.getElementById("my-tochat-btn"),false)},600);
 switchChatMode("qa");
 addMessage("user",prompt);
 showTyping();
@@ -2102,7 +2137,7 @@ if(!adjust){alert("请先输入修改意见");return}
 if(!mayuanFormLastResult){alert("请先生成一次脚本");return}
 var agent=getActiveChatAgent()||agents["1-0"];
 var prompt="请根据以下修改意见，重新优化上一版内容。只返回优化后的完整结果。"+getMergedShotScriptRule()+"\n\n请把口播逐字稿统一放在最后的【纯口播文案】板块，前面的生成结果不要重复出现独立的【口播文案】板块。\n\n修改意见："+adjust+"\n\n上一版内容：\n"+mayuanFormLastResult;
-callMayuanFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)},{role:"user",content:prompt}],"修改中...");
+callMayuanFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)},{role:"user",content:prompt}],"修改中...","#my-adjust-btn");
 }
 function regenerateMayuanForm(){
 var agent=getActiveChatAgent()||agents["1-0"];
@@ -2111,7 +2146,7 @@ var prompt=buildMayuanFormPrompt();
 if(!prompt){alert("请先填写产品信息、核心卖点和目标人群");return}
 mayuanFormLastPrompt=prompt+getMergedShotScriptRule()+"\n\n口播逐字稿只放在最后的【纯口播文案】板块，前面的生成结果不要重复出现独立的【口播文案】板块。";
 }
-callMayuanFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)},{role:"user",content:mayuanFormLastPrompt+"\n\n请重新生成一版，角度、开头钩子和表达方式要和上一版有明显差异。"+getMergedShotScriptRule()}],"重新生成中...");
+callMayuanFormApi([{role:"system",content:getMayuanDialogueSystemPrompt(agent.systemPrompt)},{role:"user",content:mayuanFormLastPrompt+"\n\n请重新生成一版，角度、开头钩子和表达方式要和上一版有明显差异。"+getMergedShotScriptRule()}],"重新生成中...","#my-regen-btn");
 }
 function copyMayuanOralScript(){
 var el=document.getElementById("my-oral-result");

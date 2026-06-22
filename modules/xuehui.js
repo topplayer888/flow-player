@@ -126,6 +126,8 @@ function xhSetButton(btn, text, disabled) {
   if (!btn) return;
   btn.textContent = text;
   btn.disabled = !!disabled;
+  btn.style.opacity = disabled ? ".72" : "";
+  btn.style.cursor = disabled ? "wait" : "";
 }
 
 function xhRenderTopics(topics) {
@@ -322,10 +324,15 @@ function xhRegenerate() {
   var userPrompt = "优化意见：" + feedback + "\n\n" + xhNarrativeLogicRule() + "\n\n原文案：\n" + xhState.results.map(function(r, i) {
     return "【文案" + (i + 1) + "】" + r.duration + " - " + r.copyType + " - " + r.openingType + "\n" + r.content;
   }).join("\n\n---\n\n");
-  document.getElementById("xh-regen-loading").style.display = "";
+  var btn = document.getElementById("xh-regen-btn") || document.querySelector("#xh-results-content .sidebar-api-save");
+  xhSetButton(btn, "重新生成中...", true);
+  var regenLoading = document.getElementById("xh-regen-loading");
+  if (regenLoading) regenLoading.style.display = "none";
   document.getElementById("xh-regen-result").style.display = "none";
   xuehuiCallAPI(sysPrompt, userPrompt, function(json) {
-    document.getElementById("xh-regen-loading").style.display = "none";
+    xhSetButton(btn, "✨ 重新生成", false);
+    var regenLoadingDone = document.getElementById("xh-regen-loading");
+    if (regenLoadingDone) regenLoadingDone.style.display = "none";
     var result = typeof json === "string" ? json : (json.raw || json.content || json.text || JSON.stringify(json));
     var div = document.getElementById("xh-regen-result");
     div.innerHTML = '<div data-xh-card="regen" style="padding:12px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,229,255,.04)"><div style="font-size:11px;font-weight:600;color:var(--cyan);margin-bottom:6px">✅ 优化结果</div><div class="xh-copy-content" style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">' + xhEscapeHtml(result) + '</div><button onclick="copyXhResult(this)" style="margin-top:8px;background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 复制</button></div>';
@@ -525,7 +532,7 @@ function xhRenderResults(results) {
     });
     html += "</div>";
   }
-  html += '<div style="margin-top:16px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="xh-regen-input" placeholder="输入优化意见，例如：语气更活泼、增加产品功效描述、缩短到200字..." style="width:100%;min-height:60px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button onclick="xhRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="xh-regen-result" style="margin-top:10px;display:none"></div><div id="xh-regen-loading" style="display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:12px">重新生成中...</div></div>';
+  html += '<div style="margin-top:16px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="xh-regen-input" placeholder="输入优化意见，例如：语气更活泼、增加产品功效描述、缩短到200字..." style="width:100%;min-height:60px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button id="xh-regen-btn" onclick="xhRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="xh-regen-result" style="margin-top:10px;display:none"></div><div id="xh-regen-loading" style="display:none"></div></div>';
   container.innerHTML = html;
   document.getElementById("xh-results").style.display = "";
 }

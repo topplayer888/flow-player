@@ -17,8 +17,10 @@ showApiConfigPrompt();return
 var durRule="";if(duration==="30秒以内")durRule="【强制字数限制】口播文案80-120字，5-8句，每句12-18字。开场1句3秒，主体3-5句20秒，结尾1-2句5秒。";else if(duration==="60秒以上")durRule="【强制字数限制】口播文案300-500字，15-25句。开场2-3句5秒，主体12-18句45秒，结尾3-4句10秒。信息密度高，有细节展开。";else durRule="【强制字数限制】口播文案150-250字，10-15句。开场1-2句5秒，主体7-10句30秒，结尾2-3句10秒。";var prompt="请根据以下信息生成引流脚本\n\n视频时长范围："+duration+"\n"+durRule+"\n\n## 产品信息\n"+product+"\n\n## 核心卖点\n"+usp+"\n\n## 目标人群\n"+audience+"\n\n## 营销目标\n"+goal;prompt+="\n\n## 脚本手法\n"+scriptMethods;prompt+="\n\n## 视觉手法\n"+visualMethods;
 if(extra)prompt+="\n\n## 补充信息\n"+extra;
 prompt+="\n\n请严格按照马源内容体系工作流程输出：\n1. 策略分析\n2. 脚本手法选择\n3. 视觉手法匹配\n4. 完整脚本（每条口播文案前必须加【🎙口播】前缀，分镜描述前加【📷分镜】前缀，便于区分）\n5. 专项建议";
+var submitBtn=document.getElementById("my-submit-btn")||document.querySelector("#chat-form-panel .chat-form-submit");
+if(typeof setGenerateButtonLoading==="function")setGenerateButtonLoading(submitBtn,true,"生成中...");
 var fa=document.getElementById("form-result-area");
-fa.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:20px">⏳ 生成中...</div>';
+fa.innerHTML="";
 fa.style.display="";
 var msgs=[{role:"system",content:appendCopyCoherenceRule(agent.systemPrompt)},{role:"user",content:appendCopyCoherenceRule(prompt)}];
 apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:16000})}).then(function(r){return r.json()}).then(function(data){
@@ -34,8 +36,8 @@ apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/
 }).catch(function(){
  document.getElementById("form-voiceover-text").textContent=c;
 });
-fa.innerHTML+= '</div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="form-regen-input" placeholder="输入优化意见" style="width:100%;min-height:50px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button onclick="formRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="form-regen-result" style="margin-top:10px;display:none"></div><div id="form-regen-loading" style="display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:12px">重新生成中...</div></div>'
-}).catch(function(e){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ 请求失败：'+e.message+'</div>'})
+fa.innerHTML+= '</div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="form-regen-input" placeholder="输入优化意见" style="width:100%;min-height:50px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button id="form-regen-btn" onclick="formRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="form-regen-result" style="margin-top:10px;display:none"></div><div id="form-regen-loading" style="display:none"></div></div>'
+}).catch(function(e){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ 请求失败：'+e.message+'</div>'}).finally(function(){if(typeof setGenerateButtonLoading==="function")setGenerateButtonLoading(submitBtn,false)})
 }
 function copyVoiceoverForm(btn){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
  var el=btn.parentElement.parentElement.querySelector(".form-voiceover-text");
@@ -79,17 +81,24 @@ function formRegenerate(){
  var agent=agents[chatKey];if(!agent)return;
  var sysPrompt="你是短视频文案优化专家，根据用户优化意见修改文案，直接返回优化后的纯文本。";
  var userPrompt="优化意见："+fb+"\n\n原文案：\n"+content;
- document.getElementById("form-regen-loading").style.display="";
+ var regenBtn=document.getElementById("form-regen-btn");
+ if(typeof setGenerateButtonLoading==="function")setGenerateButtonLoading(regenBtn,true,"重新生成中...");
+ var regenLoading=document.getElementById("form-regen-loading");
+ if(regenLoading)regenLoading.style.display="none";
  document.getElementById("form-regen-result").style.display="none";
  apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:appendCopyCoherenceRule(sysPrompt)},{role:"user",content:appendCopyCoherenceRule(userPrompt)}],temperature:.3,max_tokens:8000})}).then(function(r){return r.json()}).then(function(data){
- document.getElementById("form-regen-loading").style.display="none";
+ if(typeof setGenerateButtonLoading==="function")setGenerateButtonLoading(regenBtn,false);
+ var regenLoadingDone=document.getElementById("form-regen-loading");
+ if(regenLoadingDone)regenLoadingDone.style.display="none";
   if(data.error){document.getElementById("form-regen-result").innerHTML='<div style="color:#ef4444">❌ '+data.error.message+'</div>';document.getElementById("form-regen-result").style.display="";return}
   if(!data.choices||!data.choices[0]||!data.choices[0].message){document.getElementById("form-regen-result").innerHTML='<div style="color:#ef4444">❌ API 返回格式异常</div>';document.getElementById("form-regen-result").style.display="";return}
   var result=data.choices[0].message.content;
   document.getElementById("form-regen-result").innerHTML='<div style="padding:12px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,229,255,.04)"><div style="font-size:11px;font-weight:600;color:var(--cyan);margin-bottom:6px">✅ 优化结果</div><div style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+result.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div><button onclick="copyFormRegenResult(this)" style="margin-top:8px;background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 复制</button></div>';
   document.getElementById("form-regen-result").style.display="";
  }).catch(function(e){
-  document.getElementById("form-regen-loading").style.display="none";
+  if(typeof setGenerateButtonLoading==="function")setGenerateButtonLoading(regenBtn,false);
+  var regenLoadingErr=document.getElementById("form-regen-loading");
+  if(regenLoadingErr)regenLoadingErr.style.display="none";
   document.getElementById("form-regen-result").innerHTML='<div style="color:#ef4444">❌ '+e.message+'</div>';
   document.getElementById("form-regen-result").style.display="";
  })

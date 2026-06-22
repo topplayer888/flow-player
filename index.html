@@ -837,6 +837,26 @@ function syncHistoryFromCloud() {
     renderHistory();
   }
 
+  function deleteHistoryById(id) {
+    var items = loadHistory().filter(isValidHistoryItem);
+    var kept = items.filter(function(h) { return historyId(h) !== id; });
+    if (kept.length === items.length) {
+      renderHistory();
+      return;
+    }
+    localStorage.setItem(getHistoryStorageKey(), JSON.stringify(kept));
+    if (window.currentHistoryRestoredId === id) window.currentHistoryRestoredId = '';
+    if (typeof syncHistoryToCloud === 'function') syncHistoryToCloud(kept);
+    renderHistory();
+  }
+
+  window.deleteCurrentWorkspaceHistoryItem = function(event, id) {
+    if (event && event.stopPropagation) event.stopPropagation();
+    showConfirmDialog('确定删除这条聊天记录？', function() {
+      deleteHistoryById(id);
+    });
+  };
+
   window.clearCurrentWorkspaceHistory = function() {
     var count = loadHistory().filter(matchesCurrentWorkspace).length;
     if (count === 0) {
@@ -875,9 +895,10 @@ function syncHistoryFromCloud() {
       var id = escapeAttr(historyId(h));
       var title = escapeAttr(h.preview || firstUserText(h.msgs) || h.name || '未命名记录');
       var meta = escapeAttr((h.taskTitle || h.name || '') + ' · ' + formatTime(h.time));
-      return '<div class="history-item" onclick="window._restoreHistoryById(&quot;' + id + '&quot;)" style="cursor:pointer;padding:8px 10px;border-radius:6px;margin:2px 0;font-size:12px;color:var(--text-secondary);border:1px solid transparent" onmouseover="this.style.background=\'var(--bg-card)\';this.style.borderColor=\'var(--border-glow)\'" onmouseout="this.style.background=\'\';this.style.borderColor=\'transparent\'">' +
-        '<div style="font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (h.icon || '💬') + ' ' + title + '</div>' +
-        '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + meta + ' · ' + h.msgs.length + '条</div></div>';
+      return '<div class="history-item" onclick="window._restoreHistoryById(&quot;' + id + '&quot;)" style="cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;margin:2px 0;font-size:12px;color:var(--text-secondary);border:1px solid transparent" onmouseover="this.style.background=\'var(--bg-card)\';this.style.borderColor=\'var(--border-glow)\'" onmouseout="this.style.background=\'\';this.style.borderColor=\'transparent\'">' +
+        '<div style="min-width:0;flex:1"><div style="font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (h.icon || '💬') + ' ' + title + '</div>' +
+        '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + meta + ' · ' + h.msgs.length + '条</div></div>' +
+        '<button onclick="window.deleteCurrentWorkspaceHistoryItem(event,&quot;' + id + '&quot;)" title="删除这条记录" style="flex:0 0 auto;width:24px;height:24px;border-radius:6px;border:1px solid var(--border-glow);background:transparent;color:var(--text-muted);cursor:pointer;font-size:12px;line-height:1">×</button></div>';
     }).join('');
   }
   window.renderHistory = renderHistory;

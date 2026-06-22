@@ -232,7 +232,6 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .sidebar-footer{padding:16px 24px;border-top:1px solid var(--border-glow);font-size:11px;color:var(--text-muted);text-align:center}
 
 .content-area{flex:1;min-height:0;display:flex;flex-direction:column;padding:32px 24px;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;touch-action:pan-y}
-.content-area>*{width:100%;max-width:1120px;margin-left:auto;margin-right:auto}
 .content-area.fading{opacity:0;transition:opacity .25s}
 .content-header{margin-bottom:28px;animation:fadeSlideIn .5s cubic-bezier(.4,0,.2,1) both}
 @keyframes fadeSlideIn{0%{opacity:0;transform:translateY(-16px)}100%{opacity:1;transform:translateY(0)}}
@@ -369,7 +368,7 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland) .mode-card-do
 /* Chat Modal */
 .chat-overlay{position:absolute;left:260px;right:260px;top:0;bottom:0;z-index:100;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(2px)}
 .chat-overlay.open{opacity:1;pointer-events:all}
-.chat-modal{width:100%;height:100%;min-height:0;background:var(--bg-panel);border:none;border-radius:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;animation:modalIn .25s ease-out}
+.chat-modal{width:min(1120px,100%);height:100%;min-height:0;background:var(--bg-panel);border:none;border-radius:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;animation:modalIn .25s ease-out}
 @keyframes modalIn{0%{opacity:0;transform:scale(.95) translateY(10px)}100%{opacity:1;transform:scale(1) translateY(0)}}
 .chat-header{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--border-glow);background:linear-gradient(180deg,rgba(168,85,247,.08),transparent)}
 .chat-header-icon{width:40px;height:40px;border-radius:12px;background:rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--purple)}
@@ -477,7 +476,6 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland) .mode-card-do
 .sidebar-left.mobile-open{left:0;box-shadow:8px 0 40px rgba(0,0,0,.5)}
 .sidebar-right{display:none}
 .content-area{flex:1;min-height:0;padding:20px 12px;padding-top:56px;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
-.content-area>*{max-width:none}
 }
 @media(max-width:768px){.chat-overlay{left:0;right:0}}.theme-pureblack .settings-panel .form-api-status.ok{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#b0b0b0!important}.theme-pureblack .settings-panel .form-api-status.ok .fa-dot{background:#9d9d9d!important;box-shadow:none!important}.theme-pureblack #form-api-status.form-api-status.ok{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#b0b0b0!important}
 

@@ -232,6 +232,7 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .sidebar-footer{padding:16px 24px;border-top:1px solid var(--border-glow);font-size:11px;color:var(--text-muted);text-align:center}
 
 .content-area{flex:1;min-height:0;display:flex;flex-direction:column;padding:32px 24px;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.content-area>*{width:100%;max-width:1120px;margin-left:auto;margin-right:auto}
 .content-area.fading{opacity:0;transition:opacity .25s}
 .content-header{margin-bottom:28px;animation:fadeSlideIn .5s cubic-bezier(.4,0,.2,1) both}
 @keyframes fadeSlideIn{0%{opacity:0;transform:translateY(-16px)}100%{opacity:1;transform:translateY(0)}}
@@ -476,6 +477,7 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland) .mode-card-do
 .sidebar-left.mobile-open{left:0;box-shadow:8px 0 40px rgba(0,0,0,.5)}
 .sidebar-right{display:none}
 .content-area{flex:1;min-height:0;padding:20px 12px;padding-top:56px;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.content-area>*{max-width:none}
 }
 @media(max-width:768px){.chat-overlay{left:0;right:0}}.theme-pureblack .settings-panel .form-api-status.ok{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#b0b0b0!important}.theme-pureblack .settings-panel .form-api-status.ok .fa-dot{background:#9d9d9d!important;box-shadow:none!important}.theme-pureblack #form-api-status.form-api-status.ok{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#b0b0b0!important}
 

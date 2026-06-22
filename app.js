@@ -1679,7 +1679,7 @@ var text=String(item||"").replace(/\s+/g," ").trim();
 if(!text||seen[text]||text.length>34)return;
 seen[text]=true;out.push(text);
 });
-return out.slice(0,9);
+return out.slice(0,5);
 }
 function getLastChatText(role){
 for(var i=chatMessages.length-1;i>=0;i--){
@@ -1930,7 +1930,7 @@ var oralText=dcExtractOralScript(content||"");
 var cleanFull=dcRemoveOralSection(content||"");
 if(wrap)wrap.style.display="block";
 if(full)full.innerHTML=escapeChatText(cleanFull||"已提取到下方纯口播文案。");
-if(oral)oral.innerHTML=escapeChatText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”或在修改意见里要求：只输出纯口播文案。");
+if(oral)oral.innerHTML=escapeChatText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”，或在修改意见里补充语气、时长、重点后重新生成。");
 updateDynamicQuickChips("assistant",content||"");
 }
 function dcSetFormLoading(isLoading,label){
@@ -2053,7 +2053,7 @@ var oralText=myExtractOralScript(content||"");
 var cleanFull=myRemoveOralSection(content||"");
 if(wrap)wrap.style.display="block";
 if(full)full.innerHTML=escapeChatText(cleanFull||"已提取到下方纯口播文案。");
-if(oral)oral.innerHTML=escapeChatText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”或在修改意见里要求：只输出纯口播文案。");
+if(oral)oral.innerHTML=escapeChatText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”，或在修改意见里补充语气、时长、重点后重新生成。");
 updateDynamicQuickChips("assistant",content||"");
 }
 function setMayuanFormLoading(isLoading,label){

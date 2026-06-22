@@ -88,7 +88,7 @@
   </div>
   <div style="margin-top:12px;padding:12px;border-radius:12px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)">
     <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px">✏️ 修改与重新生成</div>
-    <textarea id="my-adjust-input" placeholder="输入修改意见，例如：只保留口播文案、开头更抓人、压缩到30秒、换成小红书风格..." style="width:100%;min-height:70px;padding:10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea>
+    <textarea id="my-adjust-input" placeholder="输入修改意见，例如：开头更抓人、压缩到30秒、换成小红书风格、强化用户痛点..." style="width:100%;min-height:70px;padding:10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px">
       <button class="chat-form-submit" onclick="adjustMayuanFormResult()">提交修改</button>
       <button class="chat-form-submit" onclick="regenerateMayuanForm()">重新生成</button>
@@ -125,7 +125,7 @@
   </div>
   <div style="margin-top:12px;padding:12px;border-radius:12px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)">
     <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px">✏️ 修改与重新生成</div>
-    <textarea id="dc-adjust-input" placeholder="输入修改意见，例如：只保留口播文案、开头更狠一点、语气更像宝妈真实吐槽、压缩到30秒..." style="width:100%;min-height:70px;padding:10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea>
+    <textarea id="dc-adjust-input" placeholder="输入修改意见，例如：开头更狠一点、语气更像宝妈真实吐槽、压缩到30秒、强化产品差异..." style="width:100%;min-height:70px;padding:10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px">
       <button class="chat-form-submit" onclick="adjustDachuanFormResult()">提交修改</button>
       <button class="chat-form-submit" onclick="regenerateDachuanForm()">重新生成</button>
@@ -421,7 +421,7 @@
 <script src="modules/tiejia.js?v=202606181130"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606221230"></script>
+<script src="app.js?v=202606221245"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 

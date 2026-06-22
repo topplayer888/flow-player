@@ -116,7 +116,7 @@ function tjStep3(){
   var hooks=tjGetVals("tj-hooks");
   if(hooks.length===0){alert("请至少选择一个钩子类型");return}
   document.getElementById("tj-loading").style.display="";
-  var prompt="产品名称："+pn+"\n产品类型："+p+"\n目标受众："+a+"\n核心卖点："+s+"\n核心痛点："+pp+"\n使用场景："+sc+"\n价格定位："+pr+"\n钩子类型："+hooks.join("、")+"\n人设视角："+persona+"\n语气风格："+tone+"\n\n【视频时长硬性要求】按60-90秒引流口播生成，完整口播文案必须控制在300-500字，建议18-28句，每句不超过25字。输出前必须自检字数，少于300字或超过500字都必须先自行重写到合格范围。\n\n生成完整引流文案，包含：\n【标题建议】（3个）\n【完整口播文案】（300-500字，口语化，先制造坏情绪再引出解决方案）\n【分镜脚本】（表格格式：时间段|画面描述|口播文案|情绪/语气）\n【可视化建议】（3-5个画面）\n【转化引导】（结尾话术+评论区预设3条）\n\n只输出纯文本，不要JSON格式。";
+  var prompt="产品名称："+pn+"\n产品类型："+p+"\n目标受众："+a+"\n核心卖点："+s+"\n核心痛点："+pp+"\n使用场景："+sc+"\n价格定位："+pr+"\n钩子类型："+hooks.join("、")+"\n人设视角："+persona+"\n语气风格："+tone+"\n\n【视频时长硬性要求】按60-90秒引流口播生成，完整口播文案必须控制在300-500字，建议18-28句，每句不超过25字。输出前必须自检字数，少于300字或超过500字都必须先自行重写到合格范围。\n\n【逻辑连贯硬性要求】完整口播文案必须按“钩子 -> 目标人群具体场景 -> 坏情绪/痛点 -> 问题原因 -> 产品或方案介入 -> 卖点证明 -> 具体利益 -> 自然收尾”的链路推进。每一段必须承接上一段，不能突然换话题，不能只罗列卖点，不能每句都像标题。输出前自检：如果句子顺序可以随意调换，说明逻辑不强，必须先重写。\n\n生成完整引流文案，包含：\n【标题建议】（3个）\n【完整口播文案】（300-500字，口语化，先制造坏情绪再引出解决方案）\n【分镜脚本】（表格格式：时间段|画面描述|口播文案|情绪/语气）\n【可视化建议】（3-5个画面）\n【转化引导】（结尾话术+评论区预设3条）\n\n只输出纯文本，不要JSON格式。";
   xuehuiCallAPI("你是短视频营销文案专家。只输出纯文本文案。",prompt,function(json){
     document.getElementById("tj-loading").style.display="none";
     if(json&&json.error){document.getElementById("tj-result").textContent="API 错误："+(json.error.message||"生成失败");return}
@@ -267,6 +267,7 @@ function tjRegen(){
     selected.forEach(function(type){requirements.push("- "+tjBuildIterateInstruction(type))});
   }
   if(suggestion){requirements.push("用户输入的其它调整："+suggestion)}
+  requirements.push("逻辑连贯硬性要求：重新生成的口播逐字稿必须按“钩子 -> 目标人群具体场景 -> 坏情绪/痛点 -> 问题原因 -> 产品或方案介入 -> 卖点证明 -> 具体利益 -> 自然收尾”的链路推进。每一段必须承接上一段，不能突然换话题，不能只罗列卖点，不能每句都像标题。输出前自检：如果句子顺序可以随意调换，说明逻辑不强，必须先重写。");
   document.getElementById("tj-loading").style.display="";
   var sourceBlock="";
   if(source.full){sourceBlock+="【完整文案上下文】\n"+source.full+"\n\n"}

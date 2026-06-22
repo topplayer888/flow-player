@@ -319,7 +319,7 @@ function xhRegenerate() {
   if (!feedback) { alert("请输入优化意见"); return; }
   if (!xhState.results || !xhState.results.length) { alert("没有可优化的内容"); return; }
   var sysPrompt = "你是短视频文案优化专家。根据用户的优化意见，对原文案进行修改。只输出优化后的文案，不要解释。";
-  var userPrompt = "优化意见：" + feedback + "\n\n原文案：\n" + xhState.results.map(function(r, i) {
+  var userPrompt = "优化意见：" + feedback + "\n\n" + xhNarrativeLogicRule() + "\n\n原文案：\n" + xhState.results.map(function(r, i) {
     return "【文案" + (i + 1) + "】" + r.duration + " - " + r.copyType + " - " + r.openingType + "\n" + r.content;
   }).join("\n\n---\n\n");
   document.getElementById("xh-regen-loading").style.display = "";
@@ -458,6 +458,10 @@ function xuehuiReset() {
   xuehuiRenderOpenings();
 }
 
+function xhNarrativeLogicRule() {
+  return "逻辑连贯硬性要求：content 必须是一条连续口播链路，不能把开头、观点、段子、金句机械拼接。推荐链路：开头钩子 -> 具体场景 -> 冲突/痛点 -> 原因/误区 -> 观点/方法 -> 具体价值 -> 情绪或金句收束 -> 自然行动。每一段必须承接上一段：要么解释上一段，要么推进下一步，要么形成转折。不要突然换话题，不要每句都像标题，不要只罗列观点或价值点。输出前自检：如果句子顺序可以随意调换，说明逻辑不强，必须先重写。";
+}
+
 function xhBuildGenerationPrompt(topic, openingRules, tmplRules) {
   return "你是短视频爆款文案生成专家，基于薛辉内容体系。请根据用户选择的文案模板和开头类型，为指定选题生成可直接口播的完整文案。\n\n" +
     "选题：" + topic.title + "\n选题元素：" + topic.element + "\n\n" +
@@ -485,7 +489,7 @@ function xuehuiGenerate() {
   var topic = xhState.selectedTopic;
   var openingRules = xhState.selectedOpenings.map(function(n) { return "【" + n + "】" + (xhLocalOpeningDetails[n] || "按该开头类型生成"); }).join("\n");
   var tmplRules = xhState.templates.map(function(n) { return "【" + n + "】" + (xhLocalTemplateDetails[n] || "按该模板类型生成"); }).join("\n");
-  var sysPrompt = xhBuildGenerationPrompt(topic, openingRules, tmplRules);
+  var sysPrompt = xhBuildGenerationPrompt(topic, openingRules, tmplRules) + "\n\n" + xhNarrativeLogicRule();
   var userPrompt = "行业：" + xhState.industry + "\n目标人群：" + xhState.audience + "\n选题：" + topic.title + "\n元素：" + topic.element + "\n模板：" + xhState.templates.join("、") + "\n开头：" + xhState.selectedOpenings.join("、");
   var btn = document.querySelector("#xh-step4 .chat-form-submit");
   xhSetButton(btn, "生成中...", true);

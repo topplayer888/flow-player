@@ -21,14 +21,14 @@ var fa=document.getElementById("form-result-area");
 fa.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:20px">⏳ 生成中...</div>';
 fa.style.display="";
 var msgs=[{role:"system",content:agent.systemPrompt},{role:"user",content:prompt}];
-fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:16000})}).then(function(r){return r.json()}).then(function(data){
+apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:16000})}).then(function(r){return r.json()}).then(function(data){
 if(data.error){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ API 错误：'+data.error.message+'</div>';return}
 if(!data.choices||!data.choices[0]||!data.choices[0].message){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ API 返回格式异常</div>';return}
 var c=data.choices[0].message.content;
 fa.innerHTML='<div style="background:var(--bg-card);border:1px solid var(--border-glow);border-radius:10px;padding:16px"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:10px">📝 生成结果</div><div style="font-size:12px;line-height:1.8;color:var(--text-primary);line-height:1.5">'+formatScript(c)+'</div><div style="margin-top:12px;display:flex;gap:8px"><button onclick="copyFormResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">📋 复制</button></div></div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 纯口播文案</span><button onclick="copyVoiceoverForm(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="form-voiceover-text" id="form-voiceover-text" style="font-size:12px;line-height:1.5;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-panel);border-radius:8px"><span style="color:var(--text-muted)">⏳ 提取纯口播中...</span></div>';
 // Extract pure voiceover via second API call
 var voPrompt="请从以下内容中提取纯口播文案，只保留可实际朗读的脚本部分，删除所有分析、策略、手法选择、建议等非口播内容。直接输出纯净的口播文案，不要任何说明。\n\n原始内容：\n"+c;
-fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"user",content:voPrompt}],temperature:.3,max_tokens:8000})}).then(function(r2){return r2.json()}).then(function(d2){
+apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"user",content:voPrompt}],temperature:.3,max_tokens:8000})}).then(function(r2){return r2.json()}).then(function(d2){
  var vo=d2.error?c:((d2.choices&&d2.choices[0]&&d2.choices[0].message)?d2.choices[0].message.content:c);
  document.getElementById("form-voiceover-text").textContent=vo;
 }).catch(function(){
@@ -81,7 +81,7 @@ function formRegenerate(){
  var userPrompt="优化意见："+fb+"\n\n原文案：\n"+content;
  document.getElementById("form-regen-loading").style.display="";
  document.getElementById("form-regen-result").style.display="none";
- fetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:sysPrompt},{role:"user",content:userPrompt}],temperature:.3,max_tokens:8000})}).then(function(r){return r.json()}).then(function(data){
+ apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:[{role:"system",content:sysPrompt},{role:"user",content:userPrompt}],temperature:.3,max_tokens:8000})}).then(function(r){return r.json()}).then(function(data){
  document.getElementById("form-regen-loading").style.display="none";
   if(data.error){document.getElementById("form-regen-result").innerHTML='<div style="color:#ef4444">❌ '+data.error.message+'</div>';document.getElementById("form-regen-result").style.display="";return}
   if(!data.choices||!data.choices[0]||!data.choices[0].message){document.getElementById("form-regen-result").innerHTML='<div style="color:#ef4444">❌ API 返回格式异常</div>';document.getElementById("form-regen-result").style.display="";return}

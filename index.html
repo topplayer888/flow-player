@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
 <link rel="preload" as="image" href="wasteland-bg.jpg">
-<link rel="stylesheet" href="style.css?v=179"></head><body class="auth-checking">
+<link rel="stylesheet" href="style.css?v=182"></head><body class="auth-checking">
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="auth-overlay" id="auth-overlay">
 <div class="auth-card">
@@ -17,7 +17,7 @@
 <input class="auth-input" id="auth-password" placeholder="请输入密码" type="password" autocomplete="current-password" onkeydown="handleAuthKey(event)">
 <input class="auth-input auth-confirm-input" id="auth-password-confirm" placeholder="请再次输入密码" type="password" autocomplete="new-password" onkeydown="handleAuthKey(event)">
 <button class="auth-submit" id="auth-submit" onclick="submitAuth()">登录</button>
-<div class="auth-msg" id="auth-msg">输入手机号和密码登录。首次使用请先切换到注册。</div>
+<div class="auth-msg" id="auth-msg">正在检查登录状态...</div>
 </div>
 </div>
 <div class="app-container">
@@ -378,6 +378,7 @@
 </div>
 </div>
 <textarea class="chat-input" id="chat-input" placeholder="输入你的需求..." rows="1" onkeydown="handleChatKey(event)"></textarea>
+<button class="chat-stop" id="chat-stop-btn" onclick="abortCurrentGeneration()" title="暂停生成" style="display:none">暂停</button>
 <button class="chat-send" id="chat-send-btn" onclick="sendMessage()">↑</button>
 </div>
 </div>
@@ -415,14 +416,13 @@
 </div>
 </div>
 <script src="modules/mayuan.js?v=202606051330"></script>
-<script src="modules/xuehui.js?v=202606151020"></script>
-<script src="modules/kanjian.js?v=202606151020"></script>
-<script src="modules/tiejia.js?v=202606151020"></script>
+<script src="modules/xuehui.js?v=202606181130"></script>
+<script src="modules/kanjian.js?v=202606181130"></script>
+<script src="modules/tiejia.js?v=202606181130"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606180901"></script>
+<script src="app.js?v=202606221020"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
-<input id="kyrie-image-upload" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" style="display:none" onchange="handleKyrieImageUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)">
@@ -440,6 +440,7 @@
 <div class="settings-body">
 <div class="settings-tab-content active" id="settings-tab-api">
 <div class="settings-hint">💡 选择模型后自动填充端点，只需填入 API Key 即可使用</div>
+<div class="api-config-status" id="api-config-status">API 未配置</div>
 <input id="set-endpoint" placeholder="API 端点 (默认 DeepSeek)">
 <input id="set-apikey" placeholder="API Key (sk-...)" type="password">
 <select id="set-model" onchange="onModelSelectChange()"><option value="" disabled selected>请在这里选择你的模型</option><option value="deepseek-v4-flash">DeepSeek V4 Flash</option><option value="deepseek-v4-pro">DeepSeek V4 Pro</option><option value="gpt-4o">GPT-4o (OpenAI)</option><option value="gpt-4o-mini">GPT-4o Mini (OpenAI)</option><option value="gpt-4-turbo">GPT-4 Turbo (OpenAI)</option><option value="qwen-plus">通义千问 Plus</option><option value="qwen-max">通义千问 Max</option><option value="glm-4">智谱 GLM-4</option><option value="moonshot-v1-8k">Kimi (Moonshot)</option><option value="__custom__">📝 自定义模型...</option></select><input id="set-model-custom" placeholder="输入自定义模型名称" style="display:none;margin-top:6px">
@@ -467,6 +468,17 @@
 </div>
 </div>
 </div>
+<script>
+window.__authBootstrapTimer=setTimeout(function(){
+  if(document.body.classList.contains("auth-checking")){
+    document.body.classList.remove("auth-checking");
+    document.body.classList.add("auth-locked");
+    document.body.classList.remove("auth-ready");
+    var msg=document.getElementById("auth-msg");
+    if(msg){msg.textContent="登录服务加载较慢，请检查网络后刷新页面重试。";msg.classList.add("error");}
+  }
+},8000);
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -485,6 +497,7 @@ var authMode = "login";
 var currentAppUser = null;
 
 function failAuthBootstrap(message) {
+  if (window.__authBootstrapTimer) clearTimeout(window.__authBootstrapTimer);
   document.body.classList.remove("auth-checking");
   document.body.classList.add("auth-locked");
   document.body.classList.remove("auth-ready");
@@ -595,6 +608,7 @@ function switchAuthAccount() {
 
 if (firebaseAuth) {
   firebaseAuth.onAuthStateChanged(function(user) {
+    if (window.__authBootstrapTimer) clearTimeout(window.__authBootstrapTimer);
     currentAppUser = user || null;
     document.body.classList.remove("auth-checking");
     document.body.classList.toggle("auth-locked", !user);

@@ -1,7 +1,8 @@
 html,body{margin:0;padding:0;height:100%}
 :root{--bg-deep:#0a0c14;--bg-panel:#0f121e;--bg-card:#141828;--border-glow:#1a1f35;--cyan:#00e5ff;--cyan-dim:rgba(0,229,255,.15);--purple:#a855f7;--purple-dim:rgba(168,85,247,.15);--gold:#f59e0b;--gold-dim:rgba(245,158,11,.15);--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--radius:12px;--radius-sm:8px}
 .auth-checking .app-container,.auth-locked .app-container,.auth-locked .settings-overlay,.auth-locked .chat-overlay{pointer-events:none;filter:blur(8px);opacity:.24}
-.auth-checking .auth-overlay{display:none}
+.auth-checking .auth-overlay{display:flex}
+.auth-checking .auth-tabs,.auth-checking .auth-input,.auth-checking .auth-submit{display:none}
 .auth-overlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 0%,rgba(0,229,255,.11),transparent 32%),rgba(5,7,12,.78);backdrop-filter:blur(14px)}
 .auth-locked .auth-overlay{display:flex}
 .auth-card{width:360px;max-width:92vw;padding:28px;border-radius:16px;border:1px solid var(--border-glow);background:rgba(15,18,30,.94);box-shadow:0 28px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04);color:var(--text-primary)}
@@ -450,6 +451,9 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland) .mode-card-do
 .chat-send{width:42px;height:42px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple),rgba(168,85,247,.6));color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center}
 .chat-send:hover{box-shadow:0 0 16px rgba(168,85,247,.3);transform:scale(1.05)}
 .chat-send:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.chat-stop{height:42px;min-width:58px;border-radius:12px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.1);color:#f87171;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;align-items:center;justify-content:center;transition:all .2s}
+.chat-stop:hover{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.55);box-shadow:0 0 14px rgba(239,68,68,.18);transform:translateY(-1px)}
+.chat-stop:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
 .kyrie-back-btn{margin:0 0 18px 2px;padding:10px 16px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(255,255,255,.04);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
 .kyrie-back-btn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-dim);transform:translateX(-2px)}
 .kyrie-menu-grid,.kyrie-sub-grid{align-items:stretch}
@@ -574,3 +578,9 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland) .mode-card-do
 .theme-pureblack .kyrie-back-btn:hover{background:rgba(255,255,255,.09)!important;border-color:rgba(255,255,255,.24)!important;color:#fff!important;box-shadow:none!important}
 .theme-light .kyrie-back-btn{background:#ffffff!important;border-color:#dbe3ee!important;color:#475569!important;box-shadow:0 8px 18px rgba(15,23,42,.045)!important}
 .theme-light .kyrie-back-btn:hover{background:#eef5ff!important;border-color:#93c5fd!important;color:#1d4ed8!important;box-shadow:0 10px 22px rgba(37,99,235,.1)!important}
+/* API settings status */
+.api-config-status{margin:-2px 0 10px;padding:8px 10px;border:1px solid var(--border-glow);border-radius:8px;background:var(--bg-card);color:var(--text-muted);font-size:11px;line-height:1.45}
+.api-config-status.configured{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08);color:var(--accent)}
+/* Dynamic chat suggestion chips */
+.chat-questions{transition:opacity .18s ease}
+.chat-question-chip{user-select:none}

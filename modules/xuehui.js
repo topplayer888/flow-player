@@ -326,6 +326,8 @@ function xhRegenerate() {
   var userPrompt = "优化意见：" + feedback + "\n\n" + xhNarrativeLogicRule() + "\n\n原文案：\n" + xhState.results.map(function(r, i) {
     return "【文案" + (i + 1) + "】" + r.duration + " - " + r.copyType + " - " + r.openingType + "\n" + r.content;
   }).join("\n\n---\n\n");
+  sysPrompt = "你是短视频口播文案优化专家。根据用户的优化意见，对原文案进行修改。只输出优化后的口播文案正文，不要解释，不要标题，不要分析，不要模板说明。";
+  userPrompt += "\n\n必须只输出优化后的口播文案正文。不要输出选题、开头类型、模板类型、分析、优化建议、标题、说明或编号清单。每行一句自然口语，方便直接复制拍摄。";
   var btn = document.getElementById("xh-regen-btn") || document.querySelector("#xh-results-content .sidebar-api-save");
   xhSetButton(btn, "重新生成中...", true);
   var regenLoading = document.getElementById("xh-regen-loading");

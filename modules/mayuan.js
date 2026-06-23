@@ -82,6 +82,8 @@ function formRegenerate(){
  var agent=agents[chatKey];if(!agent)return;
  var sysPrompt="你是短视频文案优化专家，根据用户优化意见修改文案，直接返回优化后的纯文本。";
  var userPrompt="优化意见："+fb+"\n\n原文案：\n"+content;
+ sysPrompt = "你是短视频口播文案优化专家。根据用户优化意见修改文案，只输出优化后的口播文案正文，不要解释，不要标题，不要分析。";
+ userPrompt += "\n\n必须只输出优化后的口播文案正文。不要输出策略分析、脚本手法、视觉手法、分镜、标题、建议、说明或编号清单。每行一句自然口语，方便直接复制拍摄。";
  var regenBtn=document.getElementById("form-regen-btn");
  if(typeof setGenerateButtonLoading==="function")setGenerateButtonLoading(regenBtn,true,"重新生成中...");
  var regenLoading=document.getElementById("form-regen-loading");

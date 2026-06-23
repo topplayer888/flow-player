@@ -124,10 +124,12 @@ function xuehuiUpdateStatus() {
 
 function xhSetButton(btn, text, disabled) {
   if (!btn) return;
+  if (disabled && !btn.dataset.normalText) btn.dataset.normalText = btn.textContent;
   btn.textContent = text;
   btn.disabled = !!disabled;
   btn.style.opacity = disabled ? ".72" : "";
   btn.style.cursor = disabled ? "wait" : "";
+  if (!disabled) delete btn.dataset.normalText;
 }
 
 function xhRenderTopics(topics) {

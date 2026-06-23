@@ -37,7 +37,7 @@ apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/
  document.getElementById("form-voiceover-text").textContent=c;
 });
 fa.innerHTML+= '</div><div style="margin-top:12px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="form-regen-input" placeholder="输入优化意见" style="width:100%;min-height:50px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button id="form-regen-btn" onclick="formRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="form-regen-result" style="margin-top:10px;display:none"></div><div id="form-regen-loading" style="display:none"></div></div>'
-}).catch(function(e){fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ 请求失败：'+e.message+'</div>'}).finally(function(){if(typeof setGenerateButtonLoading==="function")setGenerateButtonLoading(submitBtn,false)})
+}).catch(function(e){if(typeof isAbortError==="function"&&isAbortError(e)){if(typeof showGenerationAbortNotice==="function")showGenerationAbortNotice();return}fa.innerHTML='<div style="color:#ef4444;padding:12px">❌ 请求失败：'+e.message+'</div>'}).finally(function(){if(typeof setGenerateButtonLoading==="function")setGenerateButtonLoading(submitBtn,false)})
 }
 function copyVoiceoverForm(btn){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
  var el=btn.parentElement.parentElement.querySelector(".form-voiceover-text");
@@ -96,6 +96,7 @@ function formRegenerate(){
   document.getElementById("form-regen-result").innerHTML='<div style="padding:12px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,229,255,.04)"><div style="font-size:11px;font-weight:600;color:var(--cyan);margin-bottom:6px">✅ 优化结果</div><div style="font-size:12px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap">'+result.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div><button onclick="copyFormRegenResult(this)" style="margin-top:8px;background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 复制</button></div>';
   document.getElementById("form-regen-result").style.display="";
  }).catch(function(e){
+  if(typeof isAbortError==="function"&&isAbortError(e)){if(typeof showGenerationAbortNotice==="function")showGenerationAbortNotice();return}
   if(typeof setGenerateButtonLoading==="function")setGenerateButtonLoading(regenBtn,false);
   var regenLoadingErr=document.getElementById("form-regen-loading");
   if(regenLoadingErr)regenLoadingErr.style.display="none";

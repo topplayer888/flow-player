@@ -126,7 +126,7 @@ function tjStep3(){
     if(tjLoadingDone)tjLoadingDone.style.display="none";
     if(json&&json.error){document.getElementById("tj-result").textContent="API 错误："+(json.error.message||"生成失败");return}
     var result=typeof json==="string"?json:(json.raw||json.content||json.text||JSON.stringify(json));
-    document.getElementById("tj-result").textContent=result;
+    document.getElementById("tj-result").textContent=typeof compactResultText==="function"?compactResultText(result):result;
     tjRenderVoiceover(result);
   });
 }
@@ -176,14 +176,14 @@ function tjRenderVoiceover(result){
   var voWrap=document.createElement("div");
   voWrap.id="tj-voiceover-wrap";
   voWrap.style.cssText="margin-top:16px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)";
-  voWrap.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 纯口播文案</span><button onclick="copyTjVoiceover(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="tj-voiceover-text" id="tj-voiceover-text" style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-card);border-radius:8px"><span style="color:var(--text-muted)">⏳ 提取纯口播中...</span></div>';
+  voWrap.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 纯口播文案</span><button onclick="copyTjVoiceover(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="tj-voiceover-text" id="tj-voiceover-text" style="font-size:12px;line-height:1.65;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-card);border-radius:8px"><span style="color:var(--text-muted)">⏳ 提取纯口播中...</span></div>';
   document.getElementById("tj-result").insertAdjacentElement("afterend",voWrap);
   var voPrompt="请从以下内容中提取纯口播文案，只保留可实际朗读的脚本部分，删除所有分析、策略、手法选择、建议、标记符号等非口播内容。直接输出纯净的口播文案，不要任何说明。\n\n原始内容：\n"+result;
   xuehuiCallAPI("你是口播文案提取助手。只输出纯口播文案。",voPrompt,function(voJson){
     if(voJson&&voJson.error){voJson={raw:result}}
     var vo=typeof voJson==="string"?voJson:(voJson.raw||voJson.content||voJson.text||JSON.stringify(voJson));
     var voEl=document.getElementById("tj-voiceover-text");
-    if(voEl)voEl.textContent=vo;
+    if(voEl)voEl.textContent=typeof compactResultText==="function"?compactResultText(vo):vo;
   },{temperature:0.3,max_tokens:4000});
 }
 
@@ -208,8 +208,8 @@ function tjRenderRegenVoiceover(result){
   if(!ir)return;
   ir.style.display="";
   ir.style.cssText="display:block;margin-top:12px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)";
-  ir.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 重新生成口播逐字稿</span><button onclick="copyTjRegenVoiceover(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="tj-voiceover-text" id="tj-regen-voiceover-text" style="font-size:12px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-card);border-radius:8px"></div>';
-  document.getElementById("tj-regen-voiceover-text").textContent=result;
+  ir.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 重新生成口播逐字稿</span><button onclick="copyTjRegenVoiceover(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="tj-voiceover-text" id="tj-regen-voiceover-text" style="font-size:12px;line-height:1.65;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-card);border-radius:8px"></div>';
+  document.getElementById("tj-regen-voiceover-text").textContent=typeof compactResultText==="function"?compactResultText(result):result;
 }
 
 function tjCleanVoiceoverText(text){

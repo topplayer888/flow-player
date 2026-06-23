@@ -1696,8 +1696,11 @@ updateDynamicQuickChips(role,html);
 function escapeChatText(text){
 return String(text||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 }
+function compactResultText(text){
+return String(text||"").replace(/\r\n/g,"\n").replace(/\r/g,"\n").replace(/[ \t]+\n/g,"\n").replace(/\n[ \t]+/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+}
 function formatChatText(content){
-var safe=escapeChatText(content).replace(/\r\n/g,"\n").replace(/\r/g,"\n").trim();
+var safe=escapeChatText(compactResultText(content));
 safe=safe.replace(/\n[ \t]+\n/g,"\n\n").replace(/\n{3,}/g,"\n\n");
 safe=safe.replace(/\n\n(\s*[-*]\s+)/g,"\n$1").replace(/\n\n(\s*\d+[\.、]\s+)/g,"\n$1");
 safe=safe.replace(/^#{1,6}\s*(.+)$/gm,'<div style="font-weight:700;color:var(--text-primary);margin:8px 0 4px">$1</div>');
@@ -2007,8 +2010,8 @@ var oral=document.getElementById("dc-oral-result");
 var oralText=dcExtractOralScript(content||"");
 var cleanFull=dcRemoveOralSection(content||"");
 if(wrap)wrap.style.display="block";
-if(full)full.innerHTML=escapeChatText(cleanFull||"已提取到下方纯口播文案。");
-if(oral)oral.innerHTML=escapeChatText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”，或在修改意见里补充语气、时长、重点后重新生成。");
+if(full)full.innerHTML=escapeChatText(compactResultText(cleanFull||"已提取到下方纯口播文案。"));
+if(oral)oral.innerHTML=escapeChatText(compactResultText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”，或在修改意见里补充语气、时长、重点后重新生成。"));
 updateDynamicQuickChips("assistant",content||"");
 }
 var dcActiveFormButton=null;
@@ -2137,8 +2140,8 @@ var oral=document.getElementById("my-oral-result");
 var oralText=myExtractOralScript(content||"");
 var cleanFull=myRemoveOralSection(content||"");
 if(wrap)wrap.style.display="block";
-if(full)full.innerHTML=escapeChatText(cleanFull||"已提取到下方纯口播文案。");
-if(oral)oral.innerHTML=escapeChatText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”，或在修改意见里补充语气、时长、重点后重新生成。");
+if(full)full.innerHTML=escapeChatText(compactResultText(cleanFull||"已提取到下方纯口播文案。"));
+if(oral)oral.innerHTML=escapeChatText(compactResultText(oralText||"本次结果未识别到独立口播文案，请点击“重新生成”，或在修改意见里补充语气、时长、重点后重新生成。"));
 updateDynamicQuickChips("assistant",content||"");
 }
 var mayuanActiveFormButton=null;

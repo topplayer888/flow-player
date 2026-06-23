@@ -375,7 +375,7 @@ function kjGenerate() { if (!kjCheckApi()) return; if (!kjCheckApi()) return;
     }
     var result = typeof json === "string" ? json : (json.raw || json.content || json.text || JSON.stringify(json));
     
-    var html = '<div id="kj-result" style="padding:14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:13px;line-height:1.9;color:var(--text-primary);white-space:pre-wrap;max-height:500px;overflow-y:auto">' + kjFormatResult(result) + '</div>';
+    var html = '<div id="kj-result" style="padding:14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border-glow);font-size:13px;line-height:1.65;color:var(--text-primary);white-space:pre-wrap;max-height:500px;overflow-y:auto">' + kjFormatResult(typeof compactResultText==="function"?compactResultText(result):result) + '</div>';
     html += '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">';
     html += '<button onclick="kjCopyResult()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);cursor:pointer;font-size:12px">📋 复制全文</button>';
     html += '<button onclick="kjStepBack()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);cursor:pointer;font-size:12px">🔄 调整参数重新生成</button>';

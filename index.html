@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
 <link rel="preload" as="image" href="wasteland-bg.jpg">
-<link rel="stylesheet" href="style.css?v=188"></head><body class="auth-checking">
+<link rel="stylesheet" href="style.css?v=189"></head><body class="auth-checking">
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="auth-overlay" id="auth-overlay">
 <div class="auth-card">
@@ -392,7 +392,6 @@
 </div>
 </div>
 <textarea class="chat-input" id="chat-input" placeholder="输入你的需求..." rows="1" onkeydown="handleChatKey(event)"></textarea>
-<button class="chat-stop" id="chat-stop-btn" onclick="abortCurrentGeneration()" title="暂停生成" style="display:none">暂停</button>
 <button class="chat-send" id="chat-send-btn" onclick="sendMessage()">↑</button>
 </div>
 </div>
@@ -435,7 +434,7 @@
 <script src="modules/tiejia.js?v=202606231315"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606231500"></script>
+<script src="app.js?v=202606231540"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 

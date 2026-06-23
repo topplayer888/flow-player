@@ -21,7 +21,6 @@ if(cancel)cancel.style.display="";
 }
 window.alert=showAppAlert;
 window.closeAppAlert=closeAppAlert;
-var activeGenerationRequests=[],generationAbortRequested=false,generationAbortNoticeShown=false;
 var chatFrameWidth=parseFloat(localStorage.getItem("fp_chat_frame_width")||localStorage.getItem("fp_chat_zoom")||"1")||1;
 var chatFrameHeight=parseFloat(localStorage.getItem("fp_chat_frame_height")||localStorage.getItem("fp_chat_zoom")||"1")||1;
 function clampChatZoom(value){
@@ -91,68 +90,11 @@ document.addEventListener("pointermove",move);
 document.addEventListener("pointerup",up);
 document.addEventListener("pointercancel",up);
 }
-function updateGenerationPauseUI(){
-var btn=document.getElementById("chat-stop-btn");
-if(!btn)return;
-var active=activeGenerationRequests.length>0;
-var inputArea=document.getElementById("chat-input-area");
-var input=document.getElementById("chat-input");
-var send=document.querySelector(".chat-send");
-var upload=document.getElementById("mayuan-upload-wrap");
-if(inputArea){
- if(active){inputArea.style.display="flex"}else if(typeof chatMode!=="undefined"&&chatMode==="form"){inputArea.style.display="none"}else{inputArea.style.display=""}
-}
-if(input)input.style.display=(active&&typeof chatMode!=="undefined"&&chatMode==="form")?"none":"";
-if(send)send.style.display=(active&&typeof chatMode!=="undefined"&&chatMode==="form")?"none":"";
-if(upload&&active&&typeof chatMode!=="undefined"&&chatMode==="form")upload.style.display="none";
-btn.style.display=active?"flex":"none";
-btn.disabled=!active||generationAbortRequested;
-btn.textContent=generationAbortRequested?"暂停中...":"暂停";
-}
-function beginGenerationRequest(){
-if(activeGenerationRequests.length===0){generationAbortRequested=false;generationAbortNoticeShown=false}
-var handle={controller:null,signal:void 0,done:false};
-if(typeof AbortController!=="undefined"){
-handle.controller=new AbortController();
-handle.signal=handle.controller.signal;
-}
-activeGenerationRequests.push(handle);
-updateGenerationPauseUI();
-return handle;
-}
-function finishGenerationRequest(handle){
-if(!handle||handle.done)return;
-handle.done=true;
-activeGenerationRequests=activeGenerationRequests.filter(function(item){return item!==handle});
-if(activeGenerationRequests.length===0)generationAbortRequested=false;
-updateGenerationPauseUI();
-}
 function isAbortError(err){
-return !!err&&(err.name==="AbortError"||/abort|aborted|cancel/i.test(String(err.message||"")));
+return false;
 }
 function apiFetch(url,options){
-var handle=beginGenerationRequest();
-options=options||{};
-if(handle.signal)options.signal=handle.signal;
-return fetch(url,options).catch(function(err){
-if(isAbortError(err)){try{err.message="已暂停生成"}catch(e){}}
-throw err;
-}).finally(function(){finishGenerationRequest(handle)});
-}
-function showGenerationAbortNotice(){
-hideTyping();
-if(generationAbortNoticeShown)return;
-generationAbortNoticeShown=true;
-if(chatOpen){addMessage("assistant","已暂停生成")}
-}
-function abortCurrentGeneration(){
-if(!activeGenerationRequests.length)return;
-generationAbortRequested=true;
-updateGenerationPauseUI();
-activeGenerationRequests.slice().forEach(function(handle){
-if(handle&&handle.controller&&!handle.done)handle.controller.abort();
-});
-showGenerationAbortNotice();
+return fetch(url,options||{});
 }
 var sections=[{title:"爆款脚本创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"四大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"访谈式IP策划",desc:"IP访谈 · 经历挖掘与短视频脚本生成",icon:"🎤"},{name:"爆款仿写",desc:"爆款仿写 · 对标爆款文案的结构化仿写生成",icon:"✍️"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"创意",desc:"四大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"},{name:"马源2.0",desc:"马源2.0 · 内容专项与广告创意智能体",icon:"🧠"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"策略",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导IP直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"Kyrie直播方法论",desc:"Kyrie体系 · 知识付费直播闭环与中控训练",icon:"📈"}]}],currentSection=0,currentMode=0;
 

@@ -1698,11 +1698,13 @@ return String(text||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,
 }
 function formatChatText(content){
 var safe=escapeChatText(content).replace(/\r\n/g,"\n").replace(/\r/g,"\n").trim();
-safe=safe.replace(/^#{1,6}\s*(.+)$/gm,'<div style="font-weight:700;color:var(--text-primary);margin:10px 0 6px">$1</div>');
+safe=safe.replace(/\n[ \t]+\n/g,"\n\n").replace(/\n{3,}/g,"\n\n");
+safe=safe.replace(/\n\n(\s*[-*]\s+)/g,"\n$1").replace(/\n\n(\s*\d+[\.、]\s+)/g,"\n$1");
+safe=safe.replace(/^#{1,6}\s*(.+)$/gm,'<div style="font-weight:700;color:var(--text-primary);margin:8px 0 4px">$1</div>');
 safe=safe.replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');
-safe=safe.replace(/^\s*[-*]\s+(.+)$/gm,'<div style="margin:4px 0 4px 12px">• $1</div>');
-safe=safe.replace(/^\s*(\d+)[\.、]\s+(.+)$/gm,'<div style="margin:4px 0 4px 12px">$1. $2</div>');
-safe=safe.replace(/\n{3,}/g,"\n\n").replace(/\n\n/g,'<div style="height:8px"></div>').replace(/\n/g,"<br>");
+safe=safe.replace(/^\s*[-*]\s+(.+)$/gm,'<div style="margin:2px 0 2px 12px">• $1</div>');
+safe=safe.replace(/^\s*(\d+)[\.、]\s+(.+)$/gm,'<div style="margin:2px 0 2px 12px">$1. $2</div>');
+safe=safe.replace(/\n\n/g,'<div style="height:4px"></div>').replace(/\n/g,"<br>");
 return safe;
 }
 function showApiConfigPrompt(){

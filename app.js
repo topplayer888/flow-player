@@ -22,28 +22,74 @@ if(cancel)cancel.style.display="";
 window.alert=showAppAlert;
 window.closeAppAlert=closeAppAlert;
 var activeGenerationRequests=[],generationAbortRequested=false,generationAbortNoticeShown=false;
-var chatZoom=parseFloat(localStorage.getItem("fp_chat_zoom")||"1")||1;
+var chatFrameWidth=parseFloat(localStorage.getItem("fp_chat_frame_width")||localStorage.getItem("fp_chat_zoom")||"1")||1;
+var chatFrameHeight=parseFloat(localStorage.getItem("fp_chat_frame_height")||localStorage.getItem("fp_chat_zoom")||"1")||1;
 function clampChatZoom(value){
-return Math.max(.8,Math.min(1,Math.round(value*10)/10));
+return Math.max(.55,Math.min(1,Math.round(value*100)/100));
 }
 function applyChatZoom(){
-chatZoom=clampChatZoom(chatZoom);
+chatFrameWidth=clampChatZoom(chatFrameWidth);
+chatFrameHeight=clampChatZoom(chatFrameHeight);
 var modal=document.querySelector(".chat-modal");
 if(modal){
- modal.style.setProperty("--chat-frame-size",Math.round(chatZoom*100)+"%");
- modal.classList.toggle("is-shrunken",chatZoom<1);
+ modal.style.setProperty("--chat-frame-width",Math.round(chatFrameWidth*100)+"%");
+ modal.style.setProperty("--chat-frame-height",Math.round(chatFrameHeight*100)+"%");
+ modal.classList.toggle("is-shrunken",chatFrameWidth<1||chatFrameHeight<1);
 }
 var label=document.getElementById("chat-zoom-value");
-if(label)label.textContent=Math.round(chatZoom*100)+"%";
-localStorage.setItem("fp_chat_zoom",String(chatZoom));
+if(label){
+ var same=Math.abs(chatFrameWidth-chatFrameHeight)<.01;
+ label.textContent=same?Math.round(chatFrameWidth*100)+"%":Math.round(chatFrameWidth*100)+"×"+Math.round(chatFrameHeight*100)+"%";
+}
+localStorage.setItem("fp_chat_frame_width",String(chatFrameWidth));
+localStorage.setItem("fp_chat_frame_height",String(chatFrameHeight));
+localStorage.setItem("fp_chat_zoom",String(Math.min(chatFrameWidth,chatFrameHeight)));
 }
 function changeChatZoom(delta){
-chatZoom=clampChatZoom(chatZoom+(delta||0));
+chatFrameWidth=clampChatZoom(chatFrameWidth+(delta||0));
+chatFrameHeight=clampChatZoom(chatFrameHeight+(delta||0));
 applyChatZoom();
 }
 function resetChatZoom(){
-chatZoom=1;
+chatFrameWidth=1;
+chatFrameHeight=1;
 applyChatZoom();
+}
+function startChatResize(e,dir){
+var modal=document.querySelector(".chat-modal");
+var overlay=document.getElementById("chat-overlay");
+if(!modal||!overlay)return;
+e.preventDefault();
+e.stopPropagation();
+var startX=e.clientX,startY=e.clientY;
+var rect=modal.getBoundingClientRect();
+var overlayRect=overlay.getBoundingClientRect();
+var startWidth=rect.width,startHeight=rect.height;
+var minWidth=Math.min(overlayRect.width,Math.max(420,overlayRect.width*.55));
+var minHeight=Math.min(overlayRect.height,Math.max(360,overlayRect.height*.55));
+modal.classList.add("is-resizing");
+function move(ev){
+ var dx=ev.clientX-startX,dy=ev.clientY-startY;
+ var nextWidth=startWidth,nextHeight=startHeight;
+ if(dir.indexOf("e")>-1)nextWidth=startWidth+dx*2;
+ if(dir.indexOf("w")>-1)nextWidth=startWidth-dx*2;
+ if(dir.indexOf("s")>-1)nextHeight=startHeight+dy*2;
+ if(dir.indexOf("n")>-1)nextHeight=startHeight-dy*2;
+ nextWidth=Math.max(minWidth,Math.min(overlayRect.width,nextWidth));
+ nextHeight=Math.max(minHeight,Math.min(overlayRect.height,nextHeight));
+ chatFrameWidth=clampChatZoom(nextWidth/overlayRect.width);
+ chatFrameHeight=clampChatZoom(nextHeight/overlayRect.height);
+ applyChatZoom();
+}
+function up(){
+ modal.classList.remove("is-resizing");
+ document.removeEventListener("pointermove",move);
+ document.removeEventListener("pointerup",up);
+ document.removeEventListener("pointercancel",up);
+}
+document.addEventListener("pointermove",move);
+document.addEventListener("pointerup",up);
+document.addEventListener("pointercancel",up);
 }
 function updateGenerationPauseUI(){
 var btn=document.getElementById("chat-stop-btn");

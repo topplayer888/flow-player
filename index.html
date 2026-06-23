@@ -664,6 +664,9 @@ function getHistoryMergeId(h) {
   if (h.workflowType) parts.push(h.workflowType);
   if (h.moduleId) parts.push(h.moduleId);
   if (typeof h.taskIndex === "number" && h.taskIndex >= 0) parts.push(String(h.taskIndex));
+  if (h.time) parts.push(String(h.time));
+  if (h.preview) parts.push(String(h.preview).slice(0, 24));
+  if (h.msgs && h.msgs.length) parts.push(String(h.msgs[0].content || "").replace(/\s+/g, " ").slice(0, 24));
   return parts.join("|");
 }
 
@@ -725,7 +728,22 @@ function syncHistoryFromCloud() {
     if (h.workflowType) parts.push(h.workflowType);
     if (h.moduleId) parts.push(h.moduleId);
     if (typeof h.taskIndex === 'number' && h.taskIndex >= 0) parts.push(String(h.taskIndex));
+    if (h.time) parts.push(String(h.time));
+    if (h.preview) parts.push(String(h.preview).slice(0, 24));
+    if (h.msgs && h.msgs.length) parts.push(textOnly(h.msgs[0].content).slice(0, 24));
     return parts.join('|');
+  }
+
+  function stableHistoryId(h, index) {
+    return [
+      h.key || 'chat',
+      h.workflowType || 'normal',
+      h.moduleId || 'main',
+      typeof h.taskIndex === 'number' ? h.taskIndex : -1,
+      h.time || 0,
+      firstUserText(h.msgs).slice(0, 28) || textOnly(h.preview).slice(0, 28) || 'empty',
+      index
+    ].join('|');
   }
 
   function createHistoryId(ctx) {
@@ -747,8 +765,34 @@ function syncHistoryFromCloud() {
   }
 
   function loadHistory() {
-    try { return JSON.parse(localStorage.getItem(getHistoryStorageKey()) || '[]'); }
+    try {
+      var items = JSON.parse(localStorage.getItem(getHistoryStorageKey()) || '[]');
+      var changed = false;
+      if (!Array.isArray(items)) return [];
+      items.forEach(function(h, i) {
+        if (h && !h.id) {
+          h.id = stableHistoryId(h, i);
+          changed = true;
+        }
+      });
+      if (changed) {
+        localStorage.setItem(getHistoryStorageKey(), JSON.stringify(items));
+        if (typeof syncHistoryToCloud === 'function') syncHistoryToCloud(items.filter(isValidHistoryItem));
+      }
+      return items;
+    }
     catch(e) { return []; }
+  }
+
+  function refreshWorkspaceChrome() {
+    var section = typeof window.currentSection === 'number' ? window.currentSection : 0;
+    var mode = typeof window.currentMode === 'number' ? window.currentMode : -1;
+    window.sectionModes = window.sectionModes || [-1, -1, -1];
+    if (mode >= 0) window.sectionModes[section] = mode;
+    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active', 'entering'); });
+    var nav = document.querySelector('.nav-item[data-section="' + section + '"]');
+    if (nav) nav.classList.add('active');
+    if (typeof renderRightModes === 'function') renderRightModes();
   }
 
   function getActiveHistoryContext() {
@@ -848,19 +892,30 @@ function syncHistoryFromCloud() {
     if (uid && typeof firestoreDB !== 'undefined') {
       firestoreDB.collection('chat_history').doc(uid).set({ items: kept, updated: Date.now() }).catch(function(){});
     }
+    refreshWorkspaceChrome();
     renderHistory();
   }
 
   function deleteHistoryById(id) {
+    id = String(id || '');
     var items = loadHistory().filter(isValidHistoryItem);
-    var kept = items.filter(function(h) { return historyId(h) !== id; });
-    if (kept.length === items.length) {
+    var removed = false;
+    var kept = items.filter(function(h) {
+      if (!removed && String(historyId(h)) === id) {
+        removed = true;
+        return false;
+      }
+      return true;
+    });
+    if (!removed) {
+      refreshWorkspaceChrome();
       renderHistory();
       return;
     }
     localStorage.setItem(getHistoryStorageKey(), JSON.stringify(kept));
     if (window.currentHistoryRestoredId === id) window.currentHistoryRestoredId = '';
     if (typeof syncHistoryToCloud === 'function') syncHistoryToCloud(kept);
+    refreshWorkspaceChrome();
     renderHistory();
   }
 

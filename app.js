@@ -1271,6 +1271,16 @@ return "你是 Kyrie 知识付费直播复盘诊断智能体。你必须按 Kyri
 function getKyrieReviewSystemSupplement(){
 return "\n\n# 直播后数据复盘专项规则\n用户当前处于 Kyrie直播方法论 > 实时中控及诊断复盘 > 直播后数据复盘。无论用户输入的是数据、截图识别结果、逐字稿摘要还是复盘描述，都要按直播后复盘处理。\n\n输出优先包含：核心数据摘要、异常指标、流量/停留/互动/点击/成交问题、Kyrie五段链路诊断、逐字稿或话术节奏问题、带货衔接三步（洗认知 -> 给场景 -> 上价值）检查、可直接替换的话术、下一场直播优先级优化清单。不要写成泛泛建议。";
 }
+function isKyrieScriptAgent(){
+return (chatKey==="2-1"&&currentKyrieSubKey==="2-2")||chatKey==="2-2";
+}
+function getKyrieScriptGenerationSupplement(){
+return "\n\n# Kyrie脚本生成数量完整性硬性规则\n当用户要求生成整场直播脚本、直播逐字稿、逼单话术、憋单话术、互动话术或完整带货脚本时，数量类板块必须严格补齐，不能省略、合并或用“等”代替。\n\n必须严格执行：\n1. 【逼单话术10条】必须编号1-10，每条都是不同角度、可直接在直播间念的完整话术。\n2. 【憋单话术5条】必须编号1-5，不能只生成1条。5条建议分别覆盖：倒计时、名额/库存、福利截止、价格/权益恢复、错过成本或返场前收口。\n3. 【评论互动话术20条】必须编号1-20，每条要短、口语化、适合直播间直接引导评论。\n4. 【用户抗拒点答疑话术】至少覆盖价格、效果、时间、上手难度、服务、售后、正版、适不适合我8类。\n\n输出前必须自检数量；如果任何板块数量不足，先补齐再输出。内容太长时可以压缩每条长度，但不允许减少条数。";
+}
+function getActiveChatMaxTokens(defaultTokens){
+if(isKyrieScriptAgent())return 6500;
+return defaultTokens;
+}
 function getKyrieDataScreenshotPrompt(fileName){
 return "用户上传了一张直播后数据截图，文件名："+fileName+"。\n\n请先识别截图中的可见数据，不要编造看不清或不存在的数据。如果当前模型无法读取图片内容，请明确说明“当前模型无法识别该截图内容”，并提示用户更换支持视觉的模型或手动输入关键数据。\n\n如果能读取，请按以下结构输出：\n1. 截图可见数据摘要：在线、停留、互动、点击、成交、转化等能识别到的指标。\n2. 异常指标判断：哪些数据偏低、偏高或不匹配。\n3. 直播问题诊断：从流量承接、停留、互动、商品点击、成交转化、老师节奏、中控动作分析原因。\n4. Kyrie 方法论诊断：信任建立、痛点唤醒、认知改变、价值呈现、成交转化哪一环最弱。\n5. 下一场优化动作：按优先级列出 5-8 条可执行动作。\n6. 需要补充的数据：列出为了更准确复盘还需要用户提供什么。";
 }
@@ -2204,7 +2214,8 @@ if(chatKey==="0-2"&&currentIPModule){
  activeSystemPrompt+="\n\n# 当前界面选择\n用户当前选择的是：IP访谈策划工作台 > "+currentIPModule+" > "+currentIPTask+"。\n"+getIPTaskPrompt(currentIPModule,currentIPTaskIndex);
 }
 if(isKyrieReviewTask())activeSystemPrompt+=getKyrieReviewSystemSupplement();
-var msgs=[{role:"system",content:activeSystemPrompt}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只返回优化后的内容，不要解释过程。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查纯口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}var result=appendMayuanDialogueFollowup(data.choices[0].message.content);addMessage("assistant",result);updateMayuanDocStatusByContent(result,"result")}).catch(function(e){if(isAbortError(e)){showGenerationAbortNotice();return}hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
+if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieScriptGenerationSupplement();
+var msgs=[{role:"system",content:activeSystemPrompt}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只返回优化后的内容，不要解释过程。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查纯口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:getActiveChatMaxTokens(4000)})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}var result=appendMayuanDialogueFollowup(data.choices[0].message.content);addMessage("assistant",result);updateMayuanDocStatusByContent(result,"result")}).catch(function(e){if(isAbortError(e)){showGenerationAbortNotice();return}hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
 if(chatKey==="0-2"&&/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){
@@ -2225,6 +2236,7 @@ if(chatKey==="0-2"&&currentIPModule){
  activeSystemPrompt+="\n\n# 当前界面选择\n用户当前选择的是：IP访谈策划工作台 > "+currentIPModule+" > "+currentIPTask+"。\n"+getIPTaskPrompt(currentIPModule,currentIPTaskIndex);
 }
 if(isKyrieReviewTask())activeSystemPrompt+=getKyrieReviewSystemSupplement();
+if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieScriptGenerationSupplement();
 var msgs=[{role:"system",content:activeSystemPrompt}];
 chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});
 var durationRule=getDurationRuleFromText(userMsg);
@@ -2233,7 +2245,7 @@ updateMayuanDocStatusByContent(userMsg,"request");
 apiFetch(apiConfig.endpoint,{
 method:"POST",
 headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},
-body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})
+body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:getActiveChatMaxTokens(4000)})
 }).then(function(r){return r.json()}).then(function(data){
 hideTyping();
 if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}

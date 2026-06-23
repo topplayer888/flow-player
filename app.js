@@ -22,6 +22,26 @@ if(cancel)cancel.style.display="";
 window.alert=showAppAlert;
 window.closeAppAlert=closeAppAlert;
 var activeGenerationRequests=[],generationAbortRequested=false,generationAbortNoticeShown=false;
+var chatZoom=parseFloat(localStorage.getItem("fp_chat_zoom")||"1")||1;
+function clampChatZoom(value){
+return Math.max(.8,Math.min(1.25,Math.round(value*10)/10));
+}
+function applyChatZoom(){
+chatZoom=clampChatZoom(chatZoom);
+var modal=document.querySelector(".chat-modal");
+if(modal)modal.style.setProperty("--chat-zoom",chatZoom);
+var label=document.getElementById("chat-zoom-value");
+if(label)label.textContent=Math.round(chatZoom*100)+"%";
+localStorage.setItem("fp_chat_zoom",String(chatZoom));
+}
+function changeChatZoom(delta){
+chatZoom=clampChatZoom(chatZoom+(delta||0));
+applyChatZoom();
+}
+function resetChatZoom(){
+chatZoom=1;
+applyChatZoom();
+}
 function updateGenerationPauseUI(){
 var btn=document.getElementById("chat-stop-btn");
 if(!btn)return;
@@ -1012,6 +1032,7 @@ questions:[
 var presetQuestions=kyrieLaunch?getKyrieTaskQuestions(kyrieLaunch.id,pendingKyrieTaskIndex):(ipLaunch?getIPTaskQuestions(ipLaunch.id,pendingIPTaskIndex):agent.questions);
 renderChatQuestions(presetQuestions);
 document.getElementById("chat-overlay").classList.add("open");
+applyChatZoom();
 chatOpen=true;chatMessages=[];addHistory(section,mode);if(chatKey==='0-3'){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else if(chatKey==='0-2'||chatKey.indexOf('2-')===0){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('qa')}else if(chatKey==='1-1'){document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}else if(agent.formOnly){document.getElementById('chat-mode-tabs').style.display='none';switchChatMode('form')}else{document.getElementById('chat-mode-tabs').style.display='';switchChatMode('qa')}document.querySelectorAll('.chat-mode-tab').forEach(function(t){t.classList.remove('active')});var activeTab=document.querySelectorAll('.chat-mode-tab')[chatMode==='form'?1:0];if(activeTab)activeTab.classList.add('active');
 if(isMayuanChat()||isKyrieReviewTask())window.mayuanDocActiveStatus=false;
 renderMayuanDocumentTools();

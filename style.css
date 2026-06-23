@@ -375,6 +375,12 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland) .mode-card-do
 .chat-header-info{flex:1;min-width:0}
 .chat-header-name{font-size:15px;font-weight:700;color:var(--text-primary)}
 .chat-header-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.chat-zoom-controls{display:flex;align-items:center;gap:4px;padding:4px;border:1px solid var(--border-glow);background:rgba(255,255,255,.035);border-radius:10px;flex-shrink:0}
+.chat-zoom-btn,.chat-zoom-reset{height:24px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.chat-zoom-btn{width:24px;font-size:15px;font-weight:700;line-height:1}
+.chat-zoom-reset{padding:0 8px;font-size:11px;font-weight:600}
+.chat-zoom-value{min-width:42px;text-align:center;font-size:11px;font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums}
+.chat-zoom-btn:hover,.chat-zoom-reset:hover{background:var(--bg-card);border-color:var(--border-glow);color:var(--text-primary)}
 .chat-mode-tabs{display:flex;gap:0;padding:0 22px;border-bottom:1px solid var(--border-glow)}
 .chat-mode-tab{flex:1;padding:10px 0;text-align:center;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
 .chat-mode-tab:hover{color:var(--text-primary)}
@@ -431,6 +437,7 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland) .mode-card-do
 .settings-reset:hover{background:rgba(255,255,255,.03);color:var(--text-primary)}
 .chat-close{width:32px;height:32px;border-radius:8px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.12);color:rgba(239,68,68,.7);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .chat-close:hover{background:rgba(239,68,68,.25);color:#fff;border-color:rgba(239,68,68,.6)}
+.chat-messages,.chat-form-panel,#chat-form-xuehui,#chat-form-tiejia,#chat-form-kanjian,#chat-form-dachuan,#chat-form-rewrite,.chat-questions,.chat-input-area{zoom:var(--chat-zoom,1)}
 .chat-messages{flex:1;min-height:0;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:16px;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .chat-msg{display:flex;gap:10px;animation:msgIn .3s ease-out}
 @keyframes msgIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
@@ -477,7 +484,7 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland) .mode-card-do
 .sidebar-right{display:none}
 .content-area{flex:1;min-height:0;padding:20px 12px;padding-top:56px;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 }
-@media(max-width:768px){.chat-overlay{left:0;right:0}}.theme-pureblack .settings-panel .form-api-status.ok{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#b0b0b0!important}.theme-pureblack .settings-panel .form-api-status.ok .fa-dot{background:#9d9d9d!important;box-shadow:none!important}.theme-pureblack #form-api-status.form-api-status.ok{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#b0b0b0!important}
+@media(max-width:768px){.chat-overlay{left:0;right:0}.chat-header{gap:10px;padding:14px 12px;flex-wrap:wrap}.chat-header-info{flex:1 1 180px}.chat-zoom-controls{order:3;width:100%;justify-content:center}.chat-zoom-reset{display:none}}.theme-pureblack .settings-panel .form-api-status.ok{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#b0b0b0!important}.theme-pureblack .settings-panel .form-api-status.ok .fa-dot{background:#9d9d9d!important;box-shadow:none!important}.theme-pureblack #form-api-status.form-api-status.ok{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#b0b0b0!important}
 
 .theme-pureblack{--bg-deep:#050506;--bg-panel:#0b0c10;--bg-card:#11131a;--border-glow:#242833;--cyan:#f5f7fa;--cyan-dim:rgba(245,247,250,.08);--purple:#d7dce5;--purple-dim:rgba(215,220,229,.08);--gold:#ffffff;--gold-dim:rgba(255,255,255,.08);--text-primary:#f7f7f8;--text-secondary:#b8beca;--text-muted:#737b89}
 .theme-pureblack #bg-canvas{opacity:.08}

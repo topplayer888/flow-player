@@ -1277,6 +1277,9 @@ return (chatKey==="2-1"&&currentKyrieSubKey==="2-2")||chatKey==="2-2";
 function getKyrieScriptGenerationSupplement(){
 return "\n\n# Kyrie脚本生成数量完整性硬性规则\n当用户要求生成整场直播脚本、直播逐字稿、逼单话术、憋单话术、互动话术或完整带货脚本时，数量类板块必须严格补齐，不能省略、合并或用“等”代替。\n\n必须严格执行：\n1. 【逼单话术10条】必须编号1-10，每条都是不同角度、可直接在直播间念的完整话术。\n2. 【憋单话术5条】必须编号1-5，不能只生成1条。5条建议分别覆盖：倒计时、名额/库存、福利截止、价格/权益恢复、错过成本或返场前收口。\n3. 【评论互动话术20条】必须编号1-20，每条要短、口语化、适合直播间直接引导评论。\n4. 【用户抗拒点答疑话术】至少覆盖价格、效果、时间、上手难度、服务、售后、正版、适不适合我8类。\n\n输出前必须自检数量；如果任何板块数量不足，先补齐再输出。内容太长时可以压缩每条长度，但不允许减少条数。";
 }
+function getKyrieDryGoodsHookSupplement(){
+return "\n\n# Kyrie干货主题产品钩子规则\n生成干货主题、干货逐字稿或整场直播脚本时，干货主题的结构必须调整为：痛点现象 -> 用户场景 -> 背后原因 -> 危害放大 -> 简单方法 -> 产品钩子。\n\n这里的【产品钩子】不是正式带货衔接，也不是直接卖课；正式的带货衔接仍然放在独立的“带货衔接/干货到卖课的衔接”板块中。产品钩子的作用是：在每个干货讲解完，或干货讲解过程中，用一句轻量、自然、直播感强的话，让用户提前知道后面会有课程/系统方法承接，形成循序渐进的接受过程。\n\n产品钩子写法要求：\n1. 每个干货主题结束后至少设置1句产品钩子；如果干货较长，也可以在讲解中间轻轻埋1句。\n2. 语气要像老师自然提醒，不要强行推销，不要上价格，不要讲福利，不要逼单。\n3. 话术方向类似：“刚才我讲的只是冰山一角，更完整的拆解和训练方法都在课程里面，我后面会带大家系统说。”\n4. 产品钩子要为后面的洗认知、给场景、上价值做铺垫，不能替代正式带货衔接。\n5. 不要再把干货主题最后一步写成“转课程衔接”。";
+}
 function getActiveChatMaxTokens(defaultTokens){
 if(isKyrieScriptAgent())return 6500;
 return defaultTokens;
@@ -2215,6 +2218,7 @@ if(chatKey==="0-2"&&currentIPModule){
 }
 if(isKyrieReviewTask())activeSystemPrompt+=getKyrieReviewSystemSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieScriptGenerationSupplement();
+if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieDryGoodsHookSupplement();
 var msgs=[{role:"system",content:activeSystemPrompt}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只返回优化后的内容，不要解释过程。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查纯口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:getActiveChatMaxTokens(4000)})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}var result=appendMayuanDialogueFollowup(data.choices[0].message.content);addMessage("assistant",result);updateMayuanDocStatusByContent(result,"result")}).catch(function(e){if(isAbortError(e)){showGenerationAbortNotice();return}hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
@@ -2237,6 +2241,7 @@ if(chatKey==="0-2"&&currentIPModule){
 }
 if(isKyrieReviewTask())activeSystemPrompt+=getKyrieReviewSystemSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieScriptGenerationSupplement();
+if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieDryGoodsHookSupplement();
 var msgs=[{role:"system",content:activeSystemPrompt}];
 chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});
 var durationRule=getDurationRuleFromText(userMsg);

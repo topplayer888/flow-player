@@ -24,12 +24,15 @@ window.closeAppAlert=closeAppAlert;
 var activeGenerationRequests=[],generationAbortRequested=false,generationAbortNoticeShown=false;
 var chatZoom=parseFloat(localStorage.getItem("fp_chat_zoom")||"1")||1;
 function clampChatZoom(value){
-return Math.max(.8,Math.min(1.25,Math.round(value*10)/10));
+return Math.max(.8,Math.min(1,Math.round(value*10)/10));
 }
 function applyChatZoom(){
 chatZoom=clampChatZoom(chatZoom);
 var modal=document.querySelector(".chat-modal");
-if(modal)modal.style.setProperty("--chat-zoom",chatZoom);
+if(modal){
+ modal.style.setProperty("--chat-frame-size",Math.round(chatZoom*100)+"%");
+ modal.classList.toggle("is-shrunken",chatZoom<1);
+}
 var label=document.getElementById("chat-zoom-value");
 if(label)label.textContent=Math.round(chatZoom*100)+"%";
 localStorage.setItem("fp_chat_zoom",String(chatZoom));

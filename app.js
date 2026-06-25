@@ -1684,7 +1684,7 @@ if(kyrieReturnModule){renderKyrieSubmenuPage(kyrieReturnModule);return}
 renderContent();renderRightModes();renderHistory();
 }
 function selectRewriteMode(el){document.querySelectorAll("#rw-mode-chips .select-chip").forEach(function(c){c.classList.remove("selected")});el.classList.add("selected");rwMode=el.dataset.val;document.getElementById("rw-custom-group2").style.display=rwMode==="B"?"":"none"}function selectRewriteModeBtn(el,mode){document.querySelectorAll(".rw-mode-btn").forEach(function(b){b.classList.remove("selected");b.style.borderColor="var(--border-glow)";b.style.background="var(--bg-card)"});el.classList.add("selected");el.style.borderColor="var(--purple)";el.style.background="rgba(168,85,247,0.08)";rwMode=mode;document.getElementById("rw-custom-group2").style.display=mode==="B"?"":"none"}
-function updateRewriteApiStatus(){var s=document.getElementById("form-rw-status");var m=document.getElementById("form-rw-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model}else{s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置"}}
+function updateRewriteApiStatus(){var s=document.getElementById("form-rw-status");var m=document.getElementById("form-rw-msg");if(!s)return;if(apiConfig.apikey&&apiConfig.apikey.length>9){s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model}else{s.className="form-api-status missing";m.textContent=(typeof isSuperAdminUser==="function"&&!isSuperAdminUser())?"请输入兑换码后使用":"未配置 API Key · 请在设置中配置"}}
 function goBackRewriteStep1(){document.getElementById("rw-step2").style.display="none";document.getElementById("rw-step1").style.display=""}
 function submitRewriteStep1(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10){showApiConfigPrompt();return}
 var content=document.getElementById("rw-text").value.trim();
@@ -1732,17 +1732,40 @@ safe=safe.replace(/\n\n/g,'<div style="height:4px"></div>').replace(/\n/g,"<br>"
 return safe;
 }
 function showApiConfigPrompt(){
+if(typeof isSuperAdminUser==="function"&&!isSuperAdminUser()){
 openSettings();
-var apiTab=document.querySelector(".settings-tab");
+var accountTab=Array.prototype.slice.call(document.querySelectorAll(".settings-tab")).find(function(btn){return btn.getAttribute("onclick")&&btn.getAttribute("onclick").indexOf("'account'")>=0});
+if(accountTab)switchSettingsTab("account",accountTab);
+var redeemInput=document.getElementById("redeem-code-input");
+if(redeemInput)setTimeout(function(){redeemInput.focus()},80);
+return;
+}
+openSettings();
+var apiTab=document.getElementById("settings-api-tab-btn")||document.querySelector(".settings-tab");
 if(apiTab)switchSettingsTab("api",apiTab);
 }
 function openSettingsFromChat(){
 closeChat();
 setTimeout(function(){
 openSettings();
-var apiTab=document.querySelector(".settings-tab");
+if(typeof isSuperAdminUser==="function"&&!isSuperAdminUser()){
+var accountTab=Array.prototype.slice.call(document.querySelectorAll(".settings-tab")).find(function(btn){return btn.getAttribute("onclick")&&btn.getAttribute("onclick").indexOf("'account'")>=0});
+if(accountTab)switchSettingsTab("account",accountTab);
+var redeemInput=document.getElementById("redeem-code-input");
+if(redeemInput)redeemInput.focus();
+return;
+}
+var apiTab=document.getElementById("settings-api-tab-btn")||document.querySelector(".settings-tab");
 if(apiTab)switchSettingsTab("api",apiTab);
 },400);
+}
+function getAccessPromptHtml(){
+if(typeof isSuperAdminUser==="function"&&!isSuperAdminUser()){
+var active=typeof hasActiveRedeemAccess==="function"&&hasActiveRedeemAccess();
+if(active)return "✅ 兑换码已生效。<br><br>当前版本还需要管理员配置安全的后端 API 代理后，才能让普通用户消耗管理员 API。";
+return "请输入兑换码后使用。<br><br><span class=\"api-config-hint\" onclick=\"openRedeemSettingsFromChat()\">👤 点击此处输入或替换兑换码</span>";
+}
+return "⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>";
 }
 function normalizeQuickChips(items){
 var seen={},out=[];
@@ -1957,7 +1980,7 @@ if(!s||!m)return;
 if(apiConfig.apikey&&apiConfig.apikey.length>9){
 s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model;
 }else{
-s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 API 配置 中设置";
+s.className="form-api-status missing";m.textContent=(typeof isSuperAdminUser==="function"&&!isSuperAdminUser())?"请输入兑换码后使用":"未配置 API Key · 请在设置中配置";
 }
 }
 function buildDachuanFormPrompt(){
@@ -2104,7 +2127,7 @@ if(!s)return;
 if(apiConfig.apikey&&apiConfig.apikey.length>9){
 s.className="form-api-status ok";m.textContent="API 已配置 · "+apiConfig.model+" · 端点: "+apiConfig.endpoint.split("/").slice(0,3).join("/");
 }else{
-s.className="form-api-status missing";m.textContent="未配置 API Key · 请在左侧栏 ⚙ API 配置 中设置";
+s.className="form-api-status missing";m.textContent=(typeof isSuperAdminUser==="function"&&!isSuperAdminUser())?"请输入兑换码后使用":"未配置 API Key · 请在设置中配置";
 }
 }
 function toggleChip(el,groupId,max){if(apiConfig&&(!apiConfig.apikey||apiConfig.apikey.length<10)){showApiConfigPrompt();return;}
@@ -2239,7 +2262,7 @@ if(navigator.clipboard&&navigator.clipboard.writeText){
 navigator.clipboard.writeText(text).then(function(){alert("口播文案已复制")}).catch(function(){fallbackCopyText(text)});
 }else{fallbackCopyText(text)}
 }
-function openSettings(e){var o=document.getElementById("settings-overlay");o.classList.add("open");loadConfigUI();updateSoundUI();updateThemeUI();if(typeof updateAdminVisibility==="function")updateAdminVisibility();var b=document.querySelector("#settings-tab-theme .sidebar-api-save");if(b){b.onclick=saveThemeSettings}}function closeSettings(e){if(e&&e.target!==document.getElementById("settings-overlay"))return;document.getElementById("settings-overlay").classList.remove("open")}function switchSettingsTab(tab,btn){document.querySelectorAll(".settings-tab").forEach(function(t){t.classList.remove("active")});btn.classList.add("active");document.querySelectorAll(".settings-tab-content").forEach(function(c){c.classList.remove("active")});document.getElementById("settings-tab-"+tab).classList.add("active")}
+function openSettings(e){var o=document.getElementById("settings-overlay");o.classList.add("open");loadConfigUI();updateSoundUI();updateThemeUI();if(typeof updateAdminVisibility==="function")updateAdminVisibility();if(typeof loadCurrentRedeemStatus==="function")loadCurrentRedeemStatus();if(typeof isSuperAdminUser==="function"&&!isSuperAdminUser()){var accountTab=Array.prototype.slice.call(document.querySelectorAll(".settings-tab")).find(function(btn){return btn.getAttribute("onclick")&&btn.getAttribute("onclick").indexOf("'account'")>=0});if(accountTab)switchSettingsTab("account",accountTab)}var b=document.querySelector("#settings-tab-theme .sidebar-api-save");if(b){b.onclick=saveThemeSettings}}function closeSettings(e){if(e&&e.target!==document.getElementById("settings-overlay"))return;document.getElementById("settings-overlay").classList.remove("open")}function switchSettingsTab(tab,btn){document.querySelectorAll(".settings-tab").forEach(function(t){t.classList.remove("active")});btn.classList.add("active");document.querySelectorAll(".settings-tab-content").forEach(function(c){c.classList.remove("active")});document.getElementById("settings-tab-"+tab).classList.add("active")}
 var MODEL_ENDPOINTS={"deepseek-v4-flash":"https://api.deepseek.com/v1/chat/completions","deepseek-v4-pro":"https://api.deepseek.com/v1/chat/completions","gpt-4o":"https://api.openai.com/v1/chat/completions","gpt-4o-mini":"https://api.openai.com/v1/chat/completions","gpt-4-turbo":"https://api.openai.com/v1/chat/completions","qwen-plus":"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions","qwen-max":"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions","glm-4":"https://open.bigmodel.cn/api/paas/v4/chat/completions","moonshot-v1-8k":"https://api.moonshot.cn/v1/chat/completions"};function onModelSelectChange(){var sel=document.getElementById("set-model");var ci=document.getElementById("set-model-custom");if(!sel.value){ci.style.display="none";ci.value="";return}if(sel.value==="__custom__"){ci.style.display="";ci.focus()}else{ci.style.display="none";ci.value="";var ep=MODEL_ENDPOINTS[sel.value];if(ep){document.getElementById("set-endpoint").value=ep}}}function saveSettingsApi(){apiConfig.endpoint=normalizeEndpoint(document.getElementById("set-endpoint").value.trim());apiConfig.apikey=document.getElementById("set-apikey").value.trim();var sel=document.getElementById("set-model");var model=sel.value==="__custom__"?document.getElementById("set-model-custom").value.trim():sel.value;if(!model){alert("请先在模型选择栏选择你的模型");return}apiConfig.model=model;localStorage.setItem("fp_endpoint",apiConfig.endpoint);localStorage.setItem("fp_apikey",apiConfig.apikey);localStorage.setItem("fp_model",apiConfig.model);document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus()}function clearSettingsApi(){document.getElementById("set-endpoint").value="";document.getElementById("set-apikey").value="";document.getElementById("set-model").value="";document.getElementById("set-model-custom").style.display="none";document.getElementById("set-model-custom").value="";apiConfig.endpoint="https://api.deepseek.com/v1/chat/completions";apiConfig.apikey="";apiConfig.model="";localStorage.removeItem("fp_endpoint");localStorage.removeItem("fp_apikey");localStorage.removeItem("fp_model");document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus()}
 function updateApiStatus(){var btn=document.querySelector(".sidebar-settings-btn");if(!btn)return;btn.classList.toggle("api-configured",!!apiConfig.apikey);updateApiConfigStatus()}
 function toggleSettings(e){e.stopPropagation();var p=document.getElementById("chat-settings-panel");p.classList.toggle("open")}
@@ -2251,7 +2274,7 @@ return "\n\n# 二次修改输出硬性要求\n这是用户在首次生成完整�
 }
 function getMayuanDialogueSystemPrompt(base){if(chatKey==="1-1")return base+"\n\n# 大川内容体系对话式补充规则\n当用户要求生成电商脚本、短视频广告脚本、投放素材或口播文案时，先判断买点、身份视角、目标人群和素材类型，再生成结果。只有当用户明确指定时长时，才必须按该时长对应字数范围执行；用户没有指定时长时，沿用大川模块原本默认节奏，不额外强制套用30-60秒字数。"+getMergedShotScriptRule()+"\n\n输出不要使用Markdown表格、代码块或复杂嵌套列表。最后可以单独追加【纯口播文案】板块，方便用户复制拍摄。";if(!isMayuanChat())return base;if(chatKey==="1-3")return base+"\n\n# 马源2.0对话式补充规则\n当用户要求生成脚本、广告素材、测试计划、内容专项或裂变方案，并且没有明确指定时长时，按马源2.0模块原本默认节奏处理，不额外强制套用30-60秒字数。若用户明确指定时长，必须按用户指定时长执行对应字数范围。输出不要使用Markdown表格、代码块或复杂嵌套列表。脚本输出按“脚本策略 / 完整分镜脚本 / 可替换要素 / 测试目的 / 裂变方向”分段。完整分镜脚本必须放到同一个板块里，不要拆成“口播逐字稿、拍摄画面、视觉高光”等多个板块；每个镜头按“时间段 / 画面动作 / 口播或字幕 / 视觉重点”连续输出，口播逐字稿放在对应镜头内，每句话单独成行。"+getMergedShotScriptRule()+"\n\n生成脚本后，在结尾追加一句：需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。";return base+"\n\n# 马源内容体系对话式补充规则\n当用户要求生成脚本、引流脚本、短视频文案或口播文案，并且没有明确指定时长时，沿用马源模块原本默认节奏，不额外强制套用30-60秒字数。若用户明确指定30秒以内、30-60秒、60-90秒、90-120秒或120秒以上，以用户要求为准，并执行对应字数范围。\n\n# 输出排版要求\n使用清晰分段输出，不要使用Markdown表格、代码块或复杂嵌套列表。完整脚本建议按“脚本策略 / 完整分镜脚本 / 执行建议”分段；完整分镜脚本必须把时间段、画面/分镜、口播/字幕放在同一个镜头条目里，口播逐字稿放在对应镜头内，每句话单独成行，方便用户复制和拍摄。"+getMergedShotScriptRule()+"\n\n生成文案后，在结尾追加一句：需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
 function appendMayuanDialogueFollowup(content){if(!isMayuanChat())return content;if(!content)return content;if(content.indexOf("需要我帮你把这版内容篇幅加长吗")>=0||content.indexOf("有任何修改意见请告诉我")>=0)return content;return content+"\n\n需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
-function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent)return;if(chatKey==="2-1"&&currentKyrieMenuLevel!=="task"){hideTyping();addMessage("assistant","请先选择到二级功能后，再输入调整意见。\n\n"+(currentKyrieMenuLevel==="sub"?getKyrieSubMenuText(currentKyrieModule):getKyrieMainMenuText()));return}if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>");return}var activeSystemPrompt=appendCopyCoherenceRule(getMayuanDialogueSystemPrompt(agent.systemPrompt));
+function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent)return;if(chatKey==="2-1"&&currentKyrieMenuLevel!=="task"){hideTyping();addMessage("assistant","请先选择到二级功能后，再输入调整意见。\n\n"+(currentKyrieMenuLevel==="sub"?getKyrieSubMenuText(currentKyrieModule):getKyrieMainMenuText()));return}if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant",getAccessPromptHtml());return}var activeSystemPrompt=appendCopyCoherenceRule(getMayuanDialogueSystemPrompt(agent.systemPrompt));
 if(chatKey==="0-2"&&currentIPModule){
  activeSystemPrompt+="\n\n# 当前界面选择\n用户当前选择的是：IP访谈策划工作台 > "+currentIPModule+" > "+currentIPTask+"。\n"+getIPTaskPrompt(currentIPModule,currentIPTaskIndex);
 }
@@ -2271,7 +2294,7 @@ if(chatKey==="2-1"){
 }
 if(!apiConfig.apikey||apiConfig.apikey.length<10){
 hideTyping();
-addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span><br><br>也可以在左侧栏 ⚙ API 配置 中设置。");
+addMessageHTML("assistant",getAccessPromptHtml());
 return;
 }
 var activeSystemPrompt=appendCopyCoherenceRule(getMayuanDialogueSystemPrompt(agent.systemPrompt));
@@ -2303,7 +2326,7 @@ updateMayuanDocStatusByContent(result,"result");
 var origSend=sendMessage;
 sendMessage=function(){
 var input=document.getElementById("chat-input");var text=input.value.trim();
-if(text.startsWith("sk-")&&text.length>30){
+if((typeof isSuperAdminUser!=="function"||isSuperAdminUser())&&text.startsWith("sk-")&&text.length>30){
 apiConfig.apikey=text;localStorage.setItem("fp_apikey",apiConfig.apikey);input.value="";
 updateApiStatus();updateFormApiStatus();addMessage("assistant","✅ API Key 已保存！\n\n端点："+apiConfig.endpoint+"\n模型："+apiConfig.model+"\n\n现在可以开始使用了，直接告诉我你的产品和需求。");return;
 }

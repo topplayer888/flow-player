@@ -118,7 +118,7 @@ function xuehuiUpdateStatus() {
     m.textContent = "API 已配置 - " + apiConfig.model;
   } else {
     s.className = "form-api-status missing";
-    m.textContent = "未配置 API Key";
+    m.textContent = (typeof isSuperAdminUser === "function" && !isSuperAdminUser()) ? "请输入兑换码后使用" : "未配置 API Key";
   }
 }
 

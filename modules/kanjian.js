@@ -10,7 +10,7 @@ function kanjianUpdateStatus() {
     m.textContent = "API 已配置 · " + apiConfig.model;
   } else {
     s.className = "form-api-status missing";
-    m.textContent = "未配置 API Key";
+    m.textContent = (typeof isSuperAdminUser === "function" && !isSuperAdminUser()) ? "请输入兑换码后使用" : "未配置 API Key";
   }
 }
 function kjCheckApi() {
@@ -31,7 +31,7 @@ function kanjianUpdateStatus() {
     m.textContent = "API 已配置 · " + apiConfig.model;
   } else {
     s.className = "form-api-status missing";
-    m.textContent = "未配置 API Key";
+    m.textContent = (typeof isSuperAdminUser === "function" && !isSuperAdminUser()) ? "请输入兑换码后使用" : "未配置 API Key";
   }
 }
 function kjCheckApi() {
@@ -239,7 +239,7 @@ function kjRecommendTopics(force) {
   kjRenderTopicRecs([], "正在按" + today + "附近的最新热度联网检索/分析主题...");
   if (!apiConfig.apikey || apiConfig.apikey.length < 10) {
     kjState.topicLoading = false;
-    kjRenderTopicRecs([], "请先配置 API Key。配置后会自动推荐热门主题，你也可以先手动输入主题。");
+    kjRenderTopicRecs([], (typeof isSuperAdminUser === "function" && !isSuperAdminUser()) ? "请先输入兑换码。兑换后会自动推荐热门主题，你也可以先手动输入主题。" : "请先配置 API Key。配置后会自动推荐热门主题，你也可以先手动输入主题。");
     return;
   }
   var prompt = "当前日期：" + today + "。\n\n请根据以下基础信息，联网检索或参考当前最新公开互联网热度，推荐适合短视频创作的热门内容主题。\n\nIP定位：" + ip + "\n行业：" + industry + "\n目标用户：" + audience + "\n\n硬性要求：\n1. 必须以当前日期附近的最新热度为准，优先最近30天，其次最近90天。\n2. 不要把2025年或更早的旧热点、旧梗、旧事件当作最新热点推荐；除非它在当前日期附近重新爆火，并在reason里说明“近期重新被讨论”。\n3. 优先参考抖音、快手、小红书、视频号、B站等平台当前更容易被讨论、搜索、转发的主题方向。\n4. 不要替用户最终选择，只做推荐。\n5. 输出6-8个主题，每个主题要短、具体、可直接作为视频主题。\n6. 如果当前模型没有真实联网能力，请不要伪装成联网结果；请基于当前日期和公开趋势做保守推断，并在reason里标注“趋势推断”。\n7. 严格输出JSON数组，不要markdown，不要解释。格式：[{\"topic\":\"主题\",\"reason\":\"最新热度/适配理由\"}]";
@@ -301,7 +301,7 @@ function kjRecommendStructures(force) {  var topic = kjGetInput("kj-topic");
   kjRenderStructures([], "正在根据前两步信息自动推荐内容结构。你也可以先手动选择任意结构。");
   if (!apiConfig.apikey || apiConfig.apikey.length < 10) {
     kjState.structureLoading = false;
-    kjRenderStructures([], "请先配置 API Key。配置后，前两步信息完整时会自动推荐结构；当前也可以手动选择任意结构。");
+    kjRenderStructures([], (typeof isSuperAdminUser === "function" && !isSuperAdminUser()) ? "请先输入兑换码。兑换后，前两步信息完整时会自动推荐结构；当前也可以手动选择任意结构。" : "请先配置 API Key。配置后，前两步信息完整时会自动推荐结构；当前也可以手动选择任意结构。");
     return;
   }
   

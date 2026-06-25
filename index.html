@@ -664,6 +664,22 @@ function loadCurrentRedeemStatus() {
   });
 }
 
+function getRedeemAdminRef() {
+  if (!firestoreDB) return Promise.reject(new Error("数据库未加载"));
+  if (currentAppUser && isSuperAdminUser()) {
+    localStorage.setItem("fp_admin_uid", currentAppUser.uid);
+    return Promise.resolve(firestoreDB.collection("users").doc(currentAppUser.uid));
+  }
+  var cachedUid = localStorage.getItem("fp_admin_uid");
+  if (cachedUid) return Promise.resolve(firestoreDB.collection("users").doc(cachedUid));
+  return firestoreDB.collection("users").where("phone", "==", SUPER_ADMIN_PHONE).limit(1).get().then(function(snap) {
+    if (snap.empty) throw new Error("未找到管理员兑换码池");
+    var doc = snap.docs[0];
+    localStorage.setItem("fp_admin_uid", doc.id);
+    return doc.ref;
+  });
+}
+
 window.openRedeemSettingsFromChat = function() {
   if (typeof closeChat === "function") closeChat();
   setTimeout(function() {
@@ -694,23 +710,25 @@ window.redeemUserCode = function() {
     return;
   }
   if (msg) msg.textContent = "正在校验兑换码...";
-  var codeRef = firestoreDB.collection("redeem_codes").doc(code);
   var userRef = firestoreDB.collection("users").doc(currentAppUser.uid);
-  firestoreDB.runTransaction(function(tx) {
-    return tx.get(codeRef).then(function(doc) {
-      if (!doc.exists) throw new Error("兑换码不存在");
-      var data = doc.data() || {};
-      if (data.usedBy) throw new Error("兑换码已被使用");
-      if (data.active === false) throw new Error("兑换码已失效");
+  getRedeemAdminRef().then(function(adminRef) {
+    return firestoreDB.runTransaction(function(tx) {
+      return tx.get(adminRef).then(function(doc) {
+        var adminData = doc.exists ? doc.data() || {} : {};
+        var pool = adminData.redeemCodes || {};
+        var data = pool[code];
+        if (!data) throw new Error("兑换码不存在");
+        if (data.usedBy) throw new Error("兑换码已被使用");
+        if (data.active === false) throw new Error("兑换码已失效");
       var now = Date.now();
       var type = data.type || (code.indexOf("topplayer") === 0 ? "primary" : "normal");
       var expiresAt = now + (type === "primary" ? REDEEM_PRIMARY_MS : REDEEM_NORMAL_MS);
-      tx.set(codeRef, {
-        active: false,
-        usedBy: currentAppUser.uid,
-        usedPhone: getCurrentUserPhone(),
-        usedAt: now
-      }, { merge: true });
+      var update = {};
+      update["redeemCodes." + code + ".active"] = false;
+      update["redeemCodes." + code + ".usedBy"] = currentAppUser.uid;
+      update["redeemCodes." + code + ".usedPhone"] = getCurrentUserPhone();
+      update["redeemCodes." + code + ".usedAt"] = now;
+      tx.set(adminRef, update, { merge: true });
       tx.set(userRef, {
         redeemCode: code,
         redeemType: type,
@@ -719,6 +737,7 @@ window.redeemUserCode = function() {
         redeemUpdatedAt: now
       }, { merge: true });
       return { code: code, type: type, activatedAt: now, expiresAt: expiresAt };
+    });
     });
   }).then(function(state) {
     if (input) input.value = "";
@@ -740,31 +759,44 @@ function setAdminRedeemMessage(text, isError) {
 }
 
 window.generateRedeemCode = function(type) {
-  if (!isSuperAdminUser() || !firestoreDB) return;
+  if (!isSuperAdminUser()) {
+    setAdminRedeemMessage("当前账号没有管理员权限。", true);
+    return;
+  }
+  if (!firestoreDB || !currentAppUser) {
+    setAdminRedeemMessage("数据库或登录状态未加载，请刷新后重试。", true);
+    return;
+  }
   var prefix = type === "primary" ? "topplayer" : "player";
   var label = getRedeemTypeLabel(type);
   setAdminRedeemMessage("正在生成" + label + "...", false);
-  var create = function(attempt) {
+  var adminRef = firestoreDB.collection("users").doc(currentAppUser.uid);
+  localStorage.setItem("fp_admin_uid", currentAppUser.uid);
+  var create = function(pool, attempt) {
     if (attempt > 80) return Promise.reject(new Error("可用四位数已不足，请稍后再试"));
     var code = prefix + generateRedeemDigits();
-    var ref = firestoreDB.collection("redeem_codes").doc(code);
-    return ref.get().then(function(doc) {
-      if (doc.exists) return create(attempt + 1);
-      return ref.set({
+    if (pool && pool[code]) return create(pool, attempt + 1);
+    var update = {};
+    update["redeemCodes." + code] = {
         code: code,
         type: type === "primary" ? "primary" : "normal",
         active: true,
         createdAt: Date.now(),
         createdBy: getCurrentUserPhone(),
         durationMs: type === "primary" ? REDEEM_PRIMARY_MS : REDEEM_NORMAL_MS
-      }).then(function() { return code; });
-    });
+      };
+    return adminRef.set(update, { merge: true }).then(function() { return code; });
   };
-  create(0).then(function(code) {
+  adminRef.get().then(function(doc) {
+    var data = doc.exists ? doc.data() || {} : {};
+    return create(data.redeemCodes || {}, 0);
+  }).then(function(code) {
     setAdminRedeemMessage("已生成：" + code, false);
     loadAdminRedeemCodes();
   }).catch(function(err) {
-    setAdminRedeemMessage("生成失败：" + (err && err.message ? err.message : "请稍后重试"), true);
+    var text = err && err.message ? err.message : "请稍后重试";
+    if (err && err.code === "permission-denied") text = "Firestore 权限拒绝写入，请检查 users 文档写入规则。";
+    setAdminRedeemMessage("生成失败：" + text, true);
   });
 };
 
@@ -772,9 +804,12 @@ window.loadAdminRedeemCodes = function() {
   var list = document.getElementById("admin-redeem-list");
   if (!list || !isSuperAdminUser() || !firestoreDB) return;
   list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">正在加载兑换码...</div>';
-  firestoreDB.collection("redeem_codes").orderBy("createdAt", "desc").limit(12).get().then(function(snap) {
-    var items = [];
-    snap.forEach(function(doc) { items.push(doc.data() || {}); });
+  firestoreDB.collection("users").doc(currentAppUser.uid).get().then(function(doc) {
+    var data = doc.exists ? doc.data() || {} : {};
+    var pool = data.redeemCodes || {};
+    var items = Object.keys(pool).map(function(k) { return pool[k] || {}; });
+    items.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    items = items.slice(0, 12);
     if (!items.length) {
       list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">暂无兑换码</div>';
       return;

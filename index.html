@@ -434,7 +434,7 @@
 <script src="modules/tiejia.js?v=202606231315"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606231540"></script>
+<script src="app.js?v=202606251120"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 
@@ -449,6 +449,7 @@
 <button class="settings-tab" onclick="switchSettingsTab('sound',this)">🔊 音效设置</button>
 <button class="settings-tab" onclick="switchSettingsTab('theme',this)">🎨 主题设置</button>
 <button class="settings-tab" onclick="switchSettingsTab('account',this)">👤 账号设置</button>
+<button class="settings-tab" id="settings-admin-tab-btn" onclick="switchSettingsTab('admin',this)" style="display:none">🛡 管理员</button>
 </div>
 <div class="settings-body">
 <div class="settings-tab-content active" id="settings-tab-api">
@@ -477,6 +478,13 @@
 <div class="account-settings-value" id="auth-user-label">未登录</div>
 <div class="account-settings-actions"><button class="auth-switch-btn" onclick="switchAuthAccount()">切换账号</button><button class="auth-logout-btn" onclick="logoutAuth()">退出登录</button></div>
 </div>
+</div>
+<div class="settings-tab-content" id="settings-tab-admin">
+<div class="settings-placeholder">🛡 超级管理员</div>
+<div style="font-size:11px;line-height:1.7;color:var(--text-muted);margin-bottom:12px">可查看已注册用户的基础信息、设备数量和常用功能，并可清理用户数据。删除 Firebase Authentication 账号本体需要后端 Admin SDK，此处会标记账号不可用并清理应用数据。</div>
+<div style="display:flex;gap:8px;margin-bottom:12px"><button class="sidebar-api-save" onclick="loadAdminUsers()">刷新用户列表</button></div>
+<div id="admin-users-summary" style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">仅超级管理员可见</div>
+<div id="admin-users-list" style="display:flex;flex-direction:column;gap:10px;max-height:420px;overflow:auto"></div>
 </div>
 </div>
 </div>
@@ -508,6 +516,166 @@ var firestoreDB = null;
 var firebaseAuth = null;
 var authMode = "login";
 var currentAppUser = null;
+var SUPER_ADMIN_PHONE = "13576198135";
+
+function getCurrentUserPhone() {
+  return currentAppUser && currentAppUser.email ? currentAppUser.email.split("@")[0] : "";
+}
+
+function isSuperAdminUser() {
+  return getCurrentUserPhone() === SUPER_ADMIN_PHONE;
+}
+
+function getClientDeviceId() {
+  var key = "fp_device_id";
+  var id = localStorage.getItem(key);
+  if (!id) {
+    id = "d_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem(key, id);
+  }
+  return id.replace(/[^a-zA-Z0-9_]/g, "_");
+}
+
+function updateAdminVisibility() {
+  var btn = document.getElementById("settings-admin-tab-btn");
+  if (btn) btn.style.display = isSuperAdminUser() ? "" : "none";
+  if (!isSuperAdminUser()) {
+    var adminPanel = document.getElementById("settings-tab-admin");
+    if (adminPanel) adminPanel.classList.remove("active");
+  }
+}
+
+function formatAdminTime(ts) {
+  if (!ts) return "未知";
+  var d = new Date(ts);
+  if (isNaN(d.getTime())) return "未知";
+  var pad = function(n) { return n < 10 ? "0" + n : String(n); };
+  return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+}
+
+function escapeAdminHtml(v) {
+  return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function topUsageText(user) {
+  var counts = user.usageCounts || {};
+  var labels = user.usageLabels || {};
+  var items = Object.keys(counts).map(function(k) { return { key: k, label: labels[k] || k, count: counts[k] || 0 }; });
+  items.sort(function(a, b) { return b.count - a.count; });
+  if (!items.length) return "暂无使用记录";
+  return items.slice(0, 3).map(function(i) { return escapeAdminHtml(i.label) + " × " + i.count; }).join("，");
+}
+
+function deviceCountText(user) {
+  var devices = user.devices || {};
+  return Object.keys(devices).length + " 台";
+}
+
+function registerUserLogin(user) {
+  if (!user || !firestoreDB) return Promise.resolve();
+  var phone = user.email ? user.email.split("@")[0] : "";
+  var deviceId = getClientDeviceId();
+  var data = {
+    uid: user.uid,
+    phone: phone,
+    lastLoginAt: Date.now(),
+    lastDeviceId: deviceId,
+    deleted: false
+  };
+  data["devices." + deviceId] = { firstSeenAt: Date.now(), lastSeenAt: Date.now(), userAgent: navigator.userAgent || "" };
+  if (window.firebase && firebase.firestore && firebase.firestore.FieldValue) {
+    data.loginCount = firebase.firestore.FieldValue.increment(1);
+  }
+  return firestoreDB.collection("users").doc(user.uid).set(data, { merge: true });
+}
+
+function guardDeletedUser(user) {
+  if (!user || !firestoreDB) return Promise.resolve(false);
+  return firestoreDB.collection("users").doc(user.uid).get().then(function(doc) {
+    var data = doc.exists ? doc.data() : {};
+    if (data && data.deleted) {
+      if (firebaseAuth) firebaseAuth.signOut();
+      showAuthMessage("该账号已被管理员删除，请联系管理员。", true);
+      return true;
+    }
+    return false;
+  }).catch(function() { return false; });
+}
+
+window.trackFeatureUsage = function(info) {
+  if (!currentAppUser || !firestoreDB || !info) return;
+  var key = String(info.key || "unknown").replace(/[.$#[\]/]/g, "_");
+  var title = info.taskTitle || info.name || key;
+  var label = title;
+  if (info.workflowType === "kyrie" && info.moduleId) label = "Kyrie · " + title;
+  if (info.workflowType === "ip" && info.moduleId) label = "访谈IP · " + title;
+  var data = { lastUsedAt: Date.now() };
+  data["usageCounts." + key] = firebase.firestore.FieldValue.increment(1);
+  data["usageLabels." + key] = label;
+  firestoreDB.collection("users").doc(currentAppUser.uid).set(data, { merge: true }).catch(function(){});
+};
+
+window.loadAdminUsers = function() {
+  var summary = document.getElementById("admin-users-summary");
+  var list = document.getElementById("admin-users-list");
+  if (!summary || !list) return;
+  if (!isSuperAdminUser()) {
+    summary.textContent = "当前账号没有管理员权限。";
+    list.innerHTML = "";
+    return;
+  }
+  if (!firestoreDB) {
+    summary.textContent = "数据库未加载，请刷新后重试。";
+    return;
+  }
+  summary.textContent = "正在加载用户...";
+  list.innerHTML = "";
+  firestoreDB.collection("users").orderBy("createdAt", "desc").get().then(function(snap) {
+    var users = [];
+    snap.forEach(function(doc) {
+      var data = doc.data() || {};
+      data.uid = doc.id;
+      users.push(data);
+    });
+    summary.textContent = "共 " + users.length + " 个注册用户";
+    if (!users.length) {
+      list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">暂无用户</div>';
+      return;
+    }
+    list.innerHTML = users.map(function(u) {
+      var isSelf = currentAppUser && u.uid === currentAppUser.uid;
+      var deleted = !!u.deleted;
+      return '<div style="padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card)">' +
+        '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:800;color:var(--text-primary);flex:1">' + escapeAdminHtml(u.phone || "未知手机号") + '</div>' +
+        '<span style="font-size:10px;color:' + (deleted ? '#ef4444' : '#10b981') + '">' + (deleted ? '已删除' : '正常') + '</span></div>' +
+        '<div style="font-size:11px;line-height:1.8;color:var(--text-secondary)">注册时间：' + formatAdminTime(u.createdAt) + '<br>最近登录：' + formatAdminTime(u.lastLoginAt) + '<br>登录设备：' + deviceCountText(u) + '<br>常用功能：' + topUsageText(u) + '</div>' +
+        '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;word-break:break-all">UID：' + escapeAdminHtml(u.uid) + '</div>' +
+        '<div style="display:flex;justify-content:flex-end;margin-top:10px"><button onclick="deleteAdminUserData(&quot;' + escapeAdminHtml(u.uid) + '&quot;,&quot;' + escapeAdminHtml(u.phone || "") + '&quot;)" ' + (isSelf || deleted ? 'disabled' : '') + ' style="padding:6px 10px;border-radius:7px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.08);color:#f87171;cursor:pointer;font-size:11px;opacity:' + (isSelf || deleted ? '.45' : '1') + '">' + (isSelf ? '不能删除自己' : '删除用户') + '</button></div>' +
+      '</div>';
+    }).join("");
+  }).catch(function(err) {
+    summary.textContent = "加载失败：" + (err && err.message ? err.message : "请检查 Firestore 权限");
+  });
+};
+
+window.deleteAdminUserData = function(uid, phone) {
+  if (!isSuperAdminUser() || !firestoreDB || !uid) return;
+  if (currentAppUser && uid === currentAppUser.uid) return;
+  var run = function() {
+    var batch = firestoreDB.batch();
+    var userRef = firestoreDB.collection("users").doc(uid);
+    batch.set(userRef, { deleted: true, deletedAt: Date.now(), deletedBy: getCurrentUserPhone(), phone: phone || "" }, { merge: true });
+    batch.delete(firestoreDB.collection("chat_history").doc(uid));
+    batch.commit().then(function() {
+      loadAdminUsers();
+      alert("已删除该用户的应用数据，并标记账号不可用。Firebase Auth 账号本体需要后端 Admin SDK 才能物理删除。");
+    }).catch(function(err) {
+      alert("删除失败：" + (err && err.message ? err.message : "请检查权限"));
+    });
+  };
+  if (typeof showConfirmDialog === "function") showConfirmDialog("确定删除用户 " + (phone || uid) + " 的应用数据？", run);
+  else if (confirm("确定删除用户 " + (phone || uid) + " 的应用数据？")) run();
+};
 
 function failAuthBootstrap(message) {
   if (window.__authBootstrapTimer) clearTimeout(window.__authBootstrapTimer);
@@ -631,10 +799,17 @@ if (firebaseAuth) {
       var phone = user && user.email ? user.email.split("@")[0] : "";
       label.textContent = phone ? "账号：" + phone : "未登录";
     }
+    updateAdminVisibility();
     if (user) {
-      if (typeof refreshAfterAuthReady === "function") setTimeout(refreshAfterAuthReady, 0);
-      if (typeof syncHistoryFromCloud === "function") setTimeout(syncHistoryFromCloud, 0);
-      if (typeof renderHistory === "function") setTimeout(renderHistory, 0);
+      guardDeletedUser(user).then(function(blocked) {
+        if (blocked) return;
+        registerUserLogin(user).catch(function(){});
+        updateAdminVisibility();
+        if (typeof refreshAfterAuthReady === "function") setTimeout(refreshAfterAuthReady, 0);
+        if (typeof syncHistoryFromCloud === "function") setTimeout(syncHistoryFromCloud, 0);
+        if (typeof renderHistory === "function") setTimeout(renderHistory, 0);
+        if (isSuperAdminUser() && typeof loadAdminUsers === "function") setTimeout(loadAdminUsers, 300);
+      });
     }
   });
 }

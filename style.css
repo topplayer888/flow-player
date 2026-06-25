@@ -183,9 +183,11 @@ html,body{margin:0;padding:0;height:100%}
 .theme-wasteland .nav-item:nth-child(1) .nav-icon{background:rgba(200,132,42,.15);color:#c8842a}
 .theme-wasteland .nav-item:nth-child(2) .nav-icon{background:rgba(158,94,42,.15);color:#9e5e2a}
 .theme-wasteland .nav-item:nth-child(3) .nav-icon{background:rgba(212,168,48,.15);color:#d4a830}
+.theme-wasteland .admin-nav-item .nav-icon{background:rgba(200,132,42,.15)!important;color:#c8842a!important}
 .theme-wasteland .nav-item:nth-child(1) .nav-badge{color:#c8842a}
 .theme-wasteland .nav-item:nth-child(2) .nav-badge{color:#9e5e2a}
 .theme-wasteland .nav-item:nth-child(3) .nav-badge{color:#d4a830}
+.theme-wasteland .admin-nav-item .nav-badge{color:#c8842a!important}
 .theme-wasteland .stat-value.cyan{color:#c8842a}
 .theme-wasteland .stat-value.purple{color:#9e5e2a}
 .theme-wasteland .stat-value.gold{color:#d4a830}
@@ -225,9 +227,12 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .nav-item:nth-child(1) .nav-icon{background:rgba(0,229,255,.12);color:var(--cyan)}
 .nav-item:nth-child(2) .nav-icon{background:rgba(168,85,247,.12);color:var(--purple)}
 .nav-item:nth-child(3) .nav-icon{background:rgba(245,158,11,.12);color:var(--gold)}
+.admin-nav-item{margin-top:6px}
+.admin-nav-item .nav-icon{background:rgba(0,229,255,.12);color:var(--cyan);font-size:17px}
 .nav-label{font-size:14px;font-weight:600}
 .nav-badge{margin-left:auto;font-size:10px;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,.06);color:var(--text-muted);white-space:nowrap}
 .nav-item:nth-child(1) .nav-badge{color:var(--cyan)}.nav-item:nth-child(2) .nav-badge{color:var(--purple)}.nav-item:nth-child(3) .nav-badge{color:var(--gold)}
+.admin-nav-item .nav-badge{color:var(--cyan)}
 .nav-item.entering{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.35);box-shadow:0 0 20px rgba(0,229,255,.08)}
 .sidebar-footer{padding:16px 24px;border-top:1px solid var(--border-glow);font-size:11px;color:var(--text-muted);text-align:center}
 
@@ -504,6 +509,8 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland) .mode-card-do
 .theme-pureblack .nav-item:hover{background:rgba(255,255,255,.045)}
 .theme-pureblack .nav-item.active{background:linear-gradient(90deg,rgba(255,255,255,.09),rgba(255,255,255,.035))!important;border-color:rgba(255,255,255,.1)!important;border-left-color:#e7eaf0!important}
 .theme-pureblack .nav-item.active::before{background:#e7eaf0!important;box-shadow:0 0 10px rgba(255,255,255,.22)!important}
+.theme-pureblack .admin-nav-item .nav-icon{background:rgba(255,255,255,.08)!important;color:#d7dce5!important}
+.theme-pureblack .admin-nav-item .nav-badge{color:#c8cdd8!important}
 .theme-pureblack .mode-card{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025))!important;border:1px solid rgba(255,255,255,.105)!important;box-shadow:0 14px 38px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.055)!important}
 .theme-pureblack .mode-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.22)!important;box-shadow:0 18px 50px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.08)!important}
 .theme-pureblack .mode-card-features-area{background:rgba(255,255,255,.04)!important;border-color:rgba(255,255,255,.075)!important}
@@ -561,6 +568,7 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland) .mode-card-do
 .theme-light .content-title .accent{background:none!important;-webkit-text-fill-color:initial!important;color:#2563eb!important}
 .theme-light .nav-icon{background:#eef4ff!important;color:#2563eb!important}
 .theme-light .nav-badge,.theme-light .nav-item:nth-child(1) .nav-badge,.theme-light .nav-item:nth-child(2) .nav-badge,.theme-light .nav-item:nth-child(3) .nav-badge{background:#f1f5f9!important;color:#64748b!important}
+.theme-light .admin-nav-item .nav-badge{background:#f1f5f9!important;color:#64748b!important}
 .theme-light .nav-item.active{background:#eef4ff!important;border-color:#dbeafe!important;border-left-color:#2563eb!important}
 .theme-light .mode-card-icon{background:#f1f5f9!important;color:#2563eb!important;box-shadow:none!important}
 .theme-light .mode-card:nth-child(1) .mode-card-icon,.theme-light .mode-card:nth-child(2) .mode-card-icon,.theme-light .mode-card:nth-child(3) .mode-card-icon,.theme-light .mode-card:nth-child(4) .mode-card-icon{background:#f1f5f9!important;color:#2563eb!important;box-shadow:none!important}

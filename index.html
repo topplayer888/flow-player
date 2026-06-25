@@ -720,15 +720,16 @@ window.redeemUserCode = function() {
         if (!data) throw new Error("兑换码不存在");
         if (data.usedBy) throw new Error("兑换码已被使用");
         if (data.active === false) throw new Error("兑换码已失效");
-      var now = Date.now();
-      var type = data.type || (code.indexOf("topplayer") === 0 ? "primary" : "normal");
-      var expiresAt = now + (type === "primary" ? REDEEM_PRIMARY_MS : REDEEM_NORMAL_MS);
-      var update = {};
-      update["redeemCodes." + code + ".active"] = false;
-      update["redeemCodes." + code + ".usedBy"] = currentAppUser.uid;
-      update["redeemCodes." + code + ".usedPhone"] = getCurrentUserPhone();
-      update["redeemCodes." + code + ".usedAt"] = now;
-      tx.set(adminRef, update, { merge: true });
+        var now = Date.now();
+        var type = data.type || (code.indexOf("topplayer") === 0 ? "primary" : "normal");
+        var expiresAt = now + (type === "primary" ? REDEEM_PRIMARY_MS : REDEEM_NORMAL_MS);
+        pool[code] = Object.assign({}, data, {
+          active: false,
+          usedBy: currentAppUser.uid,
+          usedPhone: getCurrentUserPhone(),
+          usedAt: now
+        });
+        tx.set(adminRef, { redeemCodes: pool }, { merge: true });
       tx.set(userRef, {
         redeemCode: code,
         redeemType: type,
@@ -776,16 +777,16 @@ window.generateRedeemCode = function(type) {
     if (attempt > 80) return Promise.reject(new Error("可用四位数已不足，请稍后再试"));
     var code = prefix + generateRedeemDigits();
     if (pool && pool[code]) return create(pool, attempt + 1);
-    var update = {};
-    update["redeemCodes." + code] = {
-        code: code,
-        type: type === "primary" ? "primary" : "normal",
-        active: true,
-        createdAt: Date.now(),
-        createdBy: getCurrentUserPhone(),
-        durationMs: type === "primary" ? REDEEM_PRIMARY_MS : REDEEM_NORMAL_MS
-      };
-    return adminRef.set(update, { merge: true }).then(function() { return code; });
+    pool = Object.assign({}, pool || {});
+    pool[code] = {
+      code: code,
+      type: type === "primary" ? "primary" : "normal",
+      active: true,
+      createdAt: Date.now(),
+      createdBy: getCurrentUserPhone(),
+      durationMs: type === "primary" ? REDEEM_PRIMARY_MS : REDEEM_NORMAL_MS
+    };
+    return adminRef.set({ redeemCodes: pool }, { merge: true }).then(function() { return code; });
   };
   adminRef.get().then(function(doc) {
     var data = doc.exists ? doc.data() || {} : {};

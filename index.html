@@ -435,7 +435,7 @@
 <script src="modules/tiejia.js?v=202606231315"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606251705"></script>
+<script src="app.js?v=202606251820"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 
@@ -567,7 +567,14 @@ function syncApiConfigForCurrentUser() {
     apiConfig.apikey = localStorage.getItem("fp_apikey") || localStorage.getItem("flowplayer_api_key") || "";
     apiConfig.model = localStorage.getItem("fp_model") || "";
   } else {
-    apiConfig.apikey = "";
+    if (isRedeemActive(currentRedeemState)) {
+      apiConfig.endpoint = "https://us-central1-flow-player-a04be.cloudfunctions.net/chatProxy";
+      apiConfig.apikey = "redeem_proxy_access";
+      apiConfig.model = "兑换码代理";
+    } else {
+      apiConfig.apikey = "";
+      apiConfig.model = "";
+    }
   }
   if (typeof updateApiStatus === "function") updateApiStatus();
   if (typeof updateFormApiStatus === "function") updateFormApiStatus();
@@ -630,17 +637,20 @@ function renderRedeemStatus(state) {
   if (!currentAppUser) {
     label.textContent = "未登录";
     msg.textContent = "登录后可以输入兑换码。";
+    syncApiConfigForCurrentUser();
     return;
   }
   if (!state || !state.code) {
     label.textContent = "未兑换";
     msg.textContent = "请输入管理员发放的兑换码。";
+    syncApiConfigForCurrentUser();
     return;
   }
   var active = isRedeemActive(state);
   var expires = state.expiresAt ? "，有效期至 " + formatAdminTime(state.expiresAt) : "，未设置有效期";
   label.textContent = (active ? "已生效 · " : "已过期 · ") + getRedeemTypeLabel(state.type) + " · " + state.code;
   msg.textContent = active ? "兑换码已生效" + expires + "。" : "当前兑换码已过期，可以输入新的兑换码替换。";
+  syncApiConfigForCurrentUser();
 }
 
 function loadCurrentRedeemStatus() {

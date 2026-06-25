@@ -93,8 +93,25 @@ document.addEventListener("pointercancel",up);
 function isAbortError(err){
 return false;
 }
+var FIREBASE_CHAT_PROXY_URL="https://us-central1-flow-player-a04be.cloudfunctions.net/chatProxy";
+function shouldUseFirebaseProxy(){
+return typeof isSuperAdminUser==="function"&&!isSuperAdminUser()&&typeof hasActiveRedeemAccess==="function"&&hasActiveRedeemAccess();
+}
 function apiFetch(url,options){
-return fetch(url,options||{});
+options=options||{};
+if(shouldUseFirebaseProxy()){
+ if(typeof firebaseAuth==="undefined"||!firebaseAuth||!firebaseAuth.currentUser){
+  return Promise.resolve(new Response(JSON.stringify({error:{message:"请先登录后再使用。"}}),{status:401,headers:{"Content-Type":"application/json"}}));
+ }
+ return firebaseAuth.currentUser.getIdToken().then(function(token){
+  return fetch(FIREBASE_CHAT_PROXY_URL,{
+   method:"POST",
+   headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},
+   body:options.body||"{}"
+  });
+ });
+}
+return fetch(url,options);
 }
 var sections=[{title:"爆款脚本创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"四大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"访谈式IP策划",desc:"IP访谈 · 经历挖掘与短视频脚本生成",icon:"🎤"},{name:"爆款仿写",desc:"爆款仿写 · 对标爆款文案的结构化仿写生成",icon:"✍️"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"创意",desc:"四大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"},{name:"马源2.0",desc:"马源2.0 · 内容专项与广告创意智能体",icon:"🧠"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"策略",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导IP直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"Kyrie直播方法论",desc:"Kyrie体系 · 知识付费直播闭环与中控训练",icon:"📈"}]}],currentSection=0,currentMode=0;
 

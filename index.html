@@ -517,7 +517,8 @@ var authMode = "login";
 var currentAppUser = null;
 var SUPER_ADMIN_PHONE = "13576198135";
 var currentRedeemState = null;
-var REDEEM_PRIMARY_MS = 24 * 60 * 60 * 1000;
+var REDEEM_NORMAL_MS = 24 * 60 * 60 * 1000;
+var REDEEM_PRIMARY_MS = 30 * 24 * 60 * 60 * 1000;
 
 function getCurrentUserPhone() {
   return currentAppUser && currentAppUser.email ? currentAppUser.email.split("@")[0] : "";
@@ -533,7 +534,6 @@ function normalizeRedeemCode(code) {
 
 function isRedeemActive(state) {
   if (!state) return false;
-  if (state.type === "normal" && state.code) return true;
   if (state.expiresAt && Number(state.expiresAt) > Date.now()) return true;
   return false;
 }
@@ -638,7 +638,7 @@ function renderRedeemStatus(state) {
     return;
   }
   var active = isRedeemActive(state);
-  var expires = state.expiresAt ? "，有效期至 " + formatAdminTime(state.expiresAt) : "，长期有效";
+  var expires = state.expiresAt ? "，有效期至 " + formatAdminTime(state.expiresAt) : "，未设置有效期";
   label.textContent = (active ? "已生效 · " : "已过期 · ") + getRedeemTypeLabel(state.type) + " · " + state.code;
   msg.textContent = active ? "兑换码已生效" + expires + "。" : "当前兑换码已过期，可以输入新的兑换码替换。";
 }
@@ -704,7 +704,7 @@ window.redeemUserCode = function() {
       if (data.active === false) throw new Error("兑换码已失效");
       var now = Date.now();
       var type = data.type || (code.indexOf("topplayer") === 0 ? "primary" : "normal");
-      var expiresAt = type === "primary" ? now + REDEEM_PRIMARY_MS : 0;
+      var expiresAt = now + (type === "primary" ? REDEEM_PRIMARY_MS : REDEEM_NORMAL_MS);
       tx.set(codeRef, {
         active: false,
         usedBy: currentAppUser.uid,
@@ -756,7 +756,7 @@ window.generateRedeemCode = function(type) {
         active: true,
         createdAt: Date.now(),
         createdBy: getCurrentUserPhone(),
-        durationMs: type === "primary" ? REDEEM_PRIMARY_MS : 0
+        durationMs: type === "primary" ? REDEEM_PRIMARY_MS : REDEEM_NORMAL_MS
       }).then(function() { return code; });
     });
   };
@@ -895,7 +895,7 @@ window.openAdminDashboard = function() {
       '<div style="font-size:12px;line-height:1.8;color:var(--text-muted);margin-bottom:14px">可查看已注册用户的基础信息、设备数量和常用功能，并可清理用户数据。删除 Firebase Authentication 账号本体需要后端 Admin SDK，此处会标记账号不可用并清理应用数据。</div>' +
       '<div style="padding:14px;border-radius:12px;border:1px solid var(--border-glow);background:var(--bg-card);margin-bottom:14px">' +
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="font-size:15px;font-weight:900;color:var(--text-primary);flex:1">兑换码生成</div><div id="admin-redeem-message" style="font-size:12px;color:var(--accent)"></div></div>' +
-        '<div style="font-size:12px;color:var(--text-muted);line-height:1.7;margin-bottom:12px">普通兑换码生成 player+四位数字；初级兑换码生成 topplayer+四位数字，初级兑换码有效期为 1 天。每个兑换码只可使用一次。</div>' +
+        '<div style="font-size:12px;color:var(--text-muted);line-height:1.7;margin-bottom:12px">普通兑换码生成 player+四位数字，有效期 1 天；初级兑换码生成 topplayer+四位数字，有效期 1 个月。每个兑换码只可使用一次。</div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><button class="sidebar-api-save" onclick="generateRedeemCode(&quot;normal&quot;)" style="max-width:160px">生成普通兑换码</button><button class="sidebar-api-save" onclick="generateRedeemCode(&quot;primary&quot;)" style="max-width:160px">生成初级兑换码</button><button class="sidebar-api-clear" onclick="loadAdminRedeemCodes()" style="max-width:130px">刷新兑换码</button></div>' +
         '<div id="admin-redeem-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px"></div>' +
       '</div>' +

@@ -817,9 +817,19 @@ window.generateRedeemCode = function(type) {
   });
 };
 
-window.loadAdminRedeemCodes = function() {
+window.loadAdminRedeemCodes = function(retryCount) {
+  retryCount = typeof retryCount === "number" ? retryCount : 0;
   var list = document.getElementById("admin-redeem-list");
-  if (!list || !isSuperAdminUser() || !firestoreDB) return;
+  if (!list) return;
+  if (!isSuperAdminUser()) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">当前账号没有管理员权限</div>';
+    return;
+  }
+  if (!firestoreDB || !currentAppUser) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">正在等待登录和数据库加载...</div>';
+    if (retryCount < 10) setTimeout(function() { loadAdminRedeemCodes(retryCount + 1); }, 500);
+    return;
+  }
   list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">正在加载兑换码...</div>';
   firestoreDB.collection("users").doc(currentAppUser.uid).get().then(function(doc) {
     var data = doc.exists ? doc.data() || {} : {};
@@ -1003,6 +1013,7 @@ window.openAdminDashboard = function() {
   }
   if (typeof renderHistory === "function") renderHistory();
   loadAdminRedeemCodes();
+  setTimeout(function() { loadAdminRedeemCodes(0); }, 800);
   loadAdminUsers();
 };
 
@@ -1158,6 +1169,7 @@ if (firebaseAuth) {
         if (typeof syncHistoryFromCloud === "function") setTimeout(syncHistoryFromCloud, 0);
         if (typeof renderHistory === "function") setTimeout(renderHistory, 0);
         if (isSuperAdminUser() && typeof loadAdminUsers === "function") setTimeout(loadAdminUsers, 300);
+        if (isSuperAdminUser() && typeof loadAdminRedeemCodes === "function") setTimeout(function() { loadAdminRedeemCodes(0); }, 400);
       });
     } else {
       renderRedeemStatus(null);

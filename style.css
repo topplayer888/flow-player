@@ -238,6 +238,10 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .sidebar-footer{padding:16px 24px;border-top:1px solid var(--border-glow);font-size:11px;color:var(--text-muted);text-align:center}
 
 .content-area{flex:1;min-height:0;display:flex;flex-direction:column;padding:32px 24px;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+body.admin-workspace .content-area{overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+body.admin-workspace #admin-redeem-list,body.admin-workspace #admin-users-list{scrollbar-width:thin}
+body.admin-workspace #admin-redeem-list::-webkit-scrollbar,body.admin-workspace #admin-users-list::-webkit-scrollbar{width:6px}
+body.admin-workspace #admin-redeem-list::-webkit-scrollbar-thumb,body.admin-workspace #admin-users-list::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:999px}
 .content-area.fading{opacity:0;transition:opacity .25s}
 .content-header{margin-bottom:28px;animation:fadeSlideIn .5s cubic-bezier(.4,0,.2,1) both}
 @keyframes fadeSlideIn{0%{opacity:0;transform:translateY(-16px)}100%{opacity:1;transform:translateY(0)}}

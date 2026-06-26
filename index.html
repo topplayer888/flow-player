@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
 <link rel="preload" as="image" href="wasteland-bg.jpg">
-<link rel="stylesheet" href="style.css?v=192"></head><body class="auth-checking">
+<link rel="stylesheet" href="style.css?v=193"></head><body class="auth-checking">
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="auth-overlay" id="auth-overlay">
 <div class="auth-card">
@@ -1005,11 +1005,11 @@ window.openAdminDashboard = function() {
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="font-size:15px;font-weight:900;color:var(--text-primary);flex:1">兑换码生成</div><div id="admin-redeem-message" style="font-size:12px;color:var(--accent)"></div></div>' +
         '<div style="font-size:12px;color:var(--text-muted);line-height:1.7;margin-bottom:12px">普通兑换码生成 player+四位数字，有效期 1 天；初级兑换码生成 topplayer+四位数字，有效期 1 个月。兑换码首次使用后绑定该手机号，同一手机号可重复输入使用。</div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><button class="sidebar-api-save" onclick="generateRedeemCode(&quot;normal&quot;)" style="max-width:160px">生成普通兑换码</button><button class="sidebar-api-save" onclick="generateRedeemCode(&quot;primary&quot;)" style="max-width:160px">生成初级兑换码</button><button class="sidebar-api-clear" onclick="loadAdminRedeemCodes()" style="max-width:130px">刷新兑换码</button></div>' +
-        '<div id="admin-redeem-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px"></div>' +
+        '<div id="admin-redeem-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;max-height:360px;overflow-y:auto;overflow-x:hidden;padding-right:4px;-webkit-overflow-scrolling:touch"></div>' +
       '</div>' +
       '<div style="display:flex;gap:8px;margin-bottom:14px"><button class="sidebar-api-save" onclick="loadAdminUsers()" style="max-width:160px">刷新用户列表</button></div>' +
       '<div id="admin-users-summary" style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">正在加载用户...</div>' +
-      '<div id="admin-users-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;max-height:calc(100vh - 220px);overflow:auto;padding-right:4px"></div>';
+      '<div id="admin-users-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;max-height:520px;overflow:auto;padding-right:4px;-webkit-overflow-scrolling:touch"></div>';
   }
   if (typeof renderHistory === "function") renderHistory();
   loadAdminRedeemCodes();

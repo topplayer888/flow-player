@@ -826,12 +826,12 @@ window.loadAdminRedeemCodes = function() {
     var pool = data.redeemCodes || {};
     var items = Object.keys(pool).map(function(k) { return pool[k] || {}; });
     items.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
-    items = items.slice(0, 12);
     if (!items.length) {
       list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">暂无兑换码</div>';
       return;
     }
-    list.innerHTML = items.map(function(item) {
+    function renderRedeemGroup(title, groupItems) {
+      var body = groupItems.slice(0, 12).map(function(item) {
       var used = !!(item.boundPhone || item.usedBy);
       var type = getRedeemTypeLabel(item.type);
       return '<div style="padding:9px 10px;border-radius:9px;border:1px solid var(--border-glow);background:rgba(255,255,255,.03);display:flex;gap:10px;align-items:center">' +
@@ -839,7 +839,16 @@ window.loadAdminRedeemCodes = function() {
         '<div style="font-size:10px;color:var(--text-muted);margin-top:3px">' + type + ' · ' + formatAdminTime(item.createdAt) + (used ? ' · 已绑定 ' + escapeAdminHtml(item.boundPhone || item.usedPhone || "未知账号") : ' · 未绑定') + '</div></div>' +
         '<span style="font-size:10px;color:' + (used ? '#f59e0b' : '#10b981') + '">' + (used ? '已绑定' : '可绑定') + '</span>' +
       '</div>';
-    }).join("");
+      }).join("");
+      if (!body) body = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0">暂无</div>';
+      return '<div style="min-width:0"><div style="font-size:12px;font-weight:900;color:var(--text-primary);margin:2px 0 8px">' + title + ' <span style="font-size:10px;color:var(--text-muted);font-weight:600">(' + groupItems.length + ')</span></div><div style="display:grid;gap:8px">' + body + '</div></div>';
+    }
+    var normalItems = items.filter(function(item) { return item.type !== "primary"; });
+    var primaryItems = items.filter(function(item) { return item.type === "primary"; });
+    list.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;width:100%">' +
+      renderRedeemGroup("普通兑换码", normalItems) +
+      renderRedeemGroup("初级兑换码", primaryItems) +
+      '</div>';
   }).catch(function(err) {
     list.innerHTML = '<div style="font-size:12px;color:#f87171">加载失败：' + escapeAdminHtml(err && err.message ? err.message : "请检查权限") + '</div>';
   });

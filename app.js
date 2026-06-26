@@ -21,6 +21,10 @@ if(cancel)cancel.style.display="";
 }
 window.alert=showAppAlert;
 window.closeAppAlert=closeAppAlert;
+function showAdminContact(){
+showAppAlert("没有兑换码请联系管理员。\n\n管理员微信：kyrie135761");
+}
+window.showAdminContact=showAdminContact;
 var chatFrameWidth=parseFloat(localStorage.getItem("fp_chat_frame_width")||localStorage.getItem("fp_chat_zoom")||"1")||1;
 var chatFrameHeight=parseFloat(localStorage.getItem("fp_chat_frame_height")||localStorage.getItem("fp_chat_zoom")||"1")||1;
 function clampChatZoom(value){
@@ -1781,10 +1785,10 @@ if(typeof isSuperAdminUser==="function"&&!isSuperAdminUser()){
 var active=typeof hasActiveRedeemAccess==="function"&&hasActiveRedeemAccess();
 if(active)return "✅ 兑换码已生效。<br><br>当前版本还需要管理员配置安全的后端 API 代理后，才能让普通用户消耗管理员 API。";
 return '<div style="padding:14px;border:1px solid rgba(0,229,255,.28);border-radius:12px;background:rgba(0,229,255,.07);line-height:1.7">' +
-'<div style="font-size:15px;font-weight:900;color:var(--text-primary);margin-bottom:6px">需要先输入兑换码</div>' +
+'<div style="font-size:15px;font-weight:900;color:var(--text-primary);margin-bottom:6px">开始创作前，请填写您的兑换码</div>' +
 '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">当前账号还没有有效兑换码。请在账号设置里输入管理员发放的兑换码，兑换成功后再使用生成能力。</div>' +
-'<button onclick="openRedeemSettingsFromChat()" style="border:0;border-radius:9px;padding:9px 14px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;font-weight:800;cursor:pointer">去填写兑换码</button>' +
-'<div style="font-size:11px;color:var(--text-muted);margin-top:10px">普通兑换码可体验 1 天，初级兑换码可体验 1 个月。</div>' +
+'<div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="openRedeemSettingsFromChat()" style="border:0;border-radius:9px;padding:9px 14px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;font-weight:800;cursor:pointer">去填写兑换码</button><button onclick="showAdminContact()" style="border:1px solid var(--border-glow);border-radius:9px;padding:9px 14px;background:rgba(255,255,255,.04);color:var(--text-primary);font-weight:800;cursor:pointer">联系管理员</button></div>' +
+'<div style="font-size:11px;color:var(--text-muted);margin-top:10px">没有兑换码请联系管理员。普通兑换码可体验 1 天，初级兑换码可体验 1 个月。</div>' +
 '</div>';
 }
 return "⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>";

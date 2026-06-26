@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
 <link rel="preload" as="image" href="wasteland-bg.jpg">
-<link rel="stylesheet" href="style.css?v=193"></head><body class="auth-checking">
+<link rel="stylesheet" href="style.css?v=194"></head><body class="auth-checking">
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="auth-overlay" id="auth-overlay">
 <div class="auth-card">
@@ -14,8 +14,9 @@
 <button class="auth-tab" id="auth-register-tab" onclick="setAuthMode('register')">注册</button>
 </div>
 <input class="auth-input" id="auth-phone" placeholder="请输入手机号码" inputmode="tel" autocomplete="tel">
-<input class="auth-input" id="auth-password" placeholder="请输入密码" type="password" autocomplete="current-password" onkeydown="handleAuthKey(event)">
-<input class="auth-input auth-confirm-input" id="auth-password-confirm" placeholder="请再次输入密码" type="password" autocomplete="new-password" onkeydown="handleAuthKey(event)">
+<div class="auth-password-wrap"><input class="auth-input" id="auth-password" placeholder="请输入密码" type="password" autocomplete="current-password" onkeydown="handleAuthKey(event)"><button type="button" class="auth-eye-btn" onclick="toggleAuthPassword('auth-password',this)" aria-label="显示密码">显示</button></div>
+<div class="auth-password-wrap auth-confirm-wrap" id="auth-password-confirm-wrap"><input class="auth-input auth-confirm-input" id="auth-password-confirm" placeholder="请再次输入密码" type="password" autocomplete="new-password" onkeydown="handleAuthKey(event)"><button type="button" class="auth-eye-btn" onclick="toggleAuthPassword('auth-password-confirm',this)" aria-label="显示确认密码">显示</button></div>
+<label class="auth-remember"><input type="checkbox" id="auth-remember-phone" checked> 记住手机号</label>
 <button class="auth-submit" id="auth-submit" onclick="submitAuth()">登录</button>
 <div class="auth-msg" id="auth-msg">正在检查登录状态...</div>
 </div>
@@ -516,6 +517,8 @@ var firebaseAuth = null;
 var authMode = "login";
 var currentAppUser = null;
 var SUPER_ADMIN_PHONE = "13576198135";
+var REMEMBER_PHONE_KEY = "fp_remember_phone";
+var SAVED_PHONE_KEY = "fp_saved_phone";
 var currentRedeemState = null;
 var REDEEM_NORMAL_MS = 24 * 60 * 60 * 1000;
 var REDEEM_PRIMARY_MS = 30 * 24 * 60 * 60 * 1000;
@@ -1102,15 +1105,46 @@ function setAuthMode(mode) {
   var msg = document.getElementById("auth-msg");
   var passwordInput = document.getElementById("auth-password");
   var confirmInput = document.getElementById("auth-password-confirm");
+  var confirmWrap = document.getElementById("auth-password-confirm-wrap");
   if (loginTab) loginTab.classList.toggle("active", authMode === "login");
   if (registerTab) registerTab.classList.toggle("active", authMode === "register");
   if (submit) submit.textContent = authMode === "register" ? "注册并进入" : "登录";
   if (passwordInput) passwordInput.setAttribute("autocomplete", authMode === "register" ? "new-password" : "current-password");
+  if (confirmWrap) confirmWrap.classList.toggle("show", authMode === "register");
   if (confirmInput) {
     confirmInput.classList.toggle("show", authMode === "register");
     confirmInput.value = "";
+    confirmInput.type = "password";
   }
   if (msg) msg.textContent = authMode === "register" ? "设置登录密码并再次确认，注册成功后即可进入。" : "输入手机号和密码登录。首次使用请先切换到注册。";
+}
+
+function initAuthRememberUI() {
+  var phoneInput = document.getElementById("auth-phone");
+  var rememberInput = document.getElementById("auth-remember-phone");
+  var remember = localStorage.getItem(REMEMBER_PHONE_KEY);
+  var shouldRemember = remember !== "0";
+  if (rememberInput) rememberInput.checked = shouldRemember;
+  if (phoneInput && shouldRemember) phoneInput.value = localStorage.getItem(SAVED_PHONE_KEY) || "";
+}
+
+function saveAuthRememberedPhone(phone) {
+  var rememberInput = document.getElementById("auth-remember-phone");
+  var shouldRemember = !rememberInput || rememberInput.checked;
+  localStorage.setItem(REMEMBER_PHONE_KEY, shouldRemember ? "1" : "0");
+  if (shouldRemember) localStorage.setItem(SAVED_PHONE_KEY, normalizePhone(phone));
+  else localStorage.removeItem(SAVED_PHONE_KEY);
+}
+
+function toggleAuthPassword(inputId, btn) {
+  var input = document.getElementById(inputId);
+  if (!input) return;
+  var show = input.type === "password";
+  input.type = show ? "text" : "password";
+  if (btn) {
+    btn.textContent = show ? "隐藏" : "显示";
+    btn.setAttribute("aria-label", show ? "隐藏密码" : "显示密码");
+  }
 }
 
 function normalizePhone(phone) {
@@ -1154,7 +1188,9 @@ function submitAuth() {
         return cred;
       })
     : firebaseAuth.signInWithEmailAndPassword(email, password);
-  action.catch(function(err) {
+  action.then(function() {
+    saveAuthRememberedPhone(phone);
+  }).catch(function(err) {
     var code = err && err.code;
     var text = "操作失败，请稍后重试。";
     if (code === "auth/email-already-in-use") text = "这个手机号已经注册，请直接登录。";
@@ -1185,6 +1221,8 @@ function switchAuthAccount() {
   if (confirmInput) confirmInput.value = "";
   if (firebaseAuth) firebaseAuth.signOut().finally(function() { if (phoneInput) phoneInput.focus(); });
 }
+
+initAuthRememberUI();
 
 if (firebaseAuth) {
   firebaseAuth.onAuthStateChanged(function(user) {

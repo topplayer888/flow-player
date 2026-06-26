@@ -1780,7 +1780,12 @@ function getAccessPromptHtml(){
 if(typeof isSuperAdminUser==="function"&&!isSuperAdminUser()){
 var active=typeof hasActiveRedeemAccess==="function"&&hasActiveRedeemAccess();
 if(active)return "✅ 兑换码已生效。<br><br>当前版本还需要管理员配置安全的后端 API 代理后，才能让普通用户消耗管理员 API。";
-return "请输入兑换码后使用。<br><br><span class=\"api-config-hint\" onclick=\"openRedeemSettingsFromChat()\">👤 点击此处输入或替换兑换码</span>";
+return '<div style="padding:14px;border:1px solid rgba(0,229,255,.28);border-radius:12px;background:rgba(0,229,255,.07);line-height:1.7">' +
+'<div style="font-size:15px;font-weight:900;color:var(--text-primary);margin-bottom:6px">需要先输入兑换码</div>' +
+'<div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">当前账号还没有有效兑换码。请在账号设置里输入管理员发放的兑换码，兑换成功后再使用生成能力。</div>' +
+'<button onclick="openRedeemSettingsFromChat()" style="border:0;border-radius:9px;padding:9px 14px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;font-weight:800;cursor:pointer">去填写兑换码</button>' +
+'<div style="font-size:11px;color:var(--text-muted);margin-top:10px">普通兑换码可体验 1 天，初级兑换码可体验 1 个月。</div>' +
+'</div>';
 }
 return "⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>";
 }

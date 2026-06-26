@@ -999,21 +999,52 @@ window.openAdminDashboard = function() {
   if (right) right.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:12px">超级管理员</div>';
   var content = document.getElementById("content-area");
   if (content) {
-    content.innerHTML = '<div class="content-header"><div class="content-title"><span class="accent">管理员</span>权限</div><div class="content-desc">用户管理 · 注册信息 · 设备统计 · 功能使用 · 兑换码</div></div>' +
-      '<div style="font-size:12px;line-height:1.8;color:var(--text-muted);margin-bottom:14px">可查看已注册用户的基础信息、设备数量和常用功能，并可清理用户数据。删除 Firebase Authentication 账号本体需要后端 Admin SDK，此处会标记账号不可用并清理应用数据。</div>' +
+    content.innerHTML = '<div class="content-header"><div class="content-title"><span class="accent">管理员</span>权限</div><div class="content-desc">兑换码管理 · 用户管理</div></div>' +
+      '<div style="font-size:12px;line-height:1.8;color:var(--text-muted);margin-bottom:18px">请选择要进入的管理员功能。普通用户不会看到管理员权限入口。</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;max-width:760px">' +
+        '<div onclick="openAdminRedeemManager()" style="padding:18px;border-radius:14px;border:1px solid var(--border-glow);background:var(--bg-card);cursor:pointer;transition:all .2s">' +
+          '<div style="font-size:26px;margin-bottom:12px">🎟️</div><div style="font-size:18px;font-weight:900;color:var(--text-primary);margin-bottom:8px">兑换码管理</div>' +
+          '<div style="font-size:12px;color:var(--text-secondary);line-height:1.7">生成普通/初级兑换码，查看已绑定手机号，并一键复制兑换码。</div>' +
+        '</div>' +
+        '<div onclick="openAdminUserManager()" style="padding:18px;border-radius:14px;border:1px solid var(--border-glow);background:var(--bg-card);cursor:pointer;transition:all .2s">' +
+          '<div style="font-size:26px;margin-bottom:12px">👥</div><div style="font-size:18px;font-weight:900;color:var(--text-primary);margin-bottom:8px">用户管理</div>' +
+          '<div style="font-size:12px;color:var(--text-secondary);line-height:1.7">查看注册用户、设备数量、常用功能，并清理用户应用数据。</div>' +
+        '</div>' +
+      '</div>';
+  }
+  if (typeof renderHistory === "function") renderHistory();
+};
+
+window.openAdminRedeemManager = function() {
+  if (!isSuperAdminUser()) return;
+  document.body.classList.add("admin-workspace");
+  var content = document.getElementById("content-area");
+  if (content) {
+    content.innerHTML = '<div class="content-header"><div class="content-title"><span class="accent">兑换码</span>管理</div><div class="content-desc">普通兑换码 · 初级兑换码 · 绑定手机号</div></div>' +
+      '<button class="sidebar-api-clear" onclick="openAdminDashboard()" style="max-width:140px;margin-bottom:14px">← 返回管理员首页</button>' +
       '<div style="padding:14px;border-radius:12px;border:1px solid var(--border-glow);background:var(--bg-card);margin-bottom:14px">' +
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="font-size:15px;font-weight:900;color:var(--text-primary);flex:1">兑换码生成</div><div id="admin-redeem-message" style="font-size:12px;color:var(--accent)"></div></div>' +
         '<div style="font-size:12px;color:var(--text-muted);line-height:1.7;margin-bottom:12px">普通兑换码生成 player+四位数字，有效期 1 天；初级兑换码生成 topplayer+四位数字，有效期 1 个月。兑换码首次使用后绑定该手机号，同一手机号可重复输入使用。</div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><button class="sidebar-api-save" onclick="generateRedeemCode(&quot;normal&quot;)" style="max-width:160px">生成普通兑换码</button><button class="sidebar-api-save" onclick="generateRedeemCode(&quot;primary&quot;)" style="max-width:160px">生成初级兑换码</button><button class="sidebar-api-clear" onclick="loadAdminRedeemCodes()" style="max-width:130px">刷新兑换码</button></div>' +
         '<div id="admin-redeem-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;max-height:360px;overflow-y:auto;overflow-x:hidden;padding-right:4px;-webkit-overflow-scrolling:touch"></div>' +
-      '</div>' +
+      '</div>';
+  }
+  loadAdminRedeemCodes();
+  setTimeout(function() { loadAdminRedeemCodes(0); }, 800);
+};
+
+window.openAdminUserManager = function() {
+  if (!isSuperAdminUser()) return;
+  document.body.classList.add("admin-workspace");
+  var content = document.getElementById("content-area");
+  if (content) {
+    content.innerHTML = '<div class="content-header"><div class="content-title"><span class="accent">用户</span>管理</div><div class="content-desc">注册信息 · 设备统计 · 功能使用</div></div>' +
+      '<button class="sidebar-api-clear" onclick="openAdminDashboard()" style="max-width:140px;margin-bottom:14px">← 返回管理员首页</button>' +
+      '<div style="font-size:12px;line-height:1.8;color:var(--text-muted);margin-bottom:14px">可查看已注册用户的基础信息、设备数量和常用功能，并可清理用户数据。删除 Firebase Authentication 账号本体需要后端 Admin SDK，此处会标记账号不可用并清理应用数据。</div>' +
       '<div style="display:flex;gap:8px;margin-bottom:14px"><button class="sidebar-api-save" onclick="loadAdminUsers()" style="max-width:160px">刷新用户列表</button></div>' +
       '<div id="admin-users-summary" style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">正在加载用户...</div>' +
       '<div id="admin-users-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;max-height:520px;overflow:auto;padding-right:4px;-webkit-overflow-scrolling:touch"></div>';
   }
-  if (typeof renderHistory === "function") renderHistory();
-  loadAdminRedeemCodes();
-  setTimeout(function() { loadAdminRedeemCodes(0); }, 800);
   loadAdminUsers();
 };
 

@@ -19,6 +19,10 @@ service cloud.firestore {
       allow read, write: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
     }
 
+    match /chat_history_records/{userId}/records/{recordId} {
+      allow read, write: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

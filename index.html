@@ -1159,7 +1159,33 @@ function getHistoryUserId() {
 function syncHistoryToCloud(items) {
   var uid = getHistoryUserId();
   if (!uid || typeof firestoreDB === "undefined") return;
-  firestoreDB.collection("chat_history").doc(uid).set({ items: items, updated: Date.now() }).catch(function(){});
+  items = (items || []).filter(function(h) { return h && h.id && h.msgs && h.msgs.length > 0; });
+  if (!items.length) return;
+  var batch = firestoreDB.batch();
+  var col = firestoreDB.collection("chat_history_records").doc(uid).collection("records");
+  items.forEach(function(item) {
+    batch.set(col.doc(historyCloudDocId(item.id)), Object.assign({}, item, { updated: Date.now() }), { merge: true });
+  });
+  batch.commit().catch(function(){});
+}
+
+function historyCloudDocId(id) {
+  id = String(id || "");
+  var hash = 0;
+  for (var i = 0; i < id.length; i++) {
+    hash = ((hash << 5) - hash) + id.charCodeAt(i);
+    hash |= 0;
+  }
+  return "h_" + Math.abs(hash).toString(36) + "_" + id.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 70);
+}
+
+function deleteCloudHistoryRecords(ids) {
+  var uid = getHistoryUserId();
+  if (!uid || typeof firestoreDB === "undefined" || !ids || !ids.length) return;
+  var batch = firestoreDB.batch();
+  var col = firestoreDB.collection("chat_history_records").doc(uid).collection("records");
+  ids.forEach(function(id) { batch.delete(col.doc(historyCloudDocId(id))); });
+  batch.commit().catch(function(){});
 }
 
 function getHistoryMergeId(h) {
@@ -1191,14 +1217,24 @@ function mergeHistories(local, remote) {
 function syncHistoryFromCloud() {
   var uid = getHistoryUserId();
   if (!uid || typeof firestoreDB === "undefined") return;
-  firestoreDB.collection("chat_history").doc(uid).get().then(function(doc) {
-    if (!doc.exists) return;
-    var remote = (doc.data().items || []).filter(function(h) { return h.msgs && h.msgs.length > 0; });
-    var storageKey = "fp_chat_history_" + uid;
-    var local = JSON.parse(localStorage.getItem(storageKey) || "[]");
+  var storageKey = "fp_chat_history_" + uid;
+  var local = JSON.parse(localStorage.getItem(storageKey) || "[]");
+  var recordsPromise = firestoreDB.collection("chat_history_records").doc(uid).collection("records").orderBy("time", "desc").limit(80).get().then(function(snap) {
+    var records = [];
+    snap.forEach(function(doc) { records.push(doc.data() || {}); });
+    return records;
+  }).catch(function() { return []; });
+  var legacyPromise = firestoreDB.collection("chat_history").doc(uid).get().then(function(doc) {
+    if (!doc.exists) return [];
+    return (doc.data().items || []).filter(function(h) { return h.msgs && h.msgs.length > 0; });
+  }).catch(function() { return []; });
+  Promise.all([recordsPromise, legacyPromise]).then(function(parts) {
+    var remote = (parts[0] || []).concat(parts[1] || []).filter(function(h) { return h && h.msgs && h.msgs.length > 0; });
+    if (!remote.length) return;
     var merged = mergeHistories(local, remote);
     if (JSON.stringify(merged) !== JSON.stringify(local)) {
       localStorage.setItem(storageKey, JSON.stringify(merged));
+      syncHistoryToCloud(merged);
       if (typeof renderHistory === "function") renderHistory();
     }
   }).catch(function(){});
@@ -1390,12 +1426,11 @@ function syncHistoryFromCloud() {
 
   function doClearCurrentWorkspaceHistory() {
     var items = loadHistory().filter(isValidHistoryItem);
+    var removedIds = items.filter(matchesCurrentWorkspace).map(function(h) { return historyId(h); });
     var kept = items.filter(function(h) { return !matchesCurrentWorkspace(h); });
     localStorage.setItem(getHistoryStorageKey(), JSON.stringify(kept));
-    var uid = typeof getHistoryUserId === 'function' ? getHistoryUserId() : null;
-    if (uid && typeof firestoreDB !== 'undefined') {
-      firestoreDB.collection('chat_history').doc(uid).set({ items: kept, updated: Date.now() }).catch(function(){});
-    }
+    if (typeof deleteCloudHistoryRecords === 'function') deleteCloudHistoryRecords(removedIds);
+    if (typeof syncHistoryToCloud === 'function') syncHistoryToCloud(kept);
     refreshWorkspaceChrome();
     renderHistory();
   }
@@ -1418,6 +1453,7 @@ function syncHistoryFromCloud() {
     }
     localStorage.setItem(getHistoryStorageKey(), JSON.stringify(kept));
     if (window.currentHistoryRestoredId === id) window.currentHistoryRestoredId = '';
+    if (typeof deleteCloudHistoryRecords === 'function') deleteCloudHistoryRecords([id]);
     if (typeof syncHistoryToCloud === 'function') syncHistoryToCloud(kept);
     refreshWorkspaceChrome();
     renderHistory();

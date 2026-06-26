@@ -12,7 +12,7 @@ html,body{margin:0;padding:0;height:100%}
 .auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .auth-tab{height:38px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;font-size:13px;font-weight:700;transition:all .2s}
 .auth-tab.active{background:linear-gradient(135deg,var(--cyan-dim),var(--purple-dim));border-color:rgba(0,229,255,.35);color:var(--text-primary)}
-.auth-input{width:100%;height:42px;margin-bottom:10px;padding:0 13px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);outline:none;font-size:13px}
+.auth-input{width:100%;height:42px;margin-bottom:10px;padding:0 13px;border-radius:10px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);outline:none;font-size:16px}
 .auth-confirm-input{display:none}
 .auth-confirm-input.show{display:block}
 .auth-input:focus{border-color:rgba(0,229,255,.45);box-shadow:0 0 0 3px rgba(0,229,255,.08)}
@@ -495,6 +495,10 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland) .mode-card-do
 .sidebar-left.mobile-open{left:0;box-shadow:8px 0 40px rgba(0,0,0,.5)}
 .sidebar-right{display:none}
 .content-area{flex:1;min-height:0;padding:20px 12px;padding-top:56px;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.auth-overlay{padding:14px;align-items:center;overflow:auto;-webkit-overflow-scrolling:touch}
+.auth-card{width:min(360px,94vw);max-height:calc(100dvh - 28px);overflow:auto;padding:22px}
+.auth-input,.auth-submit,.auth-tab,.chat-input,.chat-form-field input,.chat-form-field textarea,.chat-form-field select,.settings-tab-content input,.settings-tab-content select{font-size:16px!important}
+.auth-msg{font-size:12px}
 }
 @media(max-width:768px){.chat-overlay{left:0;right:0}.chat-header{gap:10px;padding:14px 12px;flex-wrap:wrap}.chat-header-info{flex:1 1 180px}.chat-zoom-controls{order:3;width:100%;justify-content:center}.chat-zoom-reset{display:none}}.theme-pureblack .settings-panel .form-api-status.ok{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#b0b0b0!important}.theme-pureblack .settings-panel .form-api-status.ok .fa-dot{background:#9d9d9d!important;box-shadow:none!important}.theme-pureblack #form-api-status.form-api-status.ok{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#b0b0b0!important}
 

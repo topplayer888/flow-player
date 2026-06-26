@@ -838,6 +838,7 @@ window.loadAdminRedeemCodes = function() {
         '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:800;color:var(--text-primary);letter-spacing:.4px">' + escapeAdminHtml(item.code || "") + '</div>' +
         '<div style="font-size:10px;color:var(--text-muted);margin-top:3px">' + type + ' · ' + formatAdminTime(item.createdAt) + (used ? ' · 已绑定 ' + escapeAdminHtml(item.boundPhone || item.usedPhone || "未知账号") : ' · 未绑定') + '</div></div>' +
         '<span style="font-size:10px;color:' + (used ? '#f59e0b' : '#10b981') + '">' + (used ? '已绑定' : '可绑定') + '</span>' +
+        '<button onclick="copyAdminRedeemCode(&quot;' + escapeAdminHtml(item.code || "") + '&quot;)" style="padding:5px 8px;border-radius:7px;border:1px solid var(--border-glow);background:rgba(255,255,255,.04);color:var(--text-secondary);font-size:10px;cursor:pointer;white-space:nowrap">复制</button>' +
       '</div>';
       }).join("");
       if (!body) body = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0">暂无</div>';
@@ -852,6 +853,21 @@ window.loadAdminRedeemCodes = function() {
   }).catch(function(err) {
     list.innerHTML = '<div style="font-size:12px;color:#f87171">加载失败：' + escapeAdminHtml(err && err.message ? err.message : "请检查权限") + '</div>';
   });
+};
+
+window.copyAdminRedeemCode = function(code) {
+  code = String(code || "");
+  if (!code) return;
+  var done = function() { setAdminRedeemMessage("已复制：" + code, false); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).then(done).catch(function() {
+      if (typeof fallbackCopyText === "function") fallbackCopyText(code);
+      done();
+    });
+  } else {
+    if (typeof fallbackCopyText === "function") fallbackCopyText(code);
+    done();
+  }
 };
 
 function registerUserLogin(user) {

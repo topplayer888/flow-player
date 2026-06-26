@@ -834,12 +834,13 @@ window.loadAdminRedeemCodes = function() {
       var body = groupItems.slice(0, 12).map(function(item) {
       var used = !!(item.boundPhone || item.usedBy);
       var type = getRedeemTypeLabel(item.type);
-      return '<div style="padding:9px 10px;border-radius:9px;border:1px solid var(--border-glow);background:rgba(255,255,255,.03);display:flex;gap:10px;align-items:center">' +
-        '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:800;color:var(--text-primary);letter-spacing:.4px">' + escapeAdminHtml(item.code || "") + '</div>' +
+      return '<div style="padding:9px 10px;border-radius:9px;border:1px solid var(--border-glow);background:rgba(255,255,255,.03);display:block">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="font-size:13px;font-weight:800;color:var(--text-primary);letter-spacing:.4px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">' + escapeAdminHtml(item.code || "") + '</div>' +
+        '<button onclick="copyAdminRedeemCode(&quot;' + escapeAdminHtml(item.code || "") + '&quot;,this,event)" style="padding:4px 8px;border-radius:7px;border:1px solid var(--border-glow);background:rgba(255,255,255,.04);color:var(--text-secondary);font-size:10px;cursor:pointer;white-space:nowrap">复制</button></div>' +
+        '<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;min-width:0">' +
         '<div style="font-size:10px;color:var(--text-muted);margin-top:3px">' + type + ' · ' + formatAdminTime(item.createdAt) + (used ? ' · 已绑定 ' + escapeAdminHtml(item.boundPhone || item.usedPhone || "未知账号") : ' · 未绑定') + '</div></div>' +
         '<span style="font-size:10px;color:' + (used ? '#f59e0b' : '#10b981') + '">' + (used ? '已绑定' : '可绑定') + '</span>' +
-        '<button onclick="copyAdminRedeemCode(&quot;' + escapeAdminHtml(item.code || "") + '&quot;)" style="padding:5px 8px;border-radius:7px;border:1px solid var(--border-glow);background:rgba(255,255,255,.04);color:var(--text-secondary);font-size:10px;cursor:pointer;white-space:nowrap">复制</button>' +
-      '</div>';
+      '</div></div>';
       }).join("");
       if (!body) body = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0">暂无</div>';
       return '<div style="min-width:0"><div style="font-size:12px;font-weight:900;color:var(--text-primary);margin:2px 0 8px">' + title + ' <span style="font-size:10px;color:var(--text-muted);font-weight:600">(' + groupItems.length + ')</span></div><div style="display:grid;gap:8px">' + body + '</div></div>';
@@ -855,18 +856,38 @@ window.loadAdminRedeemCodes = function() {
   });
 };
 
-window.copyAdminRedeemCode = function(code) {
+window.copyAdminRedeemCode = function(code, btn, event) {
+  if (event && event.stopPropagation) event.stopPropagation();
   code = String(code || "");
   if (!code) return;
-  var done = function() { setAdminRedeemMessage("已复制：" + code, false); };
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(code).then(done).catch(function() {
-      if (typeof fallbackCopyText === "function") fallbackCopyText(code);
-      done();
-    });
-  } else {
-    if (typeof fallbackCopyText === "function") fallbackCopyText(code);
+  var done = function() {
+    setAdminRedeemMessage("已复制：" + code, false);
+    if (btn) {
+      var old = btn.textContent;
+      btn.textContent = "已复制";
+      btn.style.color = "var(--accent)";
+      setTimeout(function() {
+        btn.textContent = old || "复制";
+        btn.style.color = "var(--text-secondary)";
+      }, 1200);
+    }
+  };
+  var fallback = function() {
+    var input = document.createElement("textarea");
+    input.value = code;
+    input.setAttribute("readonly", "readonly");
+    input.style.position = "fixed";
+    input.style.left = "-9999px";
+    document.body.appendChild(input);
+    input.select();
+    try { document.execCommand("copy"); } catch(e) {}
+    document.body.removeChild(input);
     done();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).then(done).catch(fallback);
+  } else {
+    fallback();
   }
 };
 

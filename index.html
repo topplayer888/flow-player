@@ -436,7 +436,7 @@
 <script src="modules/tiejia.js?v=202606231315"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606301001"></script>
+<script src="app.js?v=202606301002"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 
@@ -482,7 +482,7 @@
 <div class="account-settings-card" id="redeem-settings-card">
 <div class="account-settings-label">兑换码</div>
 <div class="account-settings-value" id="redeem-status-text">未兑换</div>
-<div class="redeem-settings-row"><input id="redeem-code-input" placeholder="请输入兑换码，例如 topplayer1234"><button class="auth-switch-btn" onclick="redeemUserCode()">兑换 / 替换</button></div>
+<div class="redeem-settings-row"><input id="redeem-code-input" placeholder="请输入兑换码，例如 topplayer1234" onkeydown="if(event.key==='Enter')redeemUserCode()"><button class="auth-switch-btn" id="redeem-code-submit" onclick="redeemUserCode()">兑换 / 替换</button></div>
 <div class="redeem-settings-tip" id="redeem-message">开始创作前，请填写您的兑换码。</div>
 <div class="redeem-settings-contact">没有兑换码？请联系管理员 <button type="button" onclick="showAdminContact()">联系管理员</button></div>
 </div>
@@ -725,28 +725,45 @@ window.openRedeemSettingsFromChat = function() {
 window.redeemUserCode = function() {
   var input = document.getElementById("redeem-code-input");
   var msg = document.getElementById("redeem-message");
+  var btn = document.getElementById("redeem-code-submit");
+  var setRedeemMsg = function(text, isError) {
+    if (!msg) return;
+    msg.style.color = isError ? "#f87171" : "var(--text-muted)";
+    msg.textContent = text || "";
+  };
+  var setRedeemLoading = function(loading) {
+    if (!btn) return;
+    btn.disabled = !!loading;
+    btn.textContent = loading ? "校验中..." : "兑换 / 替换";
+    btn.style.opacity = loading ? ".65" : "";
+    btn.style.cursor = loading ? "not-allowed" : "";
+  };
   var code = normalizeRedeemCode(input ? input.value : "");
   if (!currentAppUser) {
-    if (msg) msg.textContent = "请先登录后再兑换。";
+    setRedeemMsg("请先登录后再兑换。", true);
     return;
   }
   if (!firestoreDB) {
-    if (msg) msg.textContent = "数据库未加载，请刷新后重试。";
+    setRedeemMsg("数据库未加载，请刷新后重试。", true);
     return;
   }
   if (!/^(player|topplayer)\d{4}$/.test(code)) {
-    if (msg) msg.textContent = "兑换码格式不正确，请检查后重新输入。";
+    setRedeemMsg("兑换码格式不正确，请检查后重新输入。", true);
     return;
   }
-  if (msg) msg.textContent = "正在校验兑换码...";
+  setRedeemMsg("正在校验兑换码...", false);
+  setRedeemLoading(true);
   var userRef = firestoreDB.collection("users").doc(currentAppUser.uid);
-  getRedeemAdminRef().then(function(adminRef) {
+  var timeout = new Promise(function(_, reject) {
+    setTimeout(function() { reject(new Error("校验超时，请检查网络或刷新后重试")); }, 12000);
+  });
+  Promise.race([getRedeemAdminRef().then(function(adminRef) {
     return firestoreDB.runTransaction(function(tx) {
       return tx.get(adminRef).then(function(doc) {
         var adminData = doc.exists ? doc.data() || {} : {};
         var pool = adminData.redeemCodes || {};
         var data = pool[code];
-        if (!data) throw new Error("兑换码不存在");
+        if (!data) throw new Error("兑换码不存在。若这是刚生成的旧兑换码，请让管理员先打开一次兑换码管理完成同步。");
         var currentPhone = getCurrentUserPhone();
         var boundToCurrent = data.boundPhone === currentPhone || data.usedPhone === currentPhone || data.boundUid === currentAppUser.uid || data.usedBy === currentAppUser.uid;
         if (data.boundPhone && data.boundPhone !== currentPhone) throw new Error("兑换码已绑定其他手机号");
@@ -775,11 +792,15 @@ window.redeemUserCode = function() {
       return { code: code, type: type, activatedAt: now, expiresAt: expiresAt };
     });
     });
-  }).then(function(state) {
+  }), timeout]).then(function(state) {
     if (input) input.value = "";
+    setRedeemLoading(false);
     renderRedeemStatus(state);
   }).catch(function(err) {
-    if (msg) msg.textContent = "兑换失败：" + (err && err.message ? err.message : "请稍后重试");
+    setRedeemLoading(false);
+    var text = err && err.message ? err.message : "请稍后重试";
+    if (err && err.code === "permission-denied") text = "Firestore 权限不足，请先发布最新 Firestore 规则后再兑换。";
+    setRedeemMsg("兑换失败：" + text, true);
   });
 };
 

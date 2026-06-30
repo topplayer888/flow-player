@@ -44,7 +44,7 @@ function cleanPayload(body) {
 async function verifyUser(req) {
   const auth = req.get("authorization") || "";
   const match = auth.match(/^Bearer\s+(.+)$/i);
-  if (!match) throw new Error("未登录或登录状态已失效");
+  if (!match) throw new Error("\u672a\u767b\u5f55\u6216\u767b\u5f55\u72b6\u6001\u5df2\u5931\u6548");
   return admin.auth().verifyIdToken(match[1]);
 }
 
@@ -66,7 +66,7 @@ exports.chatProxy = onRequest({
     return;
   }
   if (req.method !== "POST") {
-    res.status(405).json({ error: { message: "只支持 POST 请求" } });
+    res.status(405).json({ error: { message: "\u53ea\u652f\u6301 POST \u8bf7\u6c42" } });
     return;
   }
 
@@ -77,13 +77,13 @@ exports.chatProxy = onRequest({
     const phone = decoded.email ? decoded.email.split("@")[0] : "";
     const isAdmin = phone === "13576198135";
     if (!isAdmin && !hasActiveRedeem(user)) {
-      res.status(403).json({ error: { message: "兑换码未生效或已过期，请在账号设置中输入新的兑换码。" } });
+      res.status(403).json({ error: { message: "\u5151\u6362\u7801\u672a\u751f\u6548\u6216\u5df2\u8fc7\u671f\uff0c\u8bf7\u5728\u8d26\u53f7\u8bbe\u7f6e\u4e2d\u8f93\u5165\u65b0\u7684\u5151\u6362\u7801\u3002" } });
       return;
     }
 
     const payload = cleanPayload(req.body);
     if (!payload.messages.length) {
-      res.status(400).json({ error: { message: "请求内容为空" } });
+      res.status(400).json({ error: { message: "\u8bf7\u6c42\u5185\u5bb9\u4e3a\u7a7a" } });
       return;
     }
 
@@ -98,6 +98,6 @@ exports.chatProxy = onRequest({
     const text = await upstream.text();
     res.status(upstream.status).type(upstream.headers.get("content-type") || "application/json").send(text);
   } catch (err) {
-    res.status(500).json({ error: { message: err && err.message ? err.message : "后端代理请求失败" } });
+    res.status(500).json({ error: { message: err && err.message ? err.message : "\u540e\u7aef\u4ee3\u7406\u8bf7\u6c42\u5931\u8d25" } });
   }
 });

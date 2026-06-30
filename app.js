@@ -97,18 +97,24 @@ document.addEventListener("pointercancel",up);
 function isAbortError(err){
 return false;
 }
-var FIREBASE_CHAT_PROXY_URL="https://us-central1-flow-player-a04be.cloudfunctions.net/chatProxy";
-function shouldUseFirebaseProxy(){
+function getFlowPlayerChatProxyUrl(){
+return String((window.FLOW_PLAYER_CHAT_PROXY_URL||localStorage.getItem("fp_chat_proxy_url")||"")).trim();
+}
+function shouldUseCloudProxy(){
 return typeof isSuperAdminUser==="function"&&!isSuperAdminUser()&&typeof hasActiveRedeemAccess==="function"&&hasActiveRedeemAccess();
 }
 function apiFetch(url,options){
 options=options||{};
-if(shouldUseFirebaseProxy()){
+if(shouldUseCloudProxy()){
  if(typeof firebaseAuth==="undefined"||!firebaseAuth||!firebaseAuth.currentUser){
   return Promise.resolve(new Response(JSON.stringify({error:{message:"请先登录后再使用。"}}),{status:401,headers:{"Content-Type":"application/json"}}));
  }
+ var proxyUrl=getFlowPlayerChatProxyUrl();
+ if(!proxyUrl){
+  return Promise.resolve(new Response(JSON.stringify({error:{message:"管理员还没有完成后端代理地址配置，请联系管理员。"}}),{status:503,headers:{"Content-Type":"application/json"}}));
+ }
  return firebaseAuth.currentUser.getIdToken().then(function(token){
-  return fetch(FIREBASE_CHAT_PROXY_URL,{
+  return fetch(proxyUrl,{
    method:"POST",
    headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},
    body:options.body||"{}"
@@ -1784,7 +1790,7 @@ if(apiTab)switchSettingsTab("api",apiTab);
 function getAccessPromptHtml(){
 if(typeof isSuperAdminUser==="function"&&!isSuperAdminUser()){
 var active=typeof hasActiveRedeemAccess==="function"&&hasActiveRedeemAccess();
-if(active)return "✅ 兑换码已生效。<br><br>当前版本还需要管理员配置安全的后端 API 代理后，才能让普通用户消耗管理员 API。";
+if(active)return "✅ 兑换码已生效。<br><br>如果生成时提示代理未配置，请联系管理员完成 Cloudflare Worker 地址配置。";
 return '<div style="padding:14px;border:1px solid rgba(0,229,255,.28);border-radius:12px;background:rgba(0,229,255,.07);line-height:1.7">' +
 '<div style="font-size:15px;font-weight:900;color:var(--text-primary);margin-bottom:6px">开始创作前，请填写您的兑换码</div>' +
 '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">当前账号还没有有效兑换码。请在账号设置里输入管理员发放的兑换码，兑换成功后再使用生成能力。</div>' +

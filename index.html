@@ -436,7 +436,10 @@
 <script src="modules/tiejia.js?v=202606231315"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606301003"></script>
+<script>
+window.FLOW_PLAYER_CHAT_PROXY_URL = "";
+</script>
+<script src="app.js?v=202606301620"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 
@@ -572,7 +575,7 @@ function syncApiConfigForCurrentUser() {
     apiConfig.model = localStorage.getItem("fp_model") || "";
   } else {
     if (isRedeemActive(currentRedeemState)) {
-      apiConfig.endpoint = "https://us-central1-flow-player-a04be.cloudfunctions.net/chatProxy";
+      apiConfig.endpoint = typeof getFlowPlayerChatProxyUrl === "function" ? getFlowPlayerChatProxyUrl() : "";
       apiConfig.apikey = "redeem_proxy_access";
       apiConfig.model = "兑换码代理";
     } else {

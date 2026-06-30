@@ -1,0 +1,9 @@
+name = "flow-player-api"
+main = "cloudflare-worker.js"
+compatibility_date = "2026-06-30"
+workers_dev = true
+preview_urls = true
+
+[vars]
+MODEL_ENDPOINT = "https://api.deepseek.com/v1/chat/completions"
+MODEL_NAME = "deepseek-chat"

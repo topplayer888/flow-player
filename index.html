@@ -680,17 +680,32 @@ function loadCurrentRedeemStatus() {
 
 function getRedeemAdminRef() {
   if (!firestoreDB) return Promise.reject(new Error("数据库未加载"));
-  if (currentAppUser && isSuperAdminUser()) {
-    localStorage.setItem("fp_admin_uid", currentAppUser.uid);
-    return Promise.resolve(firestoreDB.collection("users").doc(currentAppUser.uid));
-  }
-  var cachedUid = localStorage.getItem("fp_admin_uid");
-  if (cachedUid) return Promise.resolve(firestoreDB.collection("users").doc(cachedUid));
-  return firestoreDB.collection("users").where("phone", "==", SUPER_ADMIN_PHONE).limit(1).get().then(function(snap) {
-    if (snap.empty) throw new Error("未找到管理员兑换码池");
-    var doc = snap.docs[0];
-    localStorage.setItem("fp_admin_uid", doc.id);
-    return doc.ref;
+  return Promise.resolve(firestoreDB.collection("app_config").doc("redeem_pool"));
+}
+
+function getRedeemPoolData(includeLegacy) {
+  if (!firestoreDB) return Promise.reject(new Error("数据库未加载"));
+  var fixedRef = firestoreDB.collection("app_config").doc("redeem_pool");
+  return fixedRef.get().then(function(doc) {
+    var fixedData = doc.exists ? doc.data() || {} : {};
+    var fixedPool = Object.assign({}, fixedData.redeemCodes || {});
+    if (!includeLegacy) return { ref: fixedRef, pool: fixedPool };
+    return firestoreDB.collection("users").where("phone", "==", SUPER_ADMIN_PHONE).get().then(function(snap) {
+      var merged = Object.assign({}, fixedPool);
+      snap.forEach(function(userDoc) {
+        var data = userDoc.data() || {};
+        var legacyPool = data.redeemCodes || {};
+        Object.keys(legacyPool).forEach(function(code) {
+          if (!merged[code]) merged[code] = legacyPool[code];
+        });
+      });
+      if (isSuperAdminUser() && Object.keys(merged).length !== Object.keys(fixedPool).length) {
+        fixedRef.set({ redeemCodes: merged, migratedAt: Date.now(), migratedBy: getCurrentUserPhone() }, { merge: true }).catch(function(){});
+      }
+      return { ref: fixedRef, pool: merged };
+    }).catch(function() {
+      return { ref: fixedRef, pool: fixedPool };
+    });
   });
 }
 
@@ -791,8 +806,7 @@ window.generateRedeemCode = function(type) {
   var prefix = type === "primary" ? "topplayer" : "player";
   var label = getRedeemTypeLabel(type);
   setAdminRedeemMessage("正在生成" + label + "...", false);
-  var adminRef = firestoreDB.collection("users").doc(currentAppUser.uid);
-  localStorage.setItem("fp_admin_uid", currentAppUser.uid);
+  var adminRef = firestoreDB.collection("app_config").doc("redeem_pool");
   var create = function(pool, attempt) {
     if (attempt > 80) return Promise.reject(new Error("可用四位数已不足，请稍后再试"));
     var code = prefix + generateRedeemDigits();
@@ -808,9 +822,9 @@ window.generateRedeemCode = function(type) {
     };
     return adminRef.set({ redeemCodes: pool }, { merge: true }).then(function() { return code; });
   };
-  adminRef.get().then(function(doc) {
-    var data = doc.exists ? doc.data() || {} : {};
-    return create(data.redeemCodes || {}, 0);
+  getRedeemPoolData(true).then(function(result) {
+    adminRef = result.ref;
+    return create(result.pool || {}, 0);
   }).then(function(code) {
     setAdminRedeemMessage("已生成：" + code, false);
     loadAdminRedeemCodes();
@@ -842,12 +856,11 @@ window.loadAdminRedeemCodes = function(retryCount) {
   if (list.getAttribute("data-loaded") !== "1") {
     list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">正在加载兑换码...</div>';
   }
-  firestoreDB.collection("users").doc(currentAppUser.uid).get().then(function(doc) {
+  getRedeemPoolData(true).then(function(result) {
     if (window.adminRedeemLoadSeq !== loadSeq) return;
     list.removeAttribute("data-loading");
     list.setAttribute("data-loaded", "1");
-    var data = doc.exists ? doc.data() || {} : {};
-    var pool = data.redeemCodes || {};
+    var pool = result.pool || {};
     var items = Object.keys(pool).map(function(k) { return pool[k] || {}; });
     items.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
     if (!items.length) {

@@ -1086,8 +1086,8 @@ function showAuthMessage(text, isError) {
 function getNetworkFriendlyMessage(err, fallback) {
   var code = err && err.code ? String(err.code) : "";
   var message = err && err.message ? String(err.message) : "";
-  if (code === "auth/network-request-failed" || /network|timeout|timed out|failed to fetch|offline/i.test(message)) {
-    return "当前网络无法连接登录/数据库服务。请切换网络后重试，或联系管理员确认服务状态。";
+  if (code === "auth/network-request-failed" || /network|timeout|timed out|failed to fetch|load failed|offline/i.test(message)) {
+    return "当前网络无法连接后端服务。请切换网络后重试；如果一直失败，说明当前网络可能无法访问 Cloudflare Worker。";
   }
   if (code === "permission-denied" || /permission/i.test(message)) {
     return "数据库权限不足，请联系管理员检查 Firestore 规则。";
@@ -1133,6 +1133,8 @@ function appApi(path, options) {
       }
       return data;
     });
+  }).catch(function(err) {
+    throw new Error(getNetworkFriendlyMessage(err, err && err.message ? err.message : "网络请求失败。"));
   });
 }
 
@@ -1196,7 +1198,7 @@ function submitAuth() {
     applyAuthenticatedUser(data.user, data.redeem);
   }).catch(function(err) {
     var code = err && err.code;
-    var text = err && err.message ? err.message : getNetworkFriendlyMessage(err, "操作失败，请稍后重试。");
+    var text = getNetworkFriendlyMessage(err, err && err.message ? err.message : "操作失败，请稍后重试。");
     if (code === "auth/email-already-in-use") text = "这个手机号已经注册，请直接登录。";
     if (code === "auth/user-not-found" || code === "auth/invalid-credential") text = "手机号或密码不正确。";
     if (code === "auth/wrong-password") text = "密码不正确。";

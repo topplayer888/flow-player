@@ -7,3 +7,8 @@ preview_urls = true
 [vars]
 MODEL_ENDPOINT = "https://api.deepseek.com/v1/chat/completions"
 MODEL_NAME = "deepseek-chat"
+
+[[d1_databases]]
+binding = "flow_player_db"
+database_name = "flow-player-db"
+database_id = "d6fdf351-c582-450b-826b-76dc80d85920"

@@ -439,7 +439,7 @@
 <script>
 window.FLOW_PLAYER_CHAT_PROXY_URL = "https://flow-player-api.flow-player-api.workers.dev";
 </script>
-<script src="app.js?v=202606301620"></script>
+<script src="app.js?v=202607011430"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 
@@ -504,9 +504,6 @@ window.__authBootstrapTimer=setTimeout(function(){
   }
 },8000);
 </script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script>
 var firebaseConfig = {
   apiKey: "AIzaSyBTSuC7XXO6UkBY5EDACFn5B8VOF32ovYI",
@@ -520,6 +517,7 @@ var firestoreDB = null;
 var firebaseAuth = null;
 var authMode = "login";
 var currentAppUser = null;
+var APP_AUTH_TOKEN_KEY = "fp_app_auth_token";
 var SUPER_ADMIN_PHONE = "13576198135";
 var REMEMBER_PHONE_KEY = "fp_remember_phone";
 var SAVED_PHONE_KEY = "fp_saved_phone";
@@ -661,21 +659,15 @@ function renderRedeemStatus(state) {
 }
 
 function loadCurrentRedeemStatus() {
-  if (!currentAppUser || !firestoreDB) {
+  if (!currentAppUser || !getAppAuthToken()) {
     renderRedeemStatus(null);
     return Promise.resolve(null);
   }
-  return firestoreDB.collection("users").doc(currentAppUser.uid).get().then(function(doc) {
-    var data = doc.exists ? doc.data() : {};
-    var state = {
-      code: data.redeemCode || "",
-      type: data.redeemType || "",
-      activatedAt: data.redeemActivatedAt || 0,
-      expiresAt: data.redeemExpiresAt || 0
-    };
-    renderRedeemStatus(state.code ? state : null);
-    return state;
-  }).catch(function() {
+  return appApi("/auth/me", { method: "GET" }).then(function(data) {
+    renderRedeemStatus(data.redeem && data.redeem.code ? data.redeem : null);
+    return data.redeem || null;
+  }).catch(function(err) {
+    if (err && err.status === 401) setAppAuthToken("");
     renderRedeemStatus(null);
     return null;
   });
@@ -746,56 +738,16 @@ window.redeemUserCode = function() {
     setRedeemMsg("请先登录后再兑换。", true);
     return;
   }
-  if (!firestoreDB) {
-    setRedeemMsg("数据库未加载，请刷新后重试。", true);
-    return;
-  }
   if (!/^(player|topplayer)\d{4}$/.test(code)) {
     setRedeemMsg("兑换码格式不正确，请检查后重新输入。", true);
     return;
   }
   setRedeemMsg("正在校验兑换码...", false);
   setRedeemLoading(true);
-  var userRef = firestoreDB.collection("users").doc(currentAppUser.uid);
   var timeout = new Promise(function(_, reject) {
     setTimeout(function() { reject(new Error("校验超时，请检查网络或刷新后重试")); }, 12000);
   });
-  Promise.race([getRedeemAdminRef().then(function(adminRef) {
-    return firestoreDB.runTransaction(function(tx) {
-      return tx.get(adminRef).then(function(doc) {
-        var adminData = doc.exists ? doc.data() || {} : {};
-        var pool = adminData.redeemCodes || {};
-        var data = pool[code];
-        if (!data) throw new Error("兑换码不存在。若这是刚生成的旧兑换码，请让管理员先打开一次兑换码管理完成同步。");
-        var currentPhone = getCurrentUserPhone();
-        var boundToCurrent = data.boundPhone === currentPhone || data.usedPhone === currentPhone || data.boundUid === currentAppUser.uid || data.usedBy === currentAppUser.uid;
-        if (data.boundPhone && data.boundPhone !== currentPhone) throw new Error("兑换码已绑定其他手机号");
-        if (data.usedBy && data.usedBy !== currentAppUser.uid && data.usedPhone !== currentPhone) throw new Error("兑换码已绑定其他账号");
-        if (data.active === false && !boundToCurrent) throw new Error("兑换码已失效");
-        var now = Date.now();
-        var type = data.type || (code.indexOf("topplayer") === 0 ? "primary" : "normal");
-        var expiresAt = now + (type === "primary" ? REDEEM_PRIMARY_MS : REDEEM_NORMAL_MS);
-        pool[code] = Object.assign({}, data, {
-          active: true,
-          boundUid: currentAppUser.uid,
-          boundPhone: currentPhone,
-          usedBy: currentAppUser.uid,
-          usedPhone: currentPhone,
-          usedAt: data.usedAt || now,
-          lastRedeemedAt: now
-        });
-        tx.set(adminRef, { redeemCodes: pool }, { merge: true });
-      tx.set(userRef, {
-        redeemCode: code,
-        redeemType: type,
-        redeemActivatedAt: now,
-        redeemExpiresAt: expiresAt,
-        redeemUpdatedAt: now
-      }, { merge: true });
-      return { code: code, type: type, activatedAt: now, expiresAt: expiresAt };
-    });
-    });
-  }), timeout]).then(function(state) {
+  Promise.race([appApi("/redeem", { body: { code: code } }), timeout]).then(function(state) {
     if (input) input.value = "";
     setRedeemLoading(false);
     renderRedeemStatus(state);
@@ -824,38 +776,13 @@ window.generateRedeemCode = function(type) {
     setAdminRedeemMessage("当前账号没有管理员权限。", true);
     return;
   }
-  if (!firestoreDB || !currentAppUser) {
-    setAdminRedeemMessage("数据库或登录状态未加载，请刷新后重试。", true);
-    return;
-  }
-  var prefix = type === "primary" ? "topplayer" : "player";
   var label = getRedeemTypeLabel(type);
   setAdminRedeemMessage("正在生成" + label + "...", false);
-  var adminRef = firestoreDB.collection("app_config").doc("redeem_pool");
-  var create = function(pool, attempt) {
-    if (attempt > 80) return Promise.reject(new Error("可用四位数已不足，请稍后再试"));
-    var code = prefix + generateRedeemDigits();
-    if (pool && pool[code]) return create(pool, attempt + 1);
-    pool = Object.assign({}, pool || {});
-    pool[code] = {
-      code: code,
-      type: type === "primary" ? "primary" : "normal",
-      active: true,
-      createdAt: Date.now(),
-      createdBy: getCurrentUserPhone(),
-      durationMs: type === "primary" ? REDEEM_PRIMARY_MS : REDEEM_NORMAL_MS
-    };
-    return adminRef.set({ redeemCodes: pool }, { merge: true }).then(function() { return code; });
-  };
-  getRedeemPoolData(true).then(function(result) {
-    adminRef = result.ref;
-    return create(result.pool || {}, 0);
-  }).then(function(code) {
-    setAdminRedeemMessage("已生成：" + code, false);
+  appApi("/admin/redeem/generate", { body: { type: type === "primary" ? "primary" : "normal" } }).then(function(data) {
+    setAdminRedeemMessage("已生成：" + data.code, false);
     loadAdminRedeemCodes();
   }).catch(function(err) {
     var text = err && err.message ? err.message : "请稍后重试";
-    if (err && err.code === "permission-denied") text = "Firestore 权限拒绝写入，请检查 users 文档写入规则。";
     setAdminRedeemMessage("生成失败：" + text, true);
   });
 };
@@ -869,38 +796,33 @@ window.loadAdminRedeemCodes = function(retryCount) {
     list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">当前账号没有管理员权限</div>';
     return;
   }
-  if (!firestoreDB || !currentAppUser) {
-    list.setAttribute("data-loading", "1");
-    list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">正在等待登录和数据库加载...</div>';
-    if (retryCount < 10) setTimeout(function() { loadAdminRedeemCodes(retryCount + 1); }, 500);
-    return;
-  }
   list.setAttribute("data-loading", "1");
   var loadSeq = (window.adminRedeemLoadSeq || 0) + 1;
   window.adminRedeemLoadSeq = loadSeq;
   if (list.getAttribute("data-loaded") !== "1") {
     list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">正在加载兑换码...</div>';
   }
-  getRedeemPoolData(true).then(function(result) {
+  appApi("/admin/redeem/list", { method: "GET" }).then(function(result) {
     if (window.adminRedeemLoadSeq !== loadSeq) return;
     list.removeAttribute("data-loading");
     list.setAttribute("data-loaded", "1");
-    var pool = result.pool || {};
-    var items = Object.keys(pool).map(function(k) { return pool[k] || {}; });
-    items.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    var items = result.redeemCodes || [];
+    items.sort(function(a, b) { return (b.created_at || b.createdAt || 0) - (a.created_at || a.createdAt || 0); });
     if (!items.length) {
       list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">暂无兑换码</div>';
       return;
     }
     function renderRedeemGroup(title, groupItems) {
       var body = groupItems.slice(0, 12).map(function(item) {
-      var used = !!(item.boundPhone || item.usedBy);
+      var used = !!(item.bound_phone || item.boundPhone || item.usedBy);
       var type = getRedeemTypeLabel(item.type);
+      var createdAt = item.created_at || item.createdAt || 0;
+      var boundPhone = item.bound_phone || item.boundPhone || item.usedPhone || "";
       return '<div style="padding:9px 10px;border-radius:9px;border:1px solid var(--border-glow);background:rgba(255,255,255,.03);display:block">' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="font-size:13px;font-weight:800;color:var(--text-primary);letter-spacing:.4px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">' + escapeAdminHtml(item.code || "") + '</div>' +
         '<button onclick="copyAdminRedeemCode(&quot;' + escapeAdminHtml(item.code || "") + '&quot;,this,event)" style="padding:4px 8px;border-radius:7px;border:1px solid var(--border-glow);background:rgba(255,255,255,.04);color:var(--text-secondary);font-size:10px;cursor:pointer;white-space:nowrap">复制</button></div>' +
         '<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;min-width:0">' +
-        '<div style="font-size:10px;color:var(--text-muted);margin-top:3px">' + type + ' · ' + formatAdminTime(item.createdAt) + (used ? ' · 已绑定 ' + escapeAdminHtml(item.boundPhone || item.usedPhone || "未知账号") : ' · 未绑定') + '</div></div>' +
+        '<div style="font-size:10px;color:var(--text-muted);margin-top:3px">' + type + ' · ' + formatAdminTime(createdAt) + (used ? ' · 已绑定 ' + escapeAdminHtml(boundPhone || "未知账号") : ' · 未绑定') + '</div></div>' +
         '<span style="font-size:10px;color:' + (used ? '#f59e0b' : '#10b981') + '">' + (used ? '已绑定' : '可绑定') + '</span>' +
       '</div></div>';
       }).join("");
@@ -956,47 +878,27 @@ window.copyAdminRedeemCode = function(code, btn, event) {
 };
 
 function registerUserLogin(user) {
-  if (!user || !firestoreDB) return Promise.resolve();
-  var phone = user.email ? user.email.split("@")[0] : "";
-  var deviceId = getClientDeviceId();
-  var data = {
-    uid: user.uid,
-    phone: phone,
-    lastLoginAt: Date.now(),
-    lastDeviceId: deviceId,
-    deleted: false
-  };
-  data["devices." + deviceId] = { firstSeenAt: Date.now(), lastSeenAt: Date.now(), userAgent: navigator.userAgent || "" };
-  if (window.firebase && firebase.firestore && firebase.firestore.FieldValue) {
-    data.loginCount = firebase.firestore.FieldValue.increment(1);
-  }
-  return firestoreDB.collection("users").doc(user.uid).set(data, { merge: true });
+  return Promise.resolve();
 }
 
 function guardDeletedUser(user) {
-  if (!user || !firestoreDB) return Promise.resolve(false);
-  return firestoreDB.collection("users").doc(user.uid).get().then(function(doc) {
-    var data = doc.exists ? doc.data() : {};
-    if (data && data.deleted) {
-      if (firebaseAuth) firebaseAuth.signOut();
-      showAuthMessage("该账号已被管理员删除，请联系管理员。", true);
-      return true;
-    }
-    return false;
-  }).catch(function() { return false; });
+  if (user && user.deleted) {
+    setAppAuthToken("");
+    applyAuthenticatedUser(null, null);
+    showAuthMessage("该账号已被管理员删除，请联系管理员。", true);
+    return Promise.resolve(true);
+  }
+  return Promise.resolve(false);
 }
 
 window.trackFeatureUsage = function(info) {
-  if (!currentAppUser || !firestoreDB || !info) return;
+  if (!currentAppUser || !info) return;
   var key = String(info.key || "unknown").replace(/[.$#[\]/]/g, "_");
   var title = info.taskTitle || info.name || key;
   var label = title;
   if (info.workflowType === "kyrie" && info.moduleId) label = "Kyrie · " + title;
   if (info.workflowType === "ip" && info.moduleId) label = "访谈IP · " + title;
-  var data = { lastUsedAt: Date.now() };
-  data["usageCounts." + key] = firebase.firestore.FieldValue.increment(1);
-  data["usageLabels." + key] = label;
-  firestoreDB.collection("users").doc(currentAppUser.uid).set(data, { merge: true }).catch(function(){});
+  appApi("/usage", { body: { key: key, label: label } }).catch(function(){});
 };
 
 window.loadAdminUsers = function() {
@@ -1008,19 +910,10 @@ window.loadAdminUsers = function() {
     list.innerHTML = "";
     return;
   }
-  if (!firestoreDB) {
-    summary.textContent = "数据库未加载，请刷新后重试。";
-    return;
-  }
   summary.textContent = "正在加载用户...";
   list.innerHTML = "";
-  firestoreDB.collection("users").orderBy("createdAt", "desc").get().then(function(snap) {
-    var users = [];
-    snap.forEach(function(doc) {
-      var data = doc.data() || {};
-      data.uid = doc.id;
-      users.push(data);
-    });
+  appApi("/admin/users", { method: "GET" }).then(function(data) {
+    var users = data.users || [];
     summary.textContent = "共 " + users.length + " 个注册用户";
     if (!users.length) {
       list.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">暂无用户</div>';
@@ -1038,7 +931,7 @@ window.loadAdminUsers = function() {
       '</div>';
     }).join("");
   }).catch(function(err) {
-    summary.textContent = "加载失败：" + (err && err.message ? err.message : "请检查 Firestore 权限");
+    summary.textContent = "加载失败：" + (err && err.message ? err.message : "请检查权限");
   });
 };
 
@@ -1091,7 +984,7 @@ window.openAdminUserManager = function() {
   var content = document.getElementById("content-area");
   if (content) {
     content.innerHTML = '<div class="content-header" style="display:flex;align-items:flex-start;gap:12px"><div style="flex:1"><div class="content-title"><span class="accent">用户</span>管理</div><div class="content-desc">注册信息 · 设备统计 · 功能使用</div></div><button type="button" onclick="openAdminDashboard()" title="返回管理员首页" style="width:28px;height:28px;border-radius:9px;border:1px solid rgba(248,113,113,.35);background:rgba(248,113,113,.08);color:#f87171;cursor:pointer;font-size:18px;line-height:24px;display:inline-flex;align-items:center;justify-content:center">×</button></div>' +
-      '<div style="font-size:12px;line-height:1.8;color:var(--text-muted);margin-bottom:14px">可查看已注册用户的基础信息、设备数量和常用功能，并可清理用户数据。删除 Firebase Authentication 账号本体需要后端 Admin SDK，此处会标记账号不可用并清理应用数据。</div>' +
+      '<div style="font-size:12px;line-height:1.8;color:var(--text-muted);margin-bottom:14px">可查看已注册用户的基础信息、设备数量和常用功能，并可清理用户数据。删除后账号会被标记为不可用并清理登录状态。</div>' +
       '<div style="display:flex;gap:8px;margin-bottom:14px"><button class="sidebar-api-save" onclick="loadAdminUsers()" style="max-width:160px">刷新用户列表</button></div>' +
       '<div id="admin-users-summary" style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">正在加载用户...</div>' +
       '<div id="admin-users-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;max-height:520px;overflow:auto;padding-right:4px;-webkit-overflow-scrolling:touch"></div>';
@@ -1100,16 +993,12 @@ window.openAdminUserManager = function() {
 };
 
 window.deleteAdminUserData = function(uid, phone) {
-  if (!isSuperAdminUser() || !firestoreDB || !uid) return;
+  if (!isSuperAdminUser() || !uid) return;
   if (currentAppUser && uid === currentAppUser.uid) return;
   var run = function() {
-    var batch = firestoreDB.batch();
-    var userRef = firestoreDB.collection("users").doc(uid);
-    batch.set(userRef, { deleted: true, deletedAt: Date.now(), deletedBy: getCurrentUserPhone(), phone: phone || "" }, { merge: true });
-    batch.delete(firestoreDB.collection("chat_history").doc(uid));
-    batch.commit().then(function() {
+    appApi("/admin/user/delete", { body: { uid: uid } }).then(function() {
       loadAdminUsers();
-      alert("已删除该用户的应用数据，并标记账号不可用。Firebase Auth 账号本体需要后端 Admin SDK 才能物理删除。");
+      alert("已删除该用户的应用数据，并标记账号不可用。");
     }).catch(function(err) {
       alert("删除失败：" + (err && err.message ? err.message : "请检查权限"));
     });
@@ -1126,15 +1015,8 @@ function failAuthBootstrap(message) {
   showAuthMessage(message || "登录服务加载失败，请刷新页面重试。", true);
 }
 
-if (window.firebase && firebase.initializeApp && firebase.auth) {
-  firebase.initializeApp(firebaseConfig);
-  firestoreDB = firebase.firestore ? firebase.firestore() : null;
-  firebaseAuth = firebase.auth();
-} else {
-  setTimeout(function() {
-    failAuthBootstrap("登录服务加载失败，请检查网络后刷新页面重试。");
-  }, 0);
-}
+firestoreDB = null;
+firebaseAuth = null;
 
 function setAuthMode(mode) {
   authMode = mode === "register" ? "register" : "login";
@@ -1216,6 +1098,72 @@ function getNetworkFriendlyMessage(err, fallback) {
   return fallback || "操作失败，请稍后重试。";
 }
 
+function getAppAuthToken() {
+  return localStorage.getItem(APP_AUTH_TOKEN_KEY) || "";
+}
+
+function setAppAuthToken(token) {
+  if (token) localStorage.setItem(APP_AUTH_TOKEN_KEY, token);
+  else localStorage.removeItem(APP_AUTH_TOKEN_KEY);
+}
+
+function getAppApiBase() {
+  return typeof getFlowPlayerChatProxyUrl === "function" ? getFlowPlayerChatProxyUrl() : (window.FLOW_PLAYER_CHAT_PROXY_URL || "");
+}
+
+function appApi(path, options) {
+  options = options || {};
+  var headers = Object.assign({ "Content-Type": "application/json" }, options.headers || {});
+  var token = getAppAuthToken();
+  if (token) headers.Authorization = "Bearer " + token;
+  return fetch(getAppApiBase() + path, {
+    method: options.method || "POST",
+    headers: headers,
+    body: options.body ? JSON.stringify(options.body) : undefined
+  }).then(function(res) {
+    return res.text().then(function(text) {
+      var data = {};
+      try { data = text ? JSON.parse(text) : {}; } catch (e) { data = { raw: text }; }
+      if (!res.ok) {
+        var msg = data && data.error && data.error.message ? data.error.message : ("请求失败：" + res.status);
+        var err = new Error(msg);
+        err.status = res.status;
+        err.data = data;
+        throw err;
+      }
+      return data;
+    });
+  });
+}
+
+function applyAuthenticatedUser(user, redeem) {
+  if (window.__authBootstrapTimer) clearTimeout(window.__authBootstrapTimer);
+  currentAppUser = user || null;
+  document.body.classList.remove("auth-checking");
+  document.body.classList.toggle("auth-locked", !user);
+  document.body.classList.toggle("auth-ready", !!user);
+  var label = document.getElementById("auth-user-label");
+  if (label) {
+    var phone = user && user.email ? user.email.split("@")[0] : "";
+    label.textContent = phone ? "账号：" + phone : "未登录";
+  }
+  updateAdminVisibility();
+  if (user) {
+    renderRedeemStatus(redeem || null);
+    updateAdminVisibility();
+    if (typeof refreshAfterAuthReady === "function") setTimeout(refreshAfterAuthReady, 0);
+    if (typeof syncHistoryFromCloud === "function") setTimeout(syncHistoryFromCloud, window.innerWidth <= 768 ? 1200 : 250);
+    if (typeof renderHistory === "function") setTimeout(renderHistory, window.innerWidth <= 768 ? 350 : 0);
+    if (isSuperAdminUser() && typeof loadAdminUsers === "function") setTimeout(loadAdminUsers, window.innerWidth <= 768 ? 1500 : 300);
+    if (isSuperAdminUser() && typeof loadAdminRedeemCodes === "function") setTimeout(function() {
+      var redeemList = document.getElementById("admin-redeem-list");
+      if (redeemList && redeemList.getAttribute("data-loaded") !== "1" && redeemList.getAttribute("data-loading") !== "1") loadAdminRedeemCodes(0);
+    }, 400);
+  } else {
+    renderRedeemStatus(null);
+  }
+}
+
 function handleAuthKey(e) {
   if (e.key === "Enter") submitAuth();
 }
@@ -1231,34 +1179,30 @@ function submitAuth() {
   if (phone.length < 11) { showAuthMessage("请输入正确的手机号码。", true); return; }
   if (password.length < 6) { showAuthMessage("密码至少需要 6 位。", true); return; }
   if (authMode === "register" && confirmPassword !== password) { showAuthMessage("两次输入的密码不一致，请重新确认。", true); return; }
-  if (!firebaseAuth) { showAuthMessage("登录服务未加载，请刷新页面重试。", true); return; }
-  var email = phoneToAuthEmail(phone);
   if (btn) { btn.disabled = true; btn.textContent = authMode === "register" ? "注册中..." : "登录中..."; }
-  var action = authMode === "register"
-    ? firebaseAuth.createUserWithEmailAndPassword(email, password).then(function(cred) {
-        if (typeof firestoreDB !== "undefined" && firestoreDB) {
-          return registerUserLogin(cred.user).then(function() {
-            return firestoreDB.collection("users").doc(cred.user.uid).set({ phone: phone, createdAt: Date.now(), deleted: false }, { merge: true });
-          }).catch(function(err) {
-            showAuthMessage(getNetworkFriendlyMessage(err, "注册成功，但用户资料同步失败。请刷新后重试，或联系管理员。"), true);
-            return cred;
-          });
-        }
-        return cred;
-      })
-    : firebaseAuth.signInWithEmailAndPassword(email, password);
+  var action = appApi(authMode === "register" ? "/auth/register" : "/auth/login", {
+    body: {
+      phone: phone,
+      password: password,
+      deviceId: getClientDeviceId(),
+      userAgent: navigator.userAgent || ""
+    }
+  });
   action.then(function() {
+    return arguments[0];
+  }).then(function(data) {
+    if (data && data.token) setAppAuthToken(data.token);
     saveAuthRememberedPhone(phone);
+    applyAuthenticatedUser(data.user, data.redeem);
   }).catch(function(err) {
     var code = err && err.code;
-    var text = getNetworkFriendlyMessage(err, "操作失败，请稍后重试。");
+    var text = err && err.message ? err.message : getNetworkFriendlyMessage(err, "操作失败，请稍后重试。");
     if (code === "auth/email-already-in-use") text = "这个手机号已经注册，请直接登录。";
     if (code === "auth/user-not-found" || code === "auth/invalid-credential") text = "手机号或密码不正确。";
     if (code === "auth/wrong-password") text = "密码不正确。";
     if (code === "auth/too-many-requests") text = "尝试次数过多，请稍后再试。";
-    if (code === "auth/operation-not-allowed") text = "登录方式未开启，请先在 Firebase Authentication 中启用邮箱/密码登录。";
-    if (code === "auth/configuration-not-found") text = "Firebase Authentication 尚未启用或未完成配置。请先在 Firebase 控制台启用 Authentication 的邮箱/密码登录方式。";
-    if (code === "auth/unauthorized-domain") text = "当前网页域名未加入 Firebase 授权域名，请在 Authentication 设置里添加 topplayer888.github.io。";
+    if (code === "auth/operation-not-allowed" || code === "auth/configuration-not-found") text = "登录服务配置异常，请联系管理员。";
+    if (code === "auth/unauthorized-domain") text = "当前网页域名未授权，请联系管理员。";
     if (code) text += "（" + code + "）";
     showAuthMessage(text, true);
   }).finally(function() {
@@ -1267,7 +1211,10 @@ function submitAuth() {
 }
 
 function logoutAuth() {
-  if (firebaseAuth) firebaseAuth.signOut();
+  appApi("/auth/logout", {}).catch(function(){}).finally(function() {
+    setAppAuthToken("");
+    applyAuthenticatedUser(null, null);
+  });
 }
 
 function switchAuthAccount() {
@@ -1278,46 +1225,26 @@ function switchAuthAccount() {
   var confirmInput = document.getElementById("auth-password-confirm");
   if (passInput) passInput.value = "";
   if (confirmInput) confirmInput.value = "";
-  if (firebaseAuth) firebaseAuth.signOut().finally(function() { if (phoneInput) phoneInput.focus(); });
+  setAppAuthToken("");
+  applyAuthenticatedUser(null, null);
+  if (phoneInput) phoneInput.focus();
 }
 
 initAuthRememberUI();
 
-if (firebaseAuth) {
-  firebaseAuth.onAuthStateChanged(function(user) {
-    if (window.__authBootstrapTimer) clearTimeout(window.__authBootstrapTimer);
-    currentAppUser = user || null;
-    document.body.classList.remove("auth-checking");
-    document.body.classList.toggle("auth-locked", !user);
-    document.body.classList.toggle("auth-ready", !!user);
-    var label = document.getElementById("auth-user-label");
-    if (label) {
-      var phone = user && user.email ? user.email.split("@")[0] : "";
-      label.textContent = phone ? "账号：" + phone : "未登录";
-    }
-    updateAdminVisibility();
-    if (user) {
-      guardDeletedUser(user).then(function(blocked) {
-        if (blocked) return;
-        setTimeout(function(){ registerUserLogin(user).catch(function(){}); }, 700);
-        setTimeout(function(){ loadCurrentRedeemStatus(); }, 150);
-        updateAdminVisibility();
-        if (typeof refreshAfterAuthReady === "function") setTimeout(refreshAfterAuthReady, 0);
-        if (typeof syncHistoryFromCloud === "function") setTimeout(syncHistoryFromCloud, window.innerWidth <= 768 ? 1200 : 250);
-        if (typeof renderHistory === "function") setTimeout(renderHistory, window.innerWidth <= 768 ? 350 : 0);
-        if (isSuperAdminUser() && typeof loadAdminUsers === "function") setTimeout(loadAdminUsers, window.innerWidth <= 768 ? 1500 : 300);
-        if (isSuperAdminUser() && typeof loadAdminRedeemCodes === "function") setTimeout(function() {
-          var redeemList = document.getElementById("admin-redeem-list");
-          if (redeemList && redeemList.getAttribute("data-loaded") !== "1" && redeemList.getAttribute("data-loading") !== "1") {
-            loadAdminRedeemCodes(0);
-          }
-        }, 400);
-      });
-    } else {
-      renderRedeemStatus(null);
-    }
+function initCloudAuth() {
+  if (!getAppAuthToken()) {
+    applyAuthenticatedUser(null, null);
+    return;
+  }
+  appApi("/auth/me", { method: "GET" }).then(function(data) {
+    applyAuthenticatedUser(data.user, data.redeem);
+  }).catch(function() {
+    setAppAuthToken("");
+    applyAuthenticatedUser(null, null);
   });
 }
+setTimeout(initCloudAuth, 0);
 
 function getHistoryUserId() {
   if (typeof currentAppUser !== "undefined" && currentAppUser && currentAppUser.uid) return currentAppUser.uid;
@@ -1333,15 +1260,10 @@ function getHistoryUserId() {
 
 function syncHistoryToCloud(items) {
   var uid = getHistoryUserId();
-  if (!uid || typeof firestoreDB === "undefined") return;
+  if (!uid || !getAppAuthToken()) return;
   items = (items || []).filter(function(h) { return h && h.id && h.msgs && h.msgs.length > 0; });
   if (!items.length) return;
-  var batch = firestoreDB.batch();
-  var col = firestoreDB.collection("chat_history_records").doc(uid).collection("records");
-  items.forEach(function(item) {
-    batch.set(col.doc(historyCloudDocId(item.id)), Object.assign({}, item, { updated: Date.now() }), { merge: true });
-  });
-  batch.commit().catch(function(){});
+  appApi("/history/sync", { body: { records: items.slice(0, 80) } }).catch(function(){});
 }
 
 function historyCloudDocId(id) {
@@ -1356,11 +1278,8 @@ function historyCloudDocId(id) {
 
 function deleteCloudHistoryRecords(ids) {
   var uid = getHistoryUserId();
-  if (!uid || typeof firestoreDB === "undefined" || !ids || !ids.length) return;
-  var batch = firestoreDB.batch();
-  var col = firestoreDB.collection("chat_history_records").doc(uid).collection("records");
-  ids.forEach(function(id) { batch.delete(col.doc(historyCloudDocId(id))); });
-  batch.commit().catch(function(){});
+  if (!uid || !getAppAuthToken() || !ids || !ids.length) return;
+  appApi("/history/delete", { body: { ids: ids } }).catch(function(){});
 }
 
 function getHistoryMergeId(h) {
@@ -1391,20 +1310,11 @@ function mergeHistories(local, remote) {
 
 function syncHistoryFromCloud() {
   var uid = getHistoryUserId();
-  if (!uid || typeof firestoreDB === "undefined") return;
+  if (!uid || !getAppAuthToken()) return;
   var storageKey = "fp_chat_history_" + uid;
   var local = JSON.parse(localStorage.getItem(storageKey) || "[]");
-  var recordsPromise = firestoreDB.collection("chat_history_records").doc(uid).collection("records").orderBy("time", "desc").limit(80).get().then(function(snap) {
-    var records = [];
-    snap.forEach(function(doc) { records.push(doc.data() || {}); });
-    return records;
-  }).catch(function() { return []; });
-  var legacyPromise = firestoreDB.collection("chat_history").doc(uid).get().then(function(doc) {
-    if (!doc.exists) return [];
-    return (doc.data().items || []).filter(function(h) { return h.msgs && h.msgs.length > 0; });
-  }).catch(function() { return []; });
-  Promise.all([recordsPromise, legacyPromise]).then(function(parts) {
-    var remote = (parts[0] || []).concat(parts[1] || []).filter(function(h) { return h && h.msgs && h.msgs.length > 0; });
+  appApi("/history", { method: "GET" }).then(function(data) {
+    var remote = (data.records || []).filter(function(h) { return h && h.msgs && h.msgs.length > 0; });
     if (!remote.length) return;
     var merged = mergeHistories(local, remote);
     if (JSON.stringify(merged) !== JSON.stringify(local)) {

@@ -106,20 +106,24 @@ return typeof isSuperAdminUser==="function"&&!isSuperAdminUser()&&typeof hasActi
 function apiFetch(url,options){
 options=options||{};
 if(shouldUseCloudProxy()){
- if(typeof firebaseAuth==="undefined"||!firebaseAuth||!firebaseAuth.currentUser){
+ var appToken=typeof getAppAuthToken==="function"?getAppAuthToken():"";
+ if(!appToken&&typeof firebaseAuth!=="undefined"&&firebaseAuth&&firebaseAuth.currentUser&&firebaseAuth.currentUser.getIdToken){
+  var proxyUrlFallback=getFlowPlayerChatProxyUrl();
+  if(!proxyUrlFallback){
+   return Promise.resolve(new Response(JSON.stringify({error:{message:"管理员还没有完成后端代理地址配置，请联系管理员。"}}),{status:503,headers:{"Content-Type":"application/json"}}));
+  }
+  return firebaseAuth.currentUser.getIdToken().then(function(token){
+   return fetch(proxyUrlFallback,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:options.body||"{}"});
+  });
+ }
+ if(!appToken){
   return Promise.resolve(new Response(JSON.stringify({error:{message:"请先登录后再使用。"}}),{status:401,headers:{"Content-Type":"application/json"}}));
  }
  var proxyUrl=getFlowPlayerChatProxyUrl();
  if(!proxyUrl){
   return Promise.resolve(new Response(JSON.stringify({error:{message:"管理员还没有完成后端代理地址配置，请联系管理员。"}}),{status:503,headers:{"Content-Type":"application/json"}}));
  }
- return firebaseAuth.currentUser.getIdToken().then(function(token){
-  return fetch(proxyUrl,{
-   method:"POST",
-   headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},
-   body:options.body||"{}"
-  });
- });
+ return Promise.resolve(fetch(proxyUrl,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+appToken},body:options.body||"{}"}));
 }
 return fetch(url,options);
 }

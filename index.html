@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
 <link rel="preload" as="image" href="wasteland-bg.jpg">
-<link rel="stylesheet" href="style.css?v=188"></head><body class="auth-checking">
+<link rel="stylesheet" href="style.css?v=188"></head><body class="auth-checking local-only-mode">
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="auth-overlay" id="auth-overlay">
 <div class="auth-card">
@@ -16,6 +16,7 @@
 <input class="auth-input" id="auth-phone" placeholder="请输入手机号码" inputmode="tel" autocomplete="tel">
 <input class="auth-input" id="auth-password" placeholder="请输入密码" type="password" autocomplete="current-password" onkeydown="handleAuthKey(event)">
 <input class="auth-input auth-confirm-input" id="auth-password-confirm" placeholder="请再次输入密码" type="password" autocomplete="new-password" onkeydown="handleAuthKey(event)">
+<input class="auth-input auth-confirm-input" id="auth-invite-code" placeholder="请输入管理员提供的邀请码" autocomplete="off" onkeydown="handleAuthKey(event)">
 <button class="auth-submit" id="auth-submit" onclick="submitAuth()">登录</button>
 <div class="auth-msg" id="auth-msg">正在检查登录状态...</div>
 </div>
@@ -433,9 +434,9 @@
 <script src="modules/xuehui.js?v=202606231340"></script>
 <script src="modules/kanjian.js?v=202606231315"></script>
 <script src="modules/tiejia.js?v=202606231315"></script>
-<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="app.js?v=202606231500"></script>
+<script src="vendor/mammoth.browser.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="app.js?v=20260729"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 
@@ -453,7 +454,7 @@
 </div>
 <div class="settings-body">
 <div class="settings-tab-content active" id="settings-tab-api">
-<div class="settings-hint">💡 选择模型后自动填充端点，只需填入 API Key 即可使用</div>
+<div class="settings-hint">💡 本地模式：模型 API 仅保存在当前浏览器，不启用账号和云端同步</div>
 <div class="api-config-status" id="api-config-status">API 未配置</div>
 <input id="set-endpoint" placeholder="API 端点 (默认 DeepSeek)">
 <input id="set-apikey" placeholder="API Key (sk-...)" type="password">
@@ -478,6 +479,11 @@
 <div class="account-settings-value" id="auth-user-label">未登录</div>
 <div class="account-settings-actions"><button class="auth-switch-btn" onclick="switchAuthAccount()">切换账号</button><button class="auth-logout-btn" onclick="logoutAuth()">退出登录</button></div>
 </div>
+<div class="account-settings-card" id="admin-invite-panel" style="display:none">
+<div class="account-settings-label">管理员邀请码</div>
+<div style="display:flex;gap:8px;margin-top:8px"><input id="admin-invite-max-uses" type="number" min="1" max="1000" value="1" style="flex:1;min-width:0;padding:9px 10px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);color:var(--text-primary);font-size:12px" placeholder="可使用次数"><button class="auth-switch-btn" onclick="createInviteCode()">生成</button></div>
+<div id="admin-invite-result" style="margin-top:8px;font-size:12px;color:var(--cyan);word-break:break-all"></div>
+</div>
 </div>
 </div>
 </div>
@@ -493,9 +499,8 @@ window.__authBootstrapTimer=setTimeout(function(){
   }
 },8000);
 </script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="flowplayer.config.js"></script>
+<script>window.__useCloudBaseAuth = true;</script>
 <script>
 var firebaseConfig = {
   apiKey: "AIzaSyBTSuC7XXO6UkBY5EDACFn5B8VOF32ovYI",
@@ -522,7 +527,7 @@ if (window.firebase && firebase.initializeApp && firebase.auth) {
   firebase.initializeApp(firebaseConfig);
   firestoreDB = firebase.firestore ? firebase.firestore() : null;
   firebaseAuth = firebase.auth();
-} else {
+} else if (!window.__useCloudBaseAuth) {
   setTimeout(function() {
     failAuthBootstrap("登录服务加载失败，请检查网络后刷新页面重试。");
   }, 0);
@@ -700,12 +705,14 @@ function syncHistoryFromCloud() {
   }).catch(function(){});
 }
 </script>
+<script src="cloudbase-client.js?v=20260729"></script>
 <script>
 // === 历史记录 ===
 (function(){
   var LEGACY_STORAGE_KEY = 'fp_chat_history';
 
   function getHistoryStorageKey() {
+    if (window.FLOW_PLAYER_CONFIG && window.FLOW_PLAYER_CONFIG.localOnlyMode === true) return LEGACY_STORAGE_KEY;
     var uid = typeof getHistoryUserId === 'function' ? getHistoryUserId() : null;
     return uid ? ('fp_chat_history_' + uid) : 'fp_chat_history_guest';
   }
@@ -888,10 +895,7 @@ function syncHistoryFromCloud() {
     var items = loadHistory().filter(isValidHistoryItem);
     var kept = items.filter(function(h) { return !matchesCurrentWorkspace(h); });
     localStorage.setItem(getHistoryStorageKey(), JSON.stringify(kept));
-    var uid = typeof getHistoryUserId === 'function' ? getHistoryUserId() : null;
-    if (uid && typeof firestoreDB !== 'undefined') {
-      firestoreDB.collection('chat_history').doc(uid).set({ items: kept, updated: Date.now() }).catch(function(){});
-    }
+    if (typeof syncHistoryToCloud === 'function') syncHistoryToCloud(kept);
     refreshWorkspaceChrome();
     renderHistory();
   }

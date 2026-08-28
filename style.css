@@ -1,7 +1,10 @@
 html,body{margin:0;padding:0;height:100%}
 :root{--bg-deep:#0a0c14;--bg-panel:#0f121e;--bg-card:#141828;--border-glow:#1a1f35;--cyan:#00e5ff;--cyan-dim:rgba(0,229,255,.15);--purple:#a855f7;--purple-dim:rgba(168,85,247,.15);--gold:#f59e0b;--gold-dim:rgba(245,158,11,.15);--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--radius:12px;--radius-sm:8px}
 .auth-checking .app-container,.auth-locked .app-container,.auth-locked .settings-overlay,.auth-locked .chat-overlay{pointer-events:none;filter:blur(8px);opacity:.24}
+.local-only-mode.auth-checking .app-container{pointer-events:auto;filter:none;opacity:1}
+.local-only-mode .auth-overlay{display:none}
 .auth-checking .auth-overlay{display:flex}
+.local-only-mode.auth-checking .auth-overlay{display:none}
 .auth-checking .auth-tabs,.auth-checking .auth-input,.auth-checking .auth-submit{display:none}
 .auth-overlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 0%,rgba(0,229,255,.11),transparent 32%),rgba(5,7,12,.78);backdrop-filter:blur(14px)}
 .auth-locked .auth-overlay{display:flex}

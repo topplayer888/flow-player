@@ -1205,7 +1205,7 @@ function readMayuanPdfFile(file){
 return new Promise(function(resolve,reject){
 if(!window.pdfjsLib){reject(new Error("PDF 解析组件加载失败，请刷新后重试"));return}
 if(window.pdfjsLib.GlobalWorkerOptions){
-window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+window.pdfjsLib.GlobalWorkerOptions.workerSrc="vendor/pdf.worker.min.js";
 }
 var reader=new FileReader();
 reader.onload=function(){

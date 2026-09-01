@@ -615,8 +615,8 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland):not(.theme-en
 .theme-enterprise .sidebar-left:after,.theme-enterprise .sidebar-right:after{display:none}
 .theme-enterprise .logo-area{border-color:#244866;text-align:left;padding:24px 22px 20px}
 .theme-enterprise .logo-icon{width:38px;height:38px;margin:0 0 12px;border-radius:8px;background:#0f766e;box-shadow:none;animation:none}
-.theme-enterprise .logo-icon{font-size:0}
-.theme-enterprise .logo-icon:after{content:"▦";font-size:24px;line-height:1}
+.theme-enterprise .logo-icon{font-size:24px;line-height:1}
+.theme-enterprise .logo-icon:after{content:none}
 .theme-enterprise .logo-title{font-size:18px;letter-spacing:.5px;background:none;-webkit-text-fill-color:#fff;color:#fff}
 .theme-enterprise .logo-subtitle{color:#9db0c3;letter-spacing:1.5px}
 .theme-enterprise .nav-list{padding:18px 10px}

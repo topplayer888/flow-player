@@ -645,6 +645,9 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland):not(.theme-en
 .theme-enterprise .mode-card-name{font-size:16px;letter-spacing:0;color:#213547}
 .theme-enterprise .mode-card-desc{color:#718096;line-height:1.5}
 .theme-enterprise .mode-card-footer{margin-top:12px;padding-top:10px;border-color:#e5eaf0}
+.theme-enterprise .mode-card-enter{opacity:1;transform:none;color:#0f766e!important}
+.theme-enterprise .mode-card-enter-arrow{transform:none}
+.theme-enterprise .mode-card:hover .mode-card-enter-arrow{transform:translateX(3px)}
 .theme-enterprise .mode-card-status.active{color:#0f766e!important}
 .theme-enterprise .mode-card-dot.active{background:#0f766e!important;box-shadow:none!important}
 .theme-enterprise .mode-card-enter{color:#0f766e!important}

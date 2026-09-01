@@ -622,10 +622,10 @@ body:not(.theme-light):not(.theme-pureblack):not(.theme-wasteland):not(.theme-en
 .theme-enterprise .nav-item:hover{background:rgba(255,255,255,.08);border-color:transparent}
 .theme-enterprise .nav-item.active{background:#244866;border-color:rgba(255,255,255,.08);border-left-color:#41b3a3}
 .theme-enterprise .nav-item.active:before{background:#41b3a3;box-shadow:none}
-.theme-enterprise .nav-icon{width:34px;height:34px;border-radius:7px;background:#2c526d!important;color:#fff!important;font-size:20px;font-weight:700;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
-.theme-enterprise .nav-item:nth-child(1) .nav-icon{background:#0f766e!important;color:#fff!important}
-.theme-enterprise .nav-item:nth-child(2) .nav-icon{background:#536f8b!important;color:#fff!important}
-.theme-enterprise .nav-item:nth-child(3) .nav-icon{background:#a96516!important;color:#fff!important}
+.theme-enterprise .nav-icon{width:34px;height:34px;border-radius:8px;background:#34556d!important;color:#dcecf2!important;font-size:18px;font-weight:400;line-height:1;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.theme-enterprise .nav-item:nth-child(1) .nav-icon{background:#2b6f70!important;color:#d8f0ed!important}
+.theme-enterprise .nav-item:nth-child(2) .nav-icon{background:#4b6378!important;color:#e2ebf1!important}
+.theme-enterprise .nav-item:nth-child(3) .nav-icon{background:#806344!important;color:#f0e4d2!important}
 .theme-enterprise .nav-label{font-weight:650;color:#f4f8fb}
 .theme-enterprise .nav-badge{background:rgba(255,255,255,.09);color:#a9bbcb!important}
 .theme-enterprise .sidebar-footer,.theme-enterprise .logo-area{border-color:#244866}

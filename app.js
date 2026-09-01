@@ -316,12 +316,15 @@ var modeDocOverrides={
 "2-1":{what:"Kyrie直播方法论是知识付费直播闭环工具，采用分层菜单进入直播策略、脚本生成、老师训练、实时中控及诊断复盘。",audience:["知识付费老师","直播运营","中控和投放团队"],prepare:["老师人设","课程产品","目标用户","课程价格","直播阶段"],input:"进入对应二级功能后，按提示补充直播信息或上传复盘资料。",outputs:["直播方案","逐字稿","老师训练建议","实时中控动作","直播后复盘"],scenarios:["直播前策划","直播中救场","直播后复盘","老师能力训练"],tips:["先选择最接近你当前阶段的二级功能，再补充具体信息"]}
 };
 (function(){
+agents["0-2"].features="总控路由 · 4个融合工作流\n项目定位 → 访谈挖掘\n素材选题 → 内容运营";
+agents["0-2"].opening="你好，我是你的 IP 访谈内容策划助手。\n\n现在用 4 个融合工作流完成从定位到运营：\n1. 项目定位与完整方案\n2. 访谈策划与深挖\n3. 素材整理与选题生成\n4. 脚本生成与账号规划\n\n你可以直接选择一个工作流，或把人物资料、访谈记录、经历和选题发给我，我会自动判断下一步。";
+agents["0-2"].questions=["从0到1帮我做完整IP项目方案","我有一段经历，帮我继续深挖","帮我整理访谈素材并生成选题","把这个选题写成脚本并规划账号"];
 modeDocOverrides["0-1"].methodology=[
 {title:"核心路径",items:["先明确IP定位、行业、目标用户和内容主题，再让系统推荐爆款主题。","前两步完成后，AI推荐结构会自动显示，不需要用户额外点击。","用户从12种结构里选择最适合的一种，再生成标题、封面、完整口播稿和互动文案。","生成结果会按爆款评分标准检查钩子、情绪、共鸣、反差、价值和传播性。"]},
 {title:"12种爆款结构",items:["钩子+故事+人设+总结+金句：适合用经历建立信任。","问题+原因+人设+解决办法+总结：适合诊断用户问题并给方法。","金句+拆解+举例+倡导：适合观点型IP。","热点+描述+观点+金句：适合蹭热点但要落回个人判断。","利益+强化期待+方案+互动：适合转化和引导咨询。","揭秘+人设+故事+总结：适合内幕、行业真相、专业背书。","金句+金句+金句+金句：适合强观点、强价值观表达。","功效+动作+效果+关注：适合产品、训练、技能展示。","问题+解决办法+总结：适合轻干货。","现象+原因+解决办法+总结：适合解释行业现象。","钩子+剖析+总结+金句：适合深度拆解。","价值+价值+价值+价值：适合连续输出认知增量。"]},
 {title:"评分逻辑",items:["钩子20分：前3秒是否让用户停下来。","情绪20分：是否有焦虑、惊喜、委屈、爽感、释然等情绪。","共鸣15分：用户是否觉得说的是自己。","反差15分：有没有新旧认知、前后状态或身份结果的差异。","价值15分：用户看完有没有获得感。","传播性15分：是否有金句、观点或评论区讨论点。"]}];
 modeDocOverrides["0-2"].methodology=[
-{title:"8个智能模块",items:["完整项目模式：从0到1完成IP定位、访谈设计、素材整理、选题、脚本和账号规划。","IP定位助手：明确人设、内容、角色、目标用户和商业转化方向。","访谈提纲生成器：根据人物资料生成能挖出故事、观点、情绪和金句的问题。","深挖追问助手：围绕时间、地点、人物、冲突、情绪、细节、转折和结果继续追问。","素材库整理助手：把访谈记录整理成人设故事、专业观点、案例、金句、痛点和标签。","短视频选题生成器：把素材转成可拍标题、核心观点、开头钩子和内容结构。","爆款脚本生成器：把选题变成30-90秒可拍脚本。","账号内容规划助手：设计栏目、发布比例、选题方向和转化路径。"]},
+{title:"4个融合工作流",items:["项目定位与完整方案：根据人物资料判断做单独定位还是从0到1搭建，并可继续输出访谈、素材、选题、脚本和账号规划。","访谈策划与深挖：既能设计访谈提纲，也能针对已有经历、回答和观点继续追问，挖出故事、细节、情绪和金句。","素材整理与选题生成：把访谈记录、字幕和笔记整理成素材资产，再直接生成可拍短视频选题并标记优先级。","脚本生成与账号规划：把选题写成30-90秒可拍脚本，或规划栏目、发布比例、转化路径和前30条视频。"]},
 {title:"底层判断",items:["先判断人设：这个人是谁，凭什么被记住。","再判断内容：长期能讲什么，用户为什么愿意听。","最后判断角色：导师、专家、朋友、亲历者、倾听者、反差者还是犀利表达者。","判断短视频价值时看4个爆款元素：金句、观点、故事/案例、情绪。"]}];
 modeDocOverrides["0-3"].methodology=[
 {title:"拆解逻辑",items:["先识别原文案的开头钩子、核心观点、情绪点、转折点和转化方式。","再拆结构：它是故事型、观点型、痛点型、清单型、对比型还是反差型。","最后判断可复用部分：保留表达骨架，替换行业、人群、产品或人设。"]},
@@ -377,7 +380,7 @@ return {key:key,kicker:"Kyrie任务说明",title:kt.title,subtitle:"Kyrie直播�
 }
 if(parts[0]==="ip"){
 var im=getIPPageModule(parts[1]);if(!im)return null;
-if(parts.length===2)return {key:key,kicker:"IP模块说明",title:im.title,subtitle:"访谈式IP策划 / "+im.title,icon:im.icon,action:{type:"ipModule",moduleId:im.id},what:im.desc,audience:["IP操盘手、内容策划、访谈编导"],prepare:["人物资料","行业身份","账号目标","已有故事或访谈素材"],input:"进入二级任务后，按提示提供人物资料、经历或访谈内容。",outputs:im.tasks.map(function(t){return t.title}),scenarios:["IP定位","访谈设计","素材整理","脚本生成"],tips:["真实经历、具体细节和人物矛盾越多，输出越有差异化"]};
+if(parts.length===2)return {key:key,kicker:"IP工作流说明",title:im.tasks[0].title,subtitle:"访谈式IP策划 / "+im.title,icon:im.icon,action:{type:"ipTask",moduleId:im.id,taskIndex:0},what:im.tasks[0].desc,audience:["IP操盘手、内容策划、访谈编导"],prepare:["人物资料","行业身份","账号目标","已有故事或访谈素材"],input:"按提示提供人物资料、经历或访谈内容。",outputs:im.tasks.map(function(t){return t.title}),scenarios:["IP定位","访谈设计","素材整理","脚本生成"],tips:["真实经历、具体细节和人物矛盾越多，输出越有差异化"]};
 var it=im.tasks[parseInt(parts[2])];if(!it)return null;
 return {key:key,kicker:"IP任务说明",title:it.title,subtitle:"访谈式IP策划 / "+im.title,icon:im.icon,action:{type:"ipTask",moduleId:im.id,taskIndex:parseInt(parts[2])},what:it.desc,audience:["需要"+it.title+"的IP内容团队"],prepare:["IP对象","行业身份","目标用户","经历、观点或访谈素材"],input:getIPTaskIntro(im.id,parseInt(parts[2])).replace(/^你已进入：[^\n]+\n\n/,""),outputs:getIPTaskQuestions(im.id,parseInt(parts[2])).slice(0,4),scenarios:["人物定位","故事挖掘","选题生成","脚本策划"],tips:["不要只给抽象标签，尽量补充真实事件、冲突、情绪和结果"]};
 }
@@ -583,20 +586,16 @@ openChat(2,1);
 function getIPPageModules(){
 return [
 {id:"project",icon:"🧭",title:"项目搭建",desc:"先定人设、内容和角色，搭好 IP 项目的底层盘。",tasks:[
-{title:"从0到1完整IP项目",desc:"适合新项目启动，输出定位、访谈、素材、选题、脚本和账号规划。",prompt:"你现在执行完整项目模式。按项目判断、IP定位、人设档案、内容方向、角色定位、访谈提纲、深挖追问池、素材库结构、短视频选题库、首批脚本、账号栏目规划、下一步执行清单输出。信息不足时先问3个关键问题。"},
-{title:"IP定位与人设档案",desc:"适合已有人物资料，提炼一句话定位、人设关键词和差异化。",prompt:"你现在执行 IP定位助手。围绕人设、内容、角色，输出 IP定位报告：一句话定位、人设关键词、核心差异化、内容定位、角色定位、目标用户、商业转化方向、风险提醒、下一步。"}
+{title:"项目定位与完整方案",desc:"融合 IP定位和完整项目搭建，输出人设、内容、角色及后续执行路线。",prompt:"你现在执行项目定位与完整方案工作流。先判断用户是需要单独做IP定位，还是从0到1完整搭建项目；围绕人设、内容、角色输出一句话定位、人设关键词、核心差异化、内容定位、角色定位、目标用户、商业转化方向和风险提醒。若用户要求完整项目，再继续输出访谈提纲、深挖追问池、素材库结构、短视频选题库、首批脚本、账号栏目规划和下一步执行清单。信息不足时一次最多问3个关键问题。"}
 ]},
 {id:"interview",icon:"🎙️",title:"访谈策划",desc:"把采访变成有目标、有追问、有剪辑方向的内容采集。",tasks:[
-{title:"生成访谈提纲",desc:"为个人IP、老板、老师、专家设计一套能挖出故事和金句的问题。",prompt:"你现在执行访谈提纲生成器。输出访谈目标、开场破冰、人设定位问题、经历挖掘问题、专业案例问题、冲突转折问题、情绪细节问题、观点提炼问题、金句收束问题、可剪辑短视频方向。每个问题写明想挖什么。"},
-{title:"深挖追问现场",desc:"针对一段经历或回答继续追问，让素材更具体、更有传播力。",prompt:"你现在执行深挖追问助手。先判断素材价值和缺失信息，再最多提出3个追问。如果素材已经完整，直接提炼核心故事、核心冲突、情绪钩子、人设信号、可传播观点、可拍视频标题。"}
+{title:"访谈策划与深挖",desc:"融合访谈提纲和现场追问，既能设计问题，也能把经历问具体。",prompt:"你现在执行访谈策划与深挖工作流。根据用户需求判断是生成访谈提纲，还是深挖已有经历、回答或观点。生成提纲时输出访谈目标、开场破冰、人设定位、经历、案例、冲突转折、情绪细节、观点提炼、金句收束和可剪辑方向，并说明每个问题想挖什么。处理已有素材时先判断价值和缺失信息，再最多提出3个追问；如果素材完整，直接提炼核心故事、核心冲突、情绪钩子、人设信号、可传播观点和可拍视频标题。"}
 ]},
 {id:"material",icon:"🗂️",title:"素材转化",desc:"把访谈记录拆成可保存、可复用、可进入选题的素材资产。",tasks:[
-{title:"整理访谈素材库",desc:"把字幕、笔记、访谈记录分类成故事、观点、案例、金句和标签。",prompt:"你现在执行素材库整理助手。识别人设故事、专业观点、典型案例、情绪片段、金句、用户痛点、反常识观点、争议观点、可拍短视频选题、可复用标签，并标注爆款潜力和建议用途。"},
-{title:"生成短视频选题库",desc:"把人物经历、观点和案例转成可拍、可传播、可转化的选题。",prompt:"你现在执行短视频选题生成器。每个选题必须包含标题、类型、核心观点、适合角色、开头钩子、内容结构、爆款元素判断、推荐拍摄形式、转化价值，并标出优先推荐拍摄。"}
+{title:"素材整理与选题生成",desc:"融合素材库整理和短视频选题，把零散内容直接转成可拍方向。",prompt:"你现在执行素材整理与选题生成工作流。先把访谈记录、字幕、笔记、人物资料或观点案例分类为人设故事、专业观点、典型案例、情绪片段、金句、用户痛点、反常识观点、争议观点和可复用标签，并判断爆款潜力与建议用途。随后基于整理结果生成短视频选题；每个选题必须包含标题、类型、核心观点、适合角色、开头钩子、内容结构、爆款元素判断、推荐拍摄形式和转化价值，并标出优先推荐拍摄。"}
 ]},
 {id:"script",icon:"📝",title:"脚本运营",desc:"把选题写成可拍脚本，并沉淀长期栏目和发布计划。",tasks:[
-{title:"爆款短视频脚本",desc:"生成30-90秒可直接拍摄的口播、访谈切片或案例拆解脚本。",prompt:"你现在执行爆款脚本生成器。输出标题、时长建议、拍摄形式、适合结构、开头3秒钩子、正文脚本、金句、结尾引导、字幕重点、拍摄建议、可剪辑点。"},
-{title:"账号内容规划",desc:"设计栏目、发布比例、转化路径和前30条视频建议。",prompt:"你现在执行账号内容规划助手。输出账号主定位、内容栏目、每个栏目作用、发布比例、选题示例、转化路径、前30条视频建议。内容必须覆盖人设建立、专业信任、用户痛点、案例证明、情绪共鸣、商业转化。"}
+{title:"脚本生成与账号规划",desc:"融合短视频脚本和长期账号运营，完成从单条内容到栏目规划。",prompt:"你现在执行脚本生成与账号规划工作流。根据用户需求判断是生成单条30-90秒短视频脚本，还是规划长期账号内容；生成脚本时输出标题、时长建议、拍摄形式、适合结构、开头3秒钩子、正文脚本、金句、结尾引导、字幕重点、拍摄建议和可剪辑点。进行账号规划时输出账号主定位、内容栏目、每个栏目作用、发布比例、选题示例、转化路径和前30条视频建议，内容必须覆盖人设建立、专业信任、用户痛点、案例证明、情绪共鸣和商业转化。"}
 ]}
 ];
 }
@@ -620,12 +619,14 @@ return '<div class="mode-card kyrie-level-card ip-level-card" data-ip-module="'+
 ca.classList.remove("fading");
 var overall=document.getElementById("stat-overall");if(overall){overall.textContent="已激活";overall.className="stat-value"}
 var modes=document.getElementById("stat-modes");if(modes)modes.textContent="4";
-var systems=document.getElementById("stat-systems");if(systems)systems.textContent="8";
+ var systems=document.getElementById("stat-systems");if(systems)systems.textContent="4";
 setTimeout(function(){
-var ld=ca.querySelector(".content-loading");if(ld)ld.remove();
-ca.querySelectorAll(".ip-level-card").forEach(function(card){
-card.addEventListener("click",function(){renderIPSubmenuPage(card.dataset.ipModule)});
-});
+ var ld=ca.querySelector(".content-loading");if(ld)ld.remove();
+ ca.querySelectorAll(".ip-level-card").forEach(function(card){
+  var status=card.querySelector(".mode-card-status");if(status)status.innerHTML='<span class="mode-card-dot active"></span>开始执行';
+  var enter=card.querySelector(".mode-card-enter");if(enter)enter.innerHTML='进入 <span class="mode-card-enter-arrow">→</span>';
+  card.addEventListener("click",function(){openIPTask(card.dataset.ipModule,0)});
+ });
 bindModeDocButtons(ca);
 },300);
 renderRightModes();
@@ -655,28 +656,20 @@ function getIPTaskIntro(moduleId,taskIndex){
 var module=getIPPageModule(moduleId),task=module&&module.tasks[taskIndex];
 if(!module||!task)return "请把你的具体需求发给我，我会按 IP 访谈内容体系帮你执行。";
 var base="你已进入：IP访谈策划工作台 > "+module.title+" > "+task.title+"\n\n";
-if(moduleId==="project"&&taskIndex===0)return base+"请告诉我：这个 IP 是谁、行业身份是什么、最想被记住的标签是什么、账号最终目标是什么。我会帮你输出完整项目方案。";
-if(moduleId==="project"&&taskIndex===1)return base+"请发人物资料、过往经历、专业能力、目标用户和商业目标。我会帮你提炼定位、人设关键词和内容方向。";
-if(moduleId==="interview"&&taskIndex===0)return base+"请告诉我访谈对象是谁、行业身份、访谈目的、希望挖出的主题。我会生成可直接执行的访谈提纲。";
-if(moduleId==="interview"&&taskIndex===1)return base+"请发一段经历、回答或观点。我会判断素材价值，并用最多3个问题继续深挖。";
-if(moduleId==="material"&&taskIndex===0)return base+"请粘贴访谈记录、字幕、笔记或素材片段。我会整理成人设故事、观点、案例、金句和选题素材库。";
-if(moduleId==="material"&&taskIndex===1)return base+"请发人物资料、访谈素材或观点案例。我会生成可拍摄的短视频选题库，并标出优先级。";
-if(moduleId==="script"&&taskIndex===0)return base+"请发选题、人物定位、素材或想表达的观点。我会写成30-90秒可拍摄短视频脚本。";
-return base+"请发 IP 定位、目标用户、商业目标或现有内容方向。我会规划栏目、发布比例、转化路径和前30条视频建议。";
+ if(moduleId==="project")return base+"请告诉我这个 IP 是谁、行业身份、想被记住的标签和账号目标；也可以直接发人物资料。我会判断你需要定位还是完整搭建，并输出对应方案。";
+ if(moduleId==="interview")return base+"请告诉我访谈对象和访谈目的，或直接发一段经历、回答、观点。我会自动判断是生成访谈提纲还是继续深挖，并给出下一步问题。";
+ if(moduleId==="material")return base+"请粘贴访谈记录、字幕、笔记、人物资料或观点案例。我会先整理素材库，再生成可拍短视频选题并标出优先级。";
+ return base+"请发选题、人物定位、素材或账号目标。我会判断是生成30-90秒短视频脚本，还是规划栏目、发布比例、转化路径和前30条视频。";
 }
 function getIPTaskPrompt(moduleId,taskIndex){
 var module=getIPPageModule(moduleId),task=module&&module.tasks[taskIndex];
 return task?task.prompt:"";
 }
 function getIPTaskQuestions(moduleId,taskIndex){
-if(moduleId==="project"&&taskIndex===0)return ["从0到1帮我做完整IP项目方案","我想打造一个老师IP，帮我规划全流程","帮我从人物资料开始做完整IP方案","帮我输出定位、访谈、选题、脚本和账号规划"];
-if(moduleId==="project"&&taskIndex===1)return ["帮我做IP定位和人设档案","根据这些人物资料提炼差异化","帮我梳理这个IP适合讲什么","帮我判断这个IP适合什么表达角色"];
-if(moduleId==="interview"&&taskIndex===0)return ["帮我生成一套访谈提纲","我要采访一位老板，帮我设计问题","帮我设计能挖出故事和金句的问题","帮我生成访谈问题和可剪辑方向"];
-if(moduleId==="interview"&&taskIndex===1)return ["我有一段经历，帮我继续深挖","帮我把这个故事问得更具体","帮我找这段素材的冲突和情绪","帮我提炼可传播观点并继续追问"];
-if(moduleId==="material"&&taskIndex===0)return ["帮我整理这段访谈素材库","把这段字幕整理成故事、观点和金句","帮我给素材分类并打标签","帮我判断哪些素材最适合拍短视频"];
-if(moduleId==="material"&&taskIndex===1)return ["帮我生成短视频选题库","根据这段访谈素材生成选题","帮我把人物经历转成可拍选题","帮我挑出最值得优先拍的选题"];
-if(moduleId==="script"&&taskIndex===0)return ["帮我写成30-90秒短视频脚本","把这个选题写成可拍口播稿","帮我生成访谈切片脚本","帮我写标题、钩子、正文和结尾引导"];
-return ["帮我规划账号内容体系","帮我设计栏目和发布比例","帮我输出前30条视频建议","帮我设计从内容到转化的路径"];
+ if(moduleId==="project")return ["从0到1帮我做完整IP项目方案","我想打造一个老师IP，先帮我做定位","根据人物资料提炼差异化和内容方向","帮我输出定位、访谈、选题、脚本和账号规划"];
+ if(moduleId==="interview")return ["帮我生成一套访谈提纲","我有一段经历，帮我继续深挖","帮我设计能挖出故事和金句的问题","帮我找这段素材的冲突、细节和情绪"];
+ if(moduleId==="material")return ["帮我整理访谈素材并生成选题","把这段字幕整理成故事、观点和金句","帮我给素材分类、打标签并判断潜力","帮我挑出最值得优先拍的选题"];
+ return ["把这个选题写成30-90秒可拍脚本","帮我规划账号内容体系和栏目","帮我输出前30条视频建议","帮我设计从内容到转化的路径"];
 }
 function openIPTask(moduleId,taskIndex){
 pendingIPModule=moduleId;
@@ -1728,7 +1721,7 @@ var ipReturnModule=!skipKyrieReturn&&chatKey==="0-2"&&currentIPModule;
 var kyrieReturnModule=!skipKyrieReturn&&chatKey==="2-1"&&currentKyrieMenuLevel==="task"&&currentKyrieModule;
 document.getElementById("chat-overlay").classList.remove("open");
 chatOpen=false;chatMessages=[];
-if(ipReturnModule){renderIPSubmenuPage(ipReturnModule);return}
+if(ipReturnModule){renderIPMenuPage();return}
 if(kyrieReturnModule){renderKyrieSubmenuPage(kyrieReturnModule);return}
 renderContent();renderRightModes();renderHistory();
 }
@@ -2311,7 +2304,7 @@ var msgs=[{role:"system",content:activeSystemPrompt+getOralOnlyRewriteRule()}];c
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
 if(chatKey==="0-2"&&/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){
- hideTyping();var backIPModule=currentIPModule||"project";closeChat(true);renderIPSubmenuPage(backIPModule);return;
+ hideTyping();closeChat(true);renderIPMenuPage();return;
 }
 if(chatKey==="2-1"){
  if(/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){hideTyping();var backModule=currentKyrieModule||"strategy";closeChat(true);renderKyrieSubmenuPage(backModule);return}

@@ -585,7 +585,7 @@ return [
 {title:"访谈策划与深挖",desc:"融合访谈提纲和现场追问，既能设计问题，也能把经历问具体。",prompt:"你现在执行访谈策划与深挖工作流。根据用户需求判断是生成访谈提纲，还是深挖已有经历、回答或观点。生成提纲时输出访谈目标、开场破冰、人设定位、经历、案例、冲突转折、情绪细节、观点提炼、金句收束和可剪辑方向，并说明每个问题想挖什么。处理已有素材时先判断价值和缺失信息，再最多提出3个追问；如果素材完整，直接提炼核心故事、核心冲突、情绪钩子、人设信号、可传播观点和可拍视频标题。"}
 ]},
 {id:"material",icon:"🗂️",title:"素材转化",desc:"把访谈记录拆成可保存、可复用、可进入选题的素材资产。",tasks:[
-{title:"素材整理与选题生成",desc:"融合素材库整理和短视频选题，把零散内容直接转成可拍方向。",prompt:"你现在执行素材整理与选题生成工作流。先把访谈记录、字幕、笔记、人物资料或观点案例分类为人设故事、专业观点、典型案例、情绪片段、金句、用户痛点、反常识观点、争议观点和可复用标签，并判断爆款潜力与建议用途。随后基于整理结果生成短视频选题；每个选题必须包含标题、类型、核心观点、适合角色、开头钩子、内容结构、爆款元素判断、推荐拍摄形式和转化价值，并标出优先推荐拍摄。"}
+{title:"素材整理与选题生成",desc:"融合素材库整理和短视频选题，把零散内容直接转成可拍方向。",prompt:"你现在执行素材整理与选题生成工作流。先把访谈记录、字幕、笔记、人物资料或观点案例分类为人设故事、专业观点、典型案例、情绪片段、金句、用户痛点、反常识观点、争议观点和可复用标签，并判断爆款潜力与建议用途。随后基于整理结果生成短视频选题；每个选题必须包含标题、类型、核心观点、适合角色、开头钩子、内容结构、爆款元素判断、推荐拍摄形式和转化价值，并标出优先推荐拍摄。所有事实只能来自用户明确提供的内容；用户未确认的时间、地点、人物、动作、物品、数字、伤情、结果或情绪不得写进标题、钩子、故事和案例。素材只有一句话或缺少关键细节时，先输出已知事实、素材价值、缺失信息和最多3个追问；如需给方向，最多给3条并明确标注为“创意方向”，不得把假设写成真实经历。每条金句都要检查主语、动作、结论和比喻语义是否成立，不得为了网感强行使用不相关的网络术语。"}
 ]},
 {id:"script",icon:"📝",title:"脚本运营",desc:"把选题写成可拍脚本，并沉淀长期栏目和发布计划。",tasks:[
 {title:"脚本生成与账号规划",desc:"融合短视频脚本和长期账号运营，完成从单条内容到栏目规划。",prompt:"你现在执行脚本生成与账号规划工作流。根据用户需求判断是生成单条30-90秒短视频脚本，还是规划长期账号内容；生成脚本时输出标题、时长建议、拍摄形式、适合结构、开头3秒钩子、正文脚本、金句、结尾引导、字幕重点、拍摄建议和可剪辑点。进行账号规划时输出账号主定位、内容栏目、每个栏目作用、发布比例、选题示例、转化路径和前30条视频建议，内容必须覆盖人设建立、专业信任、用户痛点、案例证明、情绪共鸣和商业转化。"}
@@ -657,6 +657,12 @@ var base="你已进入：IP访谈策划工作台 > "+module.title+" > "+task.tit
 function getIPTaskPrompt(moduleId,taskIndex){
 var module=getIPPageModule(moduleId),task=module&&module.tasks[taskIndex];
 return task?task.prompt:"";
+}
+function getIPQualityGuardRule(){
+return "\n\n# IP访谈事实与表达质量硬性规则\n1. 用户没有明确提供的经历、地点、时间、伤情、动作、物品、数字、人物关系、结果和情绪，不得写成既定事实；不得用‘合理推测’替用户补齐故事。\n2. 先区分【已知事实】【待确认信息】【创意方向】。创意方向可以提出，但必须明确标注为假设，不得伪装成用户经历。\n3. 当用户只提供一句话或缺少至少3个具体细节时，先输出素材价值判断、缺失信息和最多3个关键追问；可以附带不超过3条‘不含虚构细节的选题方向’，不要直接扩写事故经过。\n4. 生成选题和开头钩子时，只能使用已确认事实。没有具体事实时，使用‘这段经历’‘那次意外’等中性表达，不得添加三米、手机摔碎、具体地点等细节。\n5. 金句必须先做语义检查：主语、动作和结论关系成立；比喻对象属于同一语义场；删除网络术语后原意仍然清楚。不要为了网感强行使用‘流量、赛道、收割、闭环、垃圾’等词。\n6. 金句要服务真实人物和素材，不追求夸张、绝对化或生死煽情。每条金句生成后，用普通话复述一次；复述不通就重写。\n7. 涉及事故、疾病、伤害、死亡等高风险经历时，不夸大、不下医学结论、不渲染未经确认的细节。\n8. 输出前自检：事实是否有来源、标题与钩子是否同义一致、金句逻辑是否成立、是否存在自相矛盾或语义错位；不合格内容先重写再输出。";
+}
+function getIPChatTemperature(){
+return chatKey==="0-2"?.35:.7;
 }
 function getIPTaskQuestions(moduleId,taskIndex){
  if(moduleId==="project")return ["从0到1帮我做完整IP项目方案","我想打造一个老师IP，先帮我做定位","根据人物资料提炼差异化和内容方向","帮我输出定位、访谈、选题、脚本和账号规划"];
@@ -2287,13 +2293,14 @@ return "\n\n# 二次修改输出硬性要求\n这是用户在首次生成完整�
 function getMayuanDialogueSystemPrompt(base){if(chatKey==="1-1")return base+"\n\n# 大川内容体系对话式补充规则\n当用户要求生成电商脚本、短视频广告脚本、投放素材或口播文案时，先判断买点、身份视角、目标人群和素材类型，再生成结果。只有当用户明确指定时长时，才必须按该时长对应字数范围执行；用户没有指定时长时，沿用大川模块原本默认节奏，不额外强制套用30-60秒字数。"+getMergedShotScriptRule()+"\n\n输出不要使用Markdown表格、代码块或复杂嵌套列表。最后可以单独追加【纯口播文案】板块，方便用户复制拍摄。";if(!isMayuanChat())return base;if(chatKey==="1-3")return base+"\n\n# 马源2.0对话式补充规则\n当用户要求生成脚本、广告素材、测试计划、内容专项或裂变方案，并且没有明确指定时长时，按马源2.0模块原本默认节奏处理，不额外强制套用30-60秒字数。若用户明确指定时长，必须按用户指定时长执行对应字数范围。输出不要使用Markdown表格、代码块或复杂嵌套列表。脚本输出按“脚本策略 / 完整分镜脚本 / 可替换要素 / 测试目的 / 裂变方向”分段。完整分镜脚本必须放到同一个板块里，不要拆成“口播逐字稿、拍摄画面、视觉高光”等多个板块；每个镜头按“时间段 / 画面动作 / 口播或字幕 / 视觉重点”连续输出，口播逐字稿放在对应镜头内，每句话单独成行。"+getMergedShotScriptRule()+"\n\n生成脚本后，在结尾追加一句：需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。";return base+"\n\n# 马源内容体系对话式补充规则\n当用户要求生成脚本、引流脚本、短视频文案或口播文案，并且没有明确指定时长时，沿用马源模块原本默认节奏，不额外强制套用30-60秒字数。若用户明确指定30秒以内、30-60秒、60-90秒、90-120秒或120秒以上，以用户要求为准，并执行对应字数范围。\n\n# 输出排版要求\n使用清晰分段输出，不要使用Markdown表格、代码块或复杂嵌套列表。完整脚本建议按“脚本策略 / 完整分镜脚本 / 执行建议”分段；完整分镜脚本必须把时间段、画面/分镜、口播/字幕放在同一个镜头条目里，口播逐字稿放在对应镜头内，每句话单独成行，方便用户复制和拍摄。"+getMergedShotScriptRule()+"\n\n生成文案后，在结尾追加一句：需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
 function appendMayuanDialogueFollowup(content){if(!isMayuanChat())return content;if(!content)return content;if(content.indexOf("需要我帮你把这版内容篇幅加长吗")>=0||content.indexOf("有任何修改意见请告诉我")>=0)return content;return content+"\n\n需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
 function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent)return;if(chatKey==="2-1"&&currentKyrieMenuLevel!=="task"){hideTyping();addMessage("assistant","请先选择到二级功能后，再输入调整意见。\n\n"+(currentKyrieMenuLevel==="sub"?getKyrieSubMenuText(currentKyrieModule):getKyrieMainMenuText()));return}if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>");return}var activeSystemPrompt=appendCopyCoherenceRule(getMayuanDialogueSystemPrompt(agent.systemPrompt));
+if(chatKey==="0-2")activeSystemPrompt+=getIPQualityGuardRule();
 if(chatKey==="0-2"&&currentIPModule){
  activeSystemPrompt+="\n\n# 当前界面选择\n用户当前选择的是：IP访谈策划工作台 > "+currentIPModule+" > "+currentIPTask+"。\n"+getIPTaskPrompt(currentIPModule,currentIPTaskIndex);
 }
 if(isKyrieReviewTask())activeSystemPrompt+=getKyrieReviewSystemSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieScriptGenerationSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieDryGoodsHookSupplement();
-var msgs=[{role:"system",content:activeSystemPrompt+getOralOnlyRewriteRule()}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只输出优化后的口播文案正文，不要解释过程，不要输出任何分析结构或标题。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:getActiveChatMaxTokens(4000)})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}var result=data.choices[0].message.content;addMessage("assistant",result);updateMayuanDocStatusByContent(result,"result")}).catch(function(e){if(isAbortError(e)){showGenerationAbortNotice();return}hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
+var msgs=[{role:"system",content:activeSystemPrompt+getOralOnlyRewriteRule()}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只输出优化后的口播文案正文，不要解释过程，不要输出任何分析结构或标题。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}var result=data.choices[0].message.content;addMessage("assistant",result);updateMayuanDocStatusByContent(result,"result")}).catch(function(e){if(isAbortError(e)){showGenerationAbortNotice();return}hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
 if(chatKey==="0-2"&&/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){
@@ -2310,6 +2317,7 @@ addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"
 return;
 }
 var activeSystemPrompt=appendCopyCoherenceRule(getMayuanDialogueSystemPrompt(agent.systemPrompt));
+if(chatKey==="0-2")activeSystemPrompt+=getIPQualityGuardRule();
 if(chatKey==="0-2"&&currentIPModule){
  activeSystemPrompt+="\n\n# 当前界面选择\n用户当前选择的是：IP访谈策划工作台 > "+currentIPModule+" > "+currentIPTask+"。\n"+getIPTaskPrompt(currentIPModule,currentIPTaskIndex);
 }
@@ -2324,7 +2332,7 @@ updateMayuanDocStatusByContent(userMsg,"request");
 apiFetch(apiConfig.endpoint,{
 method:"POST",
 headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},
-body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:getActiveChatMaxTokens(4000)})
+body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})
 }).then(function(r){return r.json()}).then(function(data){
 hideTyping();
 if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}

@@ -22,7 +22,6 @@ if(cancel)cancel.style.display="";
 }
 window.alert=showAppAlert;
 window.closeAppAlert=closeAppAlert;
-var activeGenerationRequests=[],generationAbortRequested=false,generationAbortNoticeShown=false;
 var chatFrameWidth=parseFloat(localStorage.getItem("fp_chat_frame_width")||localStorage.getItem("fp_chat_zoom")||"1")||1;
 var chatFrameHeight=parseFloat(localStorage.getItem("fp_chat_frame_height")||localStorage.getItem("fp_chat_zoom")||"1")||1;
 function clampChatZoom(value){
@@ -92,68 +91,18 @@ document.addEventListener("pointermove",move);
 document.addEventListener("pointerup",up);
 document.addEventListener("pointercancel",up);
 }
-function updateGenerationPauseUI(){
-var btn=document.getElementById("chat-stop-btn");
-if(!btn)return;
-var active=activeGenerationRequests.length>0;
-var inputArea=document.getElementById("chat-input-area");
-var input=document.getElementById("chat-input");
-var send=document.querySelector(".chat-send");
-var upload=document.getElementById("mayuan-upload-wrap");
-if(inputArea){
- if(active){inputArea.style.display="flex"}else if(typeof chatMode!=="undefined"&&chatMode==="form"){inputArea.style.display="none"}else{inputArea.style.display=""}
-}
-if(input)input.style.display=(active&&typeof chatMode!=="undefined"&&chatMode==="form")?"none":"";
-if(send)send.style.display=(active&&typeof chatMode!=="undefined"&&chatMode==="form")?"none":"";
-if(upload&&active&&typeof chatMode!=="undefined"&&chatMode==="form")upload.style.display="none";
-btn.style.display=active?"flex":"none";
-btn.disabled=!active||generationAbortRequested;
-btn.textContent=generationAbortRequested?"暂停中...":"暂停";
-}
-function beginGenerationRequest(){
-if(activeGenerationRequests.length===0){generationAbortRequested=false;generationAbortNoticeShown=false}
-var handle={controller:null,signal:void 0,done:false};
-if(typeof AbortController!=="undefined"){
-handle.controller=new AbortController();
-handle.signal=handle.controller.signal;
-}
-activeGenerationRequests.push(handle);
-updateGenerationPauseUI();
-return handle;
-}
-function finishGenerationRequest(handle){
-if(!handle||handle.done)return;
-handle.done=true;
-activeGenerationRequests=activeGenerationRequests.filter(function(item){return item!==handle});
-if(activeGenerationRequests.length===0)generationAbortRequested=false;
-updateGenerationPauseUI();
-}
-function isAbortError(err){
-return !!err&&(err.name==="AbortError"||/abort|aborted|cancel/i.test(String(err.message||"")));
-}
 function apiFetch(url,options){
-var handle=beginGenerationRequest();
 options=options||{};
-if(handle.signal)options.signal=handle.signal;
-var keepForStream=options.__flowStream===true;
-var request=fetch(url,options).then(function(response){
-if(keepForStream&&response)response.__flowGenerationHandle=handle;
-return response;
-}).catch(function(err){
-if(isAbortError(err)){try{err.message="已暂停生成"}catch(e){}}
-if(keepForStream)finishGenerationRequest(handle);
-throw err;
-});
-return keepForStream?request:request.finally(function(){finishGenerationRequest(handle)});
+return fetch(url,options);
 }
+function isAbortError(){return false}
+function showGenerationAbortNotice(){hideTyping()}
 function apiFetchStream(url,options,onDelta){
 options=options||{};
 options.__flowStream=true;
 var payload=null;
 try{payload=JSON.parse(options.body||"{}");if(payload&&typeof payload==="object")payload.stream=true;options.body=JSON.stringify(payload)}catch(e){}
-var streamHandle=null;
 return apiFetch(url,options).then(function(response){
-streamHandle=response&&response.__flowGenerationHandle;
 if(!response||!response.body||typeof response.body.getReader!=="function")return response.json();
 var type=(response.headers&&response.headers.get("content-type"))||"";
 if(type&&!/text\/event-stream/i.test(type))return response.json();
@@ -178,7 +127,7 @@ if(decoder)buffer+=decoder.decode(part.value,{stream:true});else buffer+=String.
 return read();
 })}
 return read();
-}).finally(function(){if(streamHandle)finishGenerationRequest(streamHandle)});
+});
 }
 function createAssistantStream(){
 var started=false,text="";
@@ -198,21 +147,6 @@ else if(finalText!==text){text=finalText;var last=chatMessages.length-1;if(last>
 updateDynamicQuickChips("assistant",text);return text;
 }
 };
-}
-function showGenerationAbortNotice(){
-hideTyping();
-if(generationAbortNoticeShown)return;
-generationAbortNoticeShown=true;
-if(chatOpen){addMessage("assistant","已暂停生成")}
-}
-function abortCurrentGeneration(){
-if(!activeGenerationRequests.length)return;
-generationAbortRequested=true;
-updateGenerationPauseUI();
-activeGenerationRequests.slice().forEach(function(handle){
-if(handle&&handle.controller&&!handle.done)handle.controller.abort();
-});
-showGenerationAbortNotice();
 }
 var sections=[{title:"爆款脚本创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"四大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"访谈式IP策划",desc:"IP访谈 · 经历挖掘与短视频脚本生成",icon:"🎤"},{name:"爆款仿写",desc:"爆款仿写 · 对标爆款文案的结构化仿写生成",icon:"✍️"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"创意",desc:"四大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"},{name:"马源2.0",desc:"马源2.0 · 内容专项与广告创意智能体",icon:"🧠"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"策略",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导IP直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"Kyrie直播方法论",desc:"Kyrie体系 · 知识付费直播闭环与中控训练",icon:"📈"}]}],currentSection=0,currentMode=0;
 
@@ -1363,7 +1297,6 @@ var nextText=chatKey==="1-3"?"\n\n是否需要我根据以上内容，继续生�
 addMessage("assistant",summary+nextText);
 setMayuanDocStatus(chatKey==="1-3"?"文档提炼完成，可继续生成专项方案":"文档提炼完成，可继续生成引流视频","ok");
 }).catch(function(err){
-if(isAbortError(err)){showGenerationAbortNotice();return}
 hideTyping();
 setMayuanDocStatus(err.message||"文档读取失败","error");
 if(chatOpen){addMessage("assistant","❌ 文档总结失败："+(err.message||"请稍后重试"))}
@@ -1465,7 +1398,6 @@ hideTyping();
 addMessage("assistant",result);
 setMayuanDocStatus("截图复盘完成，可继续补充数据或逐字稿","ok");
 }).catch(function(err){
-if(isAbortError(err)){showGenerationAbortNotice();return}
 hideTyping();
 var msg=err.message||"截图识别失败";
 setMayuanDocStatus(msg,"error");
@@ -1515,7 +1447,6 @@ hideTyping();
 addMessage("assistant",summary+"\n\n你也可以继续补充直播后台数据截图，我会把数据表现和逐字稿话术放在一起复盘。");
 setMayuanDocStatus("逐字稿复盘完成，可继续上传截图或补充数据","ok");
 }).catch(function(err){
-if(isAbortError(err)){showGenerationAbortNotice();return}
 hideTyping();
 setMayuanDocStatus(err.message||"逐字稿读取失败","error");
 if(chatOpen){addMessage("assistant","❌ 逐字稿分析失败："+(err.message||"请稍后重试"))}
@@ -1753,7 +1684,6 @@ apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/
  var text=data.choices[0].message.content;
  try{var t=text.replace(/^```(?:json)?\s*\n?/,"").replace(/\n?```\s*$/,"");var json=JSON.parse(t);callback(json)}catch(e){callback({raw:text})}
 }).catch(function(e){
- if(isAbortError(e)){showGenerationAbortNotice();restoreAllGenerationButtons();return}
  alert("request failed: "+e.message);callback({error:{message:e.message},raw:""})
 });
 }
@@ -1824,7 +1754,7 @@ apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/
  if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}
  addMessage("assistant",data.choices[0].message.content);
  document.getElementById("rw-step1").style.display="none";document.getElementById("rw-step2").style.display="";
-}).catch(function(e){setGenerateButtonLoading(rwBtn,false);if(isAbortError(e)){showGenerationAbortNotice();return}hideTyping();addMessage("assistant","请求失败："+e.message)});
+}).catch(function(e){setGenerateButtonLoading(rwBtn,false);hideTyping();addMessage("assistant","请求失败："+e.message)});
 }function submitRewriteStep2(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10)return;var custom=document.getElementById("rw-custom2").value.trim();if(rwMode==="B"&&!custom){alert("请填写自定义赛道与人设");return}var rwBtn=document.getElementById("rw-generate-btn");setGenerateButtonLoading(rwBtn,true,"仿写中...");var prompt="请基于上一轮的逐字稿和分析，按以下模式进行仿写：\n\n仿写模式："+(rwMode==="A"?"模式A 原汁原味仿写":"模式B 自定义定位仿写")+(rwMode==="B"?"\n新赛道/新人设："+custom:"")+"\n\n请直接输出仿写文案和仿写逻辑说明";switchChatMode("qa");addMessage("user","✍️ [仿写提交]\n模式："+(rwMode==="A"?"原汁原味":"自定义")+(rwMode==="B"?"\n赛道/人设："+custom:""));showTyping();var msgs=[{role:"system",content:appendCopyCoherenceRule(agent.systemPrompt)}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:appendCopyCoherenceRule(prompt)});apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){setGenerateButtonLoading(rwBtn,false);hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return};if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}addMessage("assistant",data.choices[0].message.content)}).catch(function(e){setGenerateButtonLoading(rwBtn,false);if(isAbortError(e)){showGenerationAbortNotice();return}hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})}
 function addMessageHTML(role,html){
 chatMessages.push({role:role,content:html});
@@ -1960,13 +1890,6 @@ btn.style.opacity="";
 btn.style.cursor="";
 delete btn.dataset.normalText;
 }
-}
-function restoreAllGenerationButtons(){
-document.querySelectorAll("[data-normal-text]").forEach(function(btn){setGenerateButtonLoading(btn,false)});
-["kj-loading","tj-loading","xh-regen-loading","form-regen-loading"].forEach(function(id){
-var el=document.getElementById(id);
-if(el)el.style.display="none";
-});
 }
 function sendMessage(){
 var input=document.getElementById("chat-input");var text=input.value.trim();

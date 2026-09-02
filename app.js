@@ -1,5 +1,6 @@
 ﻿var sectionModes=[-1,-1,-1];var sectionSavedKey=["","",""];var historyStack=[];
 var nativeAlert=window.alert;
+var contentRenderToken=0;
 function showAppAlert(message){
 var overlay=document.getElementById("confirm-overlay");
 var msg=document.getElementById("confirm-msg");
@@ -433,9 +434,13 @@ if(a.type==="ipModule"){renderIPSubmenuPage(a.moduleId);return}
 if(a.type==="ipTask"){openIPTask(a.moduleId,a.taskIndex);return}
 }
 function renderContent(){var _s=currentSection;
+if(_s===0&&currentMode===2){renderIPMenuPage();return}
+var renderToken=++contentRenderToken;
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
+ca.innerHTML='<div class="content-loading"><span></span><span></span><span></span></div>';
 setTimeout(function(){
+if(renderToken!==contentRenderToken)return;
 var e=sections[_s];
 var n='<div class="content-header"><div class="content-title"><span class="accent">'+e.accent+"</span>"+e.title.replace(e.accent,"")+'</div><div class="content-desc">'+e.subtitle+" · "+e.desc+'</div></div><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid">'+e.modes.map(function(m,i){
 var ak=_s+"-"+i,has=!!agents[ak];
@@ -450,6 +455,7 @@ overall.className="stat-value "+(activeCount>0?"":"gold");
 document.getElementById("stat-modes").textContent=e.modes.length;
 document.getElementById("stat-systems").textContent=new Set(e.modes.map(function(m){return m.name})).size;
 setTimeout(function(){
+if(renderToken!==contentRenderToken)return;
 var ld=ca.querySelector(".content-loading");if(ld)ld.remove();
 document.querySelectorAll(".mode-card").forEach(function(card){
 card.addEventListener("click",function(){
@@ -507,13 +513,16 @@ for(var i=0;i<list.length;i++){if(list[i].id===id)return list[i]}
 return null;
 }
 function renderKyrieMenuPage(){
+var renderToken=++contentRenderToken;
 if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(2,1);
 currentKyrieSubKey="";currentKyrieMenuLevel="";currentKyrieModule="";currentKyrieTask="";
 window.currentHistoryContext={key:"2-1",section:2,mode:1,workflowType:"",moduleId:"",taskIndex:-1,taskTitle:""};
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
+ca.innerHTML='<div class="content-loading"><span></span><span></span><span></span></div>';
 setTimeout(function(){
+if(renderToken!==contentRenderToken)return;
 var modules=getKyriePageModules();
 ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">Kyrie</span>直播方法论</div><div class="content-desc">4个融合工作流 · 直接进入执行</div></div><button class="kyrie-back-btn" type="button" onclick="renderContent()">← 返回上一层</button><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid kyrie-menu-grid">'+modules.map(function(m,i){
 return '<div class="mode-card kyrie-level-card" data-kyrie-module="'+m.id+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(m.icon,"0"+(i+1),"kyrie:"+m.id)+modeCardTitle(m.title)+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>进入二级菜单</div><div class="mode-card-enter">选择 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
@@ -523,6 +532,7 @@ var overall=document.getElementById("stat-overall");if(overall){overall.textCont
 var modes=document.getElementById("stat-modes");if(modes)modes.textContent="4";
 var systems=document.getElementById("stat-systems");if(systems)systems.textContent="4";
 setTimeout(function(){
+if(renderToken!==contentRenderToken)return;
 var ld=ca.querySelector(".content-loading");if(ld)ld.remove();
 ca.querySelectorAll(".kyrie-level-card").forEach(function(card){
  var status=card.querySelector(".mode-card-status");if(status)status.innerHTML='<span class="mode-card-dot active"></span>开始执行';
@@ -535,6 +545,7 @@ renderRightModes();
 },200);
 }
 function renderKyrieSubmenuPage(moduleId){
+var renderToken=++contentRenderToken;
 if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(2,1);
 var module=getKyriePageModule(moduleId);if(!module){renderKyrieMenuPage();return}
@@ -543,6 +554,7 @@ window.currentHistoryContext={key:"2-1",section:2,mode:1,workflowType:"kyrie",mo
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 setTimeout(function(){
+if(renderToken!==contentRenderToken)return;
 ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">'+module.title+'</span></div><div class="content-desc">Kyrie直播方法论 · 输入返回可回到上一级</div></div><button class="kyrie-back-btn" type="button" onclick="renderKyrieMenuPage()">← 返回上一级</button><div class="mode-grid kyrie-sub-grid">'+module.tasks.map(function(t,i){
 return '<div class="mode-card kyrie-task-card" data-kyrie-module="'+module.id+'" data-kyrie-task="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(module.icon,(i+1),"kyrie:"+module.id+":"+i)+modeCardTitle(t.title)+'<div class="mode-card-desc">'+t.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>开始执行</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+'</div>';
@@ -598,22 +610,26 @@ for(var i=0;i<list.length;i++){if(list[i].id===id)return list[i]}
 return null;
 }
 function renderIPMenuPage(){
+var renderToken=++contentRenderToken;
 if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(0,2);
 currentIPModule="";currentIPTask="";currentIPTaskIndex=-1;
 window.currentHistoryContext={key:"0-2",section:0,mode:2,workflowType:"",moduleId:"",taskIndex:-1,taskTitle:""};
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
+ca.innerHTML='<div class="content-loading"><span></span><span></span><span></span></div>';
 setTimeout(function(){
+if(renderToken!==contentRenderToken)return;
 var modules=getIPPageModules();
-ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">IP访谈</span>策划工作台</div><div class="content-desc">爆款脚本创作 · 分层菜单式智能体</div></div><button class="kyrie-back-btn" type="button" onclick="renderContent()">← 返回上一层</button><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid kyrie-menu-grid ip-menu-grid">'+modules.map(function(m,i){
-return '<div class="mode-card kyrie-level-card ip-level-card" data-ip-module="'+m.id+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(m.icon,"0"+(i+1),"ip:"+m.id)+modeCardTitle(m.title)+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>进入二级菜单</div><div class="mode-card-enter">选择 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
+ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">IP访谈</span>策划工作台</div><div class="content-desc">爆款脚本创作 · 分层菜单式智能体</div></div><button class="kyrie-back-btn" type="button" onclick="currentMode=-1;renderContent()">← 返回上一层</button><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid kyrie-menu-grid ip-menu-grid">'+modules.map(function(m,i){
+return '<div class="mode-card kyrie-level-card ip-level-card" data-ip-module="'+m.id+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(m.icon,"0"+(i+1),"ip:"+m.id)+modeCardTitle(m.title)+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>开始执行</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+'</div>';
 ca.classList.remove("fading");
 var overall=document.getElementById("stat-overall");if(overall){overall.textContent="已激活";overall.className="stat-value"}
 var modes=document.getElementById("stat-modes");if(modes)modes.textContent="4";
  var systems=document.getElementById("stat-systems");if(systems)systems.textContent="4";
 setTimeout(function(){
+if(renderToken!==contentRenderToken)return;
  var ld=ca.querySelector(".content-loading");if(ld)ld.remove();
  ca.querySelectorAll(".ip-level-card").forEach(function(card){
   var status=card.querySelector(".mode-card-status");if(status)status.innerHTML='<span class="mode-card-dot active"></span>开始执行';
@@ -626,6 +642,7 @@ renderRightModes();
 },200);
 }
 function renderIPSubmenuPage(moduleId){
+var renderToken=++contentRenderToken;
 if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(0,2);
 var module=getIPPageModule(moduleId);if(!module){renderIPMenuPage();return}
@@ -633,7 +650,9 @@ currentIPModule=module.id;currentIPTask="";currentIPTaskIndex=-1;
 window.currentHistoryContext={key:"0-2",section:0,mode:2,workflowType:"ip",moduleId:module.id,taskIndex:-1,taskTitle:""};
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
+ca.innerHTML='<div class="content-loading"><span></span><span></span><span></span></div>';
 setTimeout(function(){
+if(renderToken!==contentRenderToken)return;
 ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">'+module.title+'</span></div><div class="content-desc">IP访谈策划工作台 · 输入返回可回到上一级</div></div><button class="kyrie-back-btn" type="button" onclick="renderIPMenuPage()">← 返回上一级</button><div class="mode-grid kyrie-sub-grid ip-sub-grid">'+module.tasks.map(function(t,i){
 return '<div class="mode-card kyrie-task-card ip-task-card" data-ip-module="'+module.id+'" data-ip-task="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(module.icon,(i+1),"ip:"+module.id+":"+i)+modeCardTitle(t.title)+'<div class="mode-card-desc">'+t.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>开始执行</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+'</div>';
@@ -1980,7 +1999,7 @@ var match=text.match(/(15-30秒|30秒以内|30-60秒|60-90秒|90-120秒|120秒�
 return match?getStrictDurationRule(match[1]):"";
 }
 function getCopyCoherenceRule(){
-return "\n\n# 口播逻辑质量硬性要求\n这条规则不改变当前板块的方法论，只负责检查文案是否像真人会说、是否顺着一个逻辑往前走。\n1. 先服从当前板块已选的方法论、模板、钩子、人设、手法和时长要求，不要把所有文案固定成同一种结构。\n2. 每条文案只能有一个主线问题或一个主线需求。可以提到辅助痛点，但不能把多个无关痛点、卖点和效果承诺硬塞在一起。\n3. 输出口播前，先在内部判断最适合的推进方式，可以是“痛点->原因->解决”、“场景->冲突->转折”、“旧方案->新方案->证明”、“故事->观点->行动”等，不要求固定顺序，但必须自然承接。\n4. 每一段必须回答上一段留下的问题，或者推动下一步。不能突然从痛点跳到产品参数，不能从用户体验突然变成品牌说明书。\n5. 卖点必须翻译成用户能感知的体验、场景、证据或判断理由。不要连续堆数字、功效词、形容词。\n6. 涉及护肤、健康、教育、收益等高敏领域时，避免“换皮、治好、全退散、保证、再也不会、一定有效”等绝对化表达，改成“更稳定、减少、帮助、改善、适合、我的感受是、可以先观察”等稳妥表达。\n7. 口播要像一个稳定身份的人说出来。用户视角就保持真实体验，商家视角就保持产品解释，专家视角就保持专业判断，不要中途切换身份。\n8. 口播标点必须服务真人说话的停顿和语气。不要把每个5-10个字的短信息都用句号切断；同一层意思优先用逗号、顿号、分号或合并成一句，让一句话有完整的起承转合。\n9. 问号只用于完整提问，不要写成“保温？出门一小时就凉了。”这类碎片问句。应该改成“说是保温杯，结果出门一小时水就凉了。”或者“你有没有遇到过，明明买的是保温杯，出门一小时水就凉了？”\n10. 纯口播文案每一行可以是一句完整话，也可以是一组自然停顿，但不能像清单、PPT标题或参数堆叠。参数出现后必须马上接用户感知，例如“316不锈钢”后说明“不容易有铁锈味，热水、咖啡放进去也更安心”。\n11. 输出前自检：如果句子顺序可以随意调换、删掉中间句也不影响理解、每句都像标题或广告口号，或者标点读起来一卡一顿，说明逻辑和口播感不合格，必须先重写。\n";
+return "\n\n# 口播逻辑质量硬性要求\n这条规则不改变当前板块的方法论，只负责检查文案是否像真人会说、是否顺着一个逻辑往前走。允许在用户授权或任务需要时补充合理场景、示例和创意，但补充内容必须与已知信息、人物身份、产品能力和前后文一致，不能为了网感牺牲语义。\n1. 先服从当前板块已选的方法论、模板、钩子、人设、手法和时长要求，不要把所有文案固定成同一种结构。\n2. 每条文案只能有一个主线问题或一个主线需求。可以提到辅助痛点，但不能把多个无关痛点、卖点和效果承诺硬塞在一起。\n3. 输出口播前，先在内部判断最适合的推进方式，可以是“痛点->原因->解决”、“场景->冲突->转折”、“旧方案->新方案->证明”、“故事->观点->行动”等，不要求固定顺序，但必须自然承接。\n4. 每一段必须回答上一段留下的问题，或者推动下一步。不能突然从痛点跳到产品参数，不能从用户体验突然变成品牌说明书。\n5. 卖点必须翻译成用户能感知的体验、场景、证据或判断理由。不要连续堆数字、功效词、形容词。\n6. 允许合理补充内容时，补充的场景必须能解释“谁在什么情况下遇到什么问题，为什么这个产品/方法能解决”；如果只能靠猜测才能成立，就改成明确标注的“示例场景”或“创意方向”，不要伪装成真实案例、真实用户反馈或已发生结果。\n7. 每句话都要检查主语、动作、对象和结论是否匹配。避免把不同语义领域的词硬拼在一起，例如把流量、赛道、收割、闭环、垃圾等网络词套到人生、健康、亲情或具体物品上；这些词并非禁用，但只有在语境确实讨论互联网运营、商业转化或对应概念时才能使用。\n8. 比喻、反差和金句必须能解释清楚：本体是什么、喻体是什么、两者相似点是什么。删除修辞和网络热词后，句子仍然要表达一个完整、清楚的意思。\n9. 前后必须保持同一事实、身份、时间和因果关系。不能先说“没有数据”，后面又写具体销量；不能先说“只是创意方向”，后面又当成真实经历；不能把可能、帮助、建议写成必然结果。\n10. 涉及护肤、健康、教育、收益等高敏领域时，避免“换皮、治好、全退散、保证、再也不会、一定有效”等绝对化表达，改成“更稳定、减少、帮助、改善、适合、我的感受是、可以先观察”等稳妥表达。\n11. 口播要像一个稳定身份的人说出来。用户视角就保持真实体验，商家视角就保持产品解释，专家视角就保持专业判断，不要中途切换身份。\n12. 口播标点必须服务真人说话的停顿和语气。不要把每个5-10个字的短信息都用句号切断；同一层意思优先用逗号、顿号、分号或合并成一句，让一句话有完整的起承转合。\n13. 问号只用于完整提问，不要写成“保温？出门一小时就凉了。”这类碎片问句。应该改成“说是保温杯，结果出门一小时水就凉了。”或者“你有没有遇到过，明明买的是保温杯，出门一小时水就凉了？”\n14. 纯口播文案每一行可以是一句完整话，也可以是一组自然停顿，但不能像清单、PPT标题或参数堆叠。参数出现后必须马上接用户感知，例如“316不锈钢”后说明“不容易有铁锈味，热水、咖啡放进去也更安心”。\n15. 输出前逐句自检：主语是否明确，动作和对象是否匹配，因果是否成立，修辞是否能解释，前后是否一致，删除中间句后逻辑是否断裂。如果出现“听起来很有网感但说不清是什么意思”“这句话和上一句没有关系”“普通人会问这两件事有什么关系”，必须先重写。\n";
 }
 function appendCopyCoherenceRule(text){
 text=String(text||"");

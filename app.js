@@ -1343,6 +1343,7 @@ return "\n\n# Kyrie干货主题产品钩子规则\n生成干货主题、干货�
 }
 function getActiveChatMaxTokens(defaultTokens){
 if(isKyrieScriptAgent())return 6500;
+if(isMayuanChat())return Math.max(defaultTokens,8000);
 if(chatKey==="0-2")return Math.max(defaultTokens,6000);
 return defaultTokens;
 }
@@ -2091,7 +2092,7 @@ var oral=document.getElementById("dc-oral-result");
 var wrap=document.getElementById("dc-form-result-area");
 if(wrap&&!dachuanLastResult)wrap.style.display="none";
 dcSetFormLoading(true,label||"生成中...",activeSelector);
-apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:messages,temperature:.7,max_tokens:5000})}).then(function(r){return r.json()}).then(function(data){
+apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:messages,temperature:.7,max_tokens:8000})}).then(function(r){return r.json()}).then(function(data){
 if(data.error){dcRenderFormResult("API 错误："+data.error.message);return}
 if(!data.choices||!data.choices[0]||!data.choices[0].message){dcRenderFormResult("API 返回格式异常");return}
 dcRenderFormResult(data.choices[0].message.content);
@@ -2222,10 +2223,14 @@ var full=document.getElementById("my-full-result");
 var oral=document.getElementById("my-oral-result");
 if(wrap&&!mayuanFormLastResult)wrap.style.display="none";
 setMayuanFormLoading(true,label||"生成中...",activeSelector);
-apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:messages,temperature:.7,max_tokens:5000})}).then(function(r){return r.json()}).then(function(data){
-if(data.error){renderMayuanFormResult("API 错误："+data.error.message);return}
-if(!data.choices||!data.choices[0]||!data.choices[0].message){renderMayuanFormResult("API 返回格式异常");return}
-renderMayuanFormResult(data.choices[0].message.content);
+var assembled="";
+apiFetchStream(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:messages,temperature:.7,max_tokens:8000})},function(delta){assembled+=delta}).then(function(data){
+if(data.error){renderMayuanFormResult("API 错误："+(data.error.message||"请求失败"));return}
+var choice=data.choices&&data.choices[0];
+if(!choice||!choice.message){renderMayuanFormResult("API 返回格式异常");return}
+if(!assembled&&typeof choice.message.content==="string")assembled=choice.message.content;
+var done=mayuanOutputNeedsContinuation(assembled,choice.finish_reason)?continueMayuanGeneration(messages,assembled,null,0):Promise.resolve(assembled);
+return done.then(function(result){renderMayuanFormResult(result)});
 }).catch(function(e){renderMayuanFormResult("网络请求失败："+e.message)}).finally(function(){setMayuanFormLoading(false)});
 }
 function submitFormScript(){
@@ -2284,6 +2289,28 @@ return "\n\n# 二次修改输出硬性要求\n这是用户在首次生成完整�
 }
 function getMayuanDialogueSystemPrompt(base){if(chatKey==="1-1")return base+"\n\n# 大川内容体系对话式补充规则\n当用户要求生成电商脚本、短视频广告脚本、投放素材或口播文案时，先判断买点、身份视角、目标人群和素材类型，再生成结果。只有当用户明确指定时长时，才必须按该时长对应字数范围执行；用户没有指定时长时，沿用大川模块原本默认节奏，不额外强制套用30-60秒字数。"+getMergedShotScriptRule()+"\n\n输出不要使用Markdown表格、代码块或复杂嵌套列表。最后可以单独追加【纯口播文案】板块，方便用户复制拍摄。";if(!isMayuanChat())return base;if(chatKey==="1-3")return base+"\n\n# 马源2.0对话式补充规则\n当用户要求生成脚本、广告素材、测试计划、内容专项或裂变方案，并且没有明确指定时长时，按马源2.0模块原本默认节奏处理，不额外强制套用30-60秒字数。若用户明确指定时长，必须按用户指定时长执行对应字数范围。输出不要使用Markdown表格、代码块或复杂嵌套列表。脚本输出按“脚本策略 / 完整分镜脚本 / 可替换要素 / 测试目的 / 裂变方向”分段。完整分镜脚本必须放到同一个板块里，不要拆成“口播逐字稿、拍摄画面、视觉高光”等多个板块；每个镜头按“时间段 / 画面动作 / 口播或字幕 / 视觉重点”连续输出，口播逐字稿放在对应镜头内，每句话单独成行。"+getMergedShotScriptRule()+"\n\n生成脚本后，在结尾追加一句：需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。";return base+"\n\n# 马源内容体系对话式补充规则\n当用户要求生成脚本、引流脚本、短视频文案或口播文案，并且没有明确指定时长时，沿用马源模块原本默认节奏，不额外强制套用30-60秒字数。若用户明确指定30秒以内、30-60秒、60-90秒、90-120秒或120秒以上，以用户要求为准，并执行对应字数范围。\n\n# 输出排版要求\n使用清晰分段输出，不要使用Markdown表格、代码块或复杂嵌套列表。完整脚本建议按“脚本策略 / 完整分镜脚本 / 执行建议”分段；完整分镜脚本必须把时间段、画面/分镜、口播/字幕放在同一个镜头条目里，口播逐字稿放在对应镜头内，每句话单独成行，方便用户复制和拍摄。"+getMergedShotScriptRule()+"\n\n生成文案后，在结尾追加一句：需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
 function appendMayuanDialogueFollowup(content){if(!isMayuanChat())return content;if(!content)return content;if(content.indexOf("需要我帮你把这版内容篇幅加长吗")>=0||content.indexOf("有任何修改意见请告诉我")>=0)return content;return content+"\n\n需要我帮你把这版内容篇幅加长吗？有任何修改意见请告诉我，我会帮你调整。"}
+function mayuanOutputNeedsContinuation(content,finishReason){
+if(finishReason==="length")return true;
+var text=String(content||"").trim();
+if(!text)return false;
+if(/(?:口播|口播\/|画面\/分镜|执行重点|字幕|镜头\s*\d+[^\n]*)\s*[/：:]?\s*$/.test(text))return true;
+if(/完整(?:分镜)?脚本/.test(text)&&/镜头\s*1/.test(text)&&!/镜头\s*2/.test(text)&&text.length<1800)return true;
+return false;
+}
+function continueMayuanGeneration(baseMessages,assembled,stream,attempt){
+if((!isMayuanChat()&&stream)||attempt>=2)return Promise.resolve(assembled);
+var continuationMessages=baseMessages.slice();
+continuationMessages.push({role:"assistant",content:assembled});
+continuationMessages.push({role:"user",content:"上一条输出在中途停止，内容尚未完成。请从上一次停止的位置继续输出，不能重复已经输出的内容，必须补齐当前完整脚本/方案的剩余部分，并完成所有要求的板块。只输出续写内容，不要解释。"});
+var continuationText="";
+return apiFetchStream(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:continuationMessages,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(8000)})},function(delta){continuationText+=delta;if(stream&&typeof stream.push==="function")stream.push(delta)}).then(function(data){
+if(data.error)return assembled;
+var choice=data.choices&&data.choices[0];
+if(!continuationText&&choice&&choice.message&&typeof choice.message.content==="string"){continuationText=choice.message.content;if(stream&&typeof stream.push==="function")stream.push(continuationText)}
+var merged=assembled+continuationText;
+return choice&&mayuanOutputNeedsContinuation(merged,choice.finish_reason)?continueMayuanGeneration(baseMessages,merged,stream,attempt+1):merged;
+});
+}
 function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent)return;if(chatKey==="2-1"&&currentKyrieMenuLevel!=="task"){hideTyping();addMessage("assistant","请先选择到二级功能后，再输入调整意见。\n\n"+(currentKyrieMenuLevel==="sub"?getKyrieSubMenuText(currentKyrieModule):getKyrieMainMenuText()));return}if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>");return}var activeSystemPrompt=appendCopyCoherenceRule(getMayuanDialogueSystemPrompt(agent.systemPrompt));
 if(chatKey==="0-2")activeSystemPrompt+=getIPQualityGuardRule();
 if(chatKey==="0-2"&&currentIPModule){
@@ -2292,7 +2319,7 @@ if(chatKey==="0-2"&&currentIPModule){
 if(isKyrieReviewTask())activeSystemPrompt+=getKyrieReviewSystemSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieScriptGenerationSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieDryGoodsHookSupplement();
-var msgs=[{role:"system",content:activeSystemPrompt+getOralOnlyRewriteRule()}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只输出优化后的口播文案正文，不要解释过程，不要输出任何分析结构或标题。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});var stream=createAssistantStream();apiFetchStream(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})},function(delta){stream.push(delta)}).then(function(data){if(data.error){hideTyping();addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){hideTyping();addMessage("assistant","❌ API 返回格式异常");return}var result=stream.complete(data.choices[0].message.content);updateMayuanDocStatusByContent(result,"result")}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
+var msgs=[{role:"system",content:activeSystemPrompt+getOralOnlyRewriteRule()}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只输出优化后的口播文案正文，不要解释过程，不要输出任何分析结构或标题。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});var assembled="",stream=createAssistantStream();apiFetchStream(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})},function(delta){assembled+=delta;stream.push(delta)}).then(function(data){if(data.error){hideTyping();addMessage("assistant","❌ API 错误："+data.error.message);return}var choice=data.choices&&data.choices[0];if(!choice||!choice.message){hideTyping();addMessage("assistant","❌ API 返回格式异常");return}if(!assembled&&typeof choice.message.content==="string")assembled=choice.message.content;var done=(isMayuanChat()&&mayuanOutputNeedsContinuation(assembled,choice.finish_reason))?continueMayuanGeneration(msgs,assembled,stream,0):Promise.resolve(assembled);return done.then(function(result){hideTyping();result=String(result||"");stream.complete(result);updateMayuanDocStatusByContent(result,"result")})}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
 if(chatKey==="0-2"&&/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){
@@ -2321,18 +2348,23 @@ chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});
 var durationRule=getDurationRuleFromText(userMsg);
 if(durationRule)msgs.push({role:"user",content:durationRule+"\n输出前必须检查纯口播文案是否符合该时长要求；不符合就先重写到合格范围。"});
 updateMayuanDocStatusByContent(userMsg,"request");
-var stream=createAssistantStream();
+var assembled="",stream=createAssistantStream();
 apiFetchStream(apiConfig.endpoint,{
 method:"POST",
 headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},
 body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})
-},function(delta){stream.push(delta)}).then(function(data){
+},function(delta){assembled+=delta;stream.push(delta)}).then(function(data){
 hideTyping();
 if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}
-if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}
-var result=appendMayuanDialogueFollowup(data.choices[0].message.content);
-stream.complete(result);
-updateMayuanDocStatusByContent(result,"result");
+var choice=data.choices&&data.choices[0];
+if(!choice||!choice.message){addMessage("assistant","❌ API 返回格式异常");return}
+if(!assembled&&typeof choice.message.content==="string")assembled=choice.message.content;
+var done=(isMayuanChat()&&mayuanOutputNeedsContinuation(assembled,choice.finish_reason))?continueMayuanGeneration(msgs,assembled,stream,0):Promise.resolve(assembled);
+return done.then(function(result){
+ result=appendMayuanDialogueFollowup(result);
+ stream.complete(result);
+ updateMayuanDocStatusByContent(result,"result");
+});
 }).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)});
 }
 

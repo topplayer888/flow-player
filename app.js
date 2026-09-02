@@ -135,20 +135,29 @@ function apiFetch(url,options){
 var handle=beginGenerationRequest();
 options=options||{};
 if(handle.signal)options.signal=handle.signal;
-return fetch(url,options).catch(function(err){
+var keepForStream=options.__flowStream===true;
+var request=fetch(url,options).then(function(response){
+if(keepForStream&&response)response.__flowGenerationHandle=handle;
+return response;
+}).catch(function(err){
 if(isAbortError(err)){try{err.message="已暂停生成"}catch(e){}}
+if(keepForStream)finishGenerationRequest(handle);
 throw err;
-}).finally(function(){finishGenerationRequest(handle)});
+});
+return keepForStream?request:request.finally(function(){finishGenerationRequest(handle)});
 }
 function apiFetchStream(url,options,onDelta){
 options=options||{};
+options.__flowStream=true;
 var payload=null;
 try{payload=JSON.parse(options.body||"{}");if(payload&&typeof payload==="object")payload.stream=true;options.body=JSON.stringify(payload)}catch(e){}
+var streamHandle=null;
 return apiFetch(url,options).then(function(response){
+streamHandle=response&&response.__flowGenerationHandle;
 if(!response||!response.body||typeof response.body.getReader!=="function")return response.json();
 var type=(response.headers&&response.headers.get("content-type"))||"";
 if(type&&!/text\/event-stream/i.test(type))return response.json();
-var reader=response.body.getReader(),decoder=new TextDecoder("utf-8"),buffer="",full="",finalData=null;
+var reader=response.body.getReader(),decoder=typeof TextDecoder!=="undefined"?new TextDecoder("utf-8"):null,buffer="",full="",finalData=null,finishReason=null;
 function parseLine(line){
 line=String(line||"").trim();
 if(!line||line.indexOf("data:")!==0)return false;
@@ -157,18 +166,19 @@ if(raw==="[DONE]")return true;
 var item;try{item=JSON.parse(raw)}catch(e){return false}
 if(item.error){finalData=item;return true}
 if(!finalData)finalData=item;
-var choice=item.choices&&item.choices[0],delta=choice&&choice.delta&&choice.delta.content;
+var choice=item.choices&&item.choices[0];if(choice&&choice.finish_reason)finishReason=choice.finish_reason;
+var delta=choice&&choice.delta&&choice.delta.content;
 if(typeof delta!=="string"&&choice&&choice.message)delta=choice.message.content;
 if(typeof delta==="string"&&delta){full+=delta;if(typeof onDelta==="function")onDelta(delta)}
 return false;
 }
 function read(){return reader.read().then(function(part){
-if(part.done){buffer+=decoder.decode();buffer.split(/\r?\n/).forEach(parseLine);if(finalData&&finalData.error)return finalData;return {choices:[{message:{content:full}}]}}
-buffer+=decoder.decode(part.value,{stream:true});var lines=buffer.split(/\r?\n/);buffer=lines.pop()||"";for(var i=0;i<lines.length;i++){if(parseLine(lines[i]))return finalData&&finalData.error?finalData:{choices:[{message:{content:full}}]}}
+if(part.done){if(decoder)buffer+=decoder.decode();buffer.split(/\r?\n/).forEach(parseLine);if(finalData&&finalData.error)return finalData;return {choices:[{message:{content:full},finish_reason:finishReason}]}}
+if(decoder)buffer+=decoder.decode(part.value,{stream:true});else buffer+=String.fromCharCode.apply(null,part.value);var lines=buffer.split(/\r?\n/);buffer=lines.pop()||"";for(var i=0;i<lines.length;i++){if(parseLine(lines[i]))return finalData&&finalData.error?finalData:{choices:[{message:{content:full},finish_reason:finishReason}]}}
 return read();
 })}
 return read();
-});
+}).finally(function(){if(streamHandle)finishGenerationRequest(streamHandle)});
 }
 function createAssistantStream(){
 var started=false,text="";
@@ -1413,6 +1423,7 @@ return "\n\n# Kyrie干货主题产品钩子规则\n生成干货主题、干货�
 }
 function getActiveChatMaxTokens(defaultTokens){
 if(isKyrieScriptAgent())return 6500;
+if(chatKey==="0-2")return Math.max(defaultTokens,6000);
 return defaultTokens;
 }
 function getKyrieDataScreenshotPrompt(fileName){
@@ -1836,6 +1847,8 @@ safe=safe.replace(/\n[ \t]+\n/g,"\n\n").replace(/\n{3,}/g,"\n\n");
 safe=safe.replace(/\n\n(\s*[-*]\s+)/g,"\n$1").replace(/\n\n(\s*\d+[\.、]\s+)/g,"\n$1");
 safe=safe.replace(/^#{1,6}\s*(.+)$/gm,'<div style="font-weight:700;color:var(--text-primary);margin:8px 0 4px">$1</div>');
 safe=safe.replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');
+// A length-limited stream can end between Markdown markers; never expose a lone marker.
+safe=safe.replace(/\*\*/g,"");
 safe=safe.replace(/^\s*[-*]\s+(.+)$/gm,'<div style="margin:2px 0 2px 12px">• $1</div>');
 safe=safe.replace(/^\s*(\d+)[\.、]\s+(.+)$/gm,'<div style="margin:2px 0 2px 12px">$1. $2</div>');
 safe=safe.replace(/\n\n/g,'<div style="height:4px"></div>').replace(/\n/g,"<br>");

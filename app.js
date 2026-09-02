@@ -96,7 +96,6 @@ options=options||{};
 return fetch(url,options);
 }
 function isAbortError(){return false}
-function showGenerationAbortNotice(){hideTyping()}
 function apiFetchStream(url,options,onDelta){
 options=options||{};
 options.__flowStream=true;

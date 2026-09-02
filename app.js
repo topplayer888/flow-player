@@ -140,6 +140,55 @@ if(isAbortError(err)){try{err.message="已暂停生成"}catch(e){}}
 throw err;
 }).finally(function(){finishGenerationRequest(handle)});
 }
+function apiFetchStream(url,options,onDelta){
+options=options||{};
+var payload=null;
+try{payload=JSON.parse(options.body||"{}");if(payload&&typeof payload==="object")payload.stream=true;options.body=JSON.stringify(payload)}catch(e){}
+return apiFetch(url,options).then(function(response){
+if(!response||!response.body||typeof response.body.getReader!=="function")return response.json();
+var type=(response.headers&&response.headers.get("content-type"))||"";
+if(type&&!/text\/event-stream/i.test(type))return response.json();
+var reader=response.body.getReader(),decoder=new TextDecoder("utf-8"),buffer="",full="",finalData=null;
+function parseLine(line){
+line=String(line||"").trim();
+if(!line||line.indexOf("data:")!==0)return false;
+var raw=line.slice(5).trim();
+if(raw==="[DONE]")return true;
+var item;try{item=JSON.parse(raw)}catch(e){return false}
+if(item.error){finalData=item;return true}
+if(!finalData)finalData=item;
+var choice=item.choices&&item.choices[0],delta=choice&&choice.delta&&choice.delta.content;
+if(typeof delta!=="string"&&choice&&choice.message)delta=choice.message.content;
+if(typeof delta==="string"&&delta){full+=delta;if(typeof onDelta==="function")onDelta(delta)}
+return false;
+}
+function read(){return reader.read().then(function(part){
+if(part.done){buffer+=decoder.decode();buffer.split(/\r?\n/).forEach(parseLine);if(finalData&&finalData.error)return finalData;return {choices:[{message:{content:full}}]}}
+buffer+=decoder.decode(part.value,{stream:true});var lines=buffer.split(/\r?\n/);buffer=lines.pop()||"";for(var i=0;i<lines.length;i++){if(parseLine(lines[i]))return finalData&&finalData.error?finalData:{choices:[{message:{content:full}}]}}
+return read();
+})}
+return read();
+});
+}
+function createAssistantStream(){
+var started=false,text="";
+return {
+push:function(delta){
+if(!delta)return;
+if(!started){hideTyping();addMessage("assistant","");started=true}
+text+=delta;
+var last=chatMessages.length-1; if(last>=0)chatMessages[last].content=text;
+var nodes=document.querySelectorAll("#chat-messages .chat-msg.assistant");var node=nodes[nodes.length-1];
+if(node){var bubble=node.querySelector(".chat-bubble");if(bubble)bubble.innerHTML=formatChatText(text);var box=document.getElementById("chat-messages");if(box)box.scrollTop=box.scrollHeight}
+},
+complete:function(finalText){
+finalText=String(finalText===undefined?text:finalText||"");
+if(!started){hideTyping();addMessage("assistant",finalText);started=true}
+else if(finalText!==text){text=finalText;var last=chatMessages.length-1;if(last>=0)chatMessages[last].content=text;var nodes=document.querySelectorAll("#chat-messages .chat-msg.assistant");var node=nodes[nodes.length-1];if(node){var bubble=node.querySelector(".chat-bubble");if(bubble)bubble.innerHTML=formatChatText(text)}}
+updateDynamicQuickChips("assistant",text);return text;
+}
+};
+}
 function showGenerationAbortNotice(){
 hideTyping();
 if(generationAbortNoticeShown)return;
@@ -435,6 +484,7 @@ if(a.type==="ipTask"){openIPTask(a.moduleId,a.taskIndex);return}
 }
 function renderContent(){var _s=currentSection;
 if(_s===0&&currentMode===2){renderIPMenuPage();return}
+if(_s===2&&currentMode===1){renderKyrieMenuPage();return}
 var renderToken=++contentRenderToken;
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
@@ -524,8 +574,8 @@ ca.innerHTML='<div class="content-loading"><span></span><span></span><span></spa
 setTimeout(function(){
 if(renderToken!==contentRenderToken)return;
 var modules=getKyriePageModules();
-ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">Kyrie</span>直播方法论</div><div class="content-desc">4个融合工作流 · 直接进入执行</div></div><button class="kyrie-back-btn" type="button" onclick="renderContent()">← 返回上一层</button><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid kyrie-menu-grid">'+modules.map(function(m,i){
-return '<div class="mode-card kyrie-level-card" data-kyrie-module="'+m.id+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(m.icon,"0"+(i+1),"kyrie:"+m.id)+modeCardTitle(m.title)+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>进入二级菜单</div><div class="mode-card-enter">选择 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
+ca.innerHTML='<div class="content-header"><div class="content-title"><span class="accent">Kyrie</span>直播方法论</div><div class="content-desc">4个融合工作流 · 直接进入执行</div></div><button class="kyrie-back-btn" type="button" onclick="currentMode=-1;renderContent()">← 返回上一层</button><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid kyrie-menu-grid">'+modules.map(function(m,i){
+return '<div class="mode-card kyrie-level-card" data-kyrie-module="'+m.id+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(m.icon,"0"+(i+1),"kyrie:"+m.id)+modeCardTitle(m.title)+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status active"><span class="mode-card-dot active"></span>开始执行</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+'</div>';
 ca.classList.remove("fading");
 var overall=document.getElementById("stat-overall");if(overall){overall.textContent="已激活4";overall.className="stat-value"}
@@ -2319,7 +2369,7 @@ if(chatKey==="0-2"&&currentIPModule){
 if(isKyrieReviewTask())activeSystemPrompt+=getKyrieReviewSystemSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieScriptGenerationSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieDryGoodsHookSupplement();
-var msgs=[{role:"system",content:activeSystemPrompt+getOralOnlyRewriteRule()}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只输出优化后的口播文案正文，不要解释过程，不要输出任何分析结构或标题。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})}).then(function(r){return r.json()}).then(function(data){hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}var result=data.choices[0].message.content;addMessage("assistant",result);updateMayuanDocStatusByContent(result,"result")}).catch(function(e){if(isAbortError(e)){showGenerationAbortNotice();return}hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
+var msgs=[{role:"system",content:activeSystemPrompt+getOralOnlyRewriteRule()}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只输出优化后的口播文案正文，不要解释过程，不要输出任何分析结构或标题。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});var stream=createAssistantStream();apiFetchStream(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})},function(delta){stream.push(delta)}).then(function(data){if(data.error){hideTyping();addMessage("assistant","❌ API 错误："+data.error.message);return}if(!data.choices||!data.choices[0]||!data.choices[0].message){hideTyping();addMessage("assistant","❌ API 返回格式异常");return}var result=stream.complete(data.choices[0].message.content);updateMayuanDocStatusByContent(result,"result")}).catch(function(e){if(isAbortError(e)){showGenerationAbortNotice();return}hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
 if(chatKey==="0-2"&&/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){
@@ -2348,16 +2398,17 @@ chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});
 var durationRule=getDurationRuleFromText(userMsg);
 if(durationRule)msgs.push({role:"user",content:durationRule+"\n输出前必须检查纯口播文案是否符合该时长要求；不符合就先重写到合格范围。"});
 updateMayuanDocStatusByContent(userMsg,"request");
-apiFetch(apiConfig.endpoint,{
+var stream=createAssistantStream();
+apiFetchStream(apiConfig.endpoint,{
 method:"POST",
 headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},
 body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})
-}).then(function(r){return r.json()}).then(function(data){
+},function(delta){stream.push(delta)}).then(function(data){
 hideTyping();
 if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}
 if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}
 var result=appendMayuanDialogueFollowup(data.choices[0].message.content);
-addMessage("assistant",result);
+stream.complete(result);
 updateMayuanDocStatusByContent(result,"result");
 }).catch(function(e){if(isAbortError(e)){showGenerationAbortNotice();return}hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)});
 }

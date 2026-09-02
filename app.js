@@ -2461,3 +2461,28 @@ xuehuiRecommendOpenings();
 }
 };
 document.addEventListener("DOMContentLoaded",function(){var diag=document.getElementById("diag");if(diag){var ak=Object.keys(agents).join(",");var a20=!!agents["2-0"];var ar="origSelectTopic" in window;diag.textContent="agents:"+ak+" | 2-0:"+a20+" | autoRec:"+ar;}});
+
+// Restore the original dark cyberpunk theme as a selectable option while
+// keeping enterprise as the default theme for new visitors.
+(function(){
+var initialTheme=window.__fpInitialTheme;
+var baseApplyTheme=applyTheme;
+applyTheme=function(theme){
+ if(theme==="cyberpunk"){
+  currentTheme="cyberpunk";
+  document.body.classList.remove("theme-light","theme-enterprise","theme-cyberpunk");
+  document.body.classList.add("theme-cyberpunk");
+  var logo=document.querySelector(".logo-icon");if(logo)logo.textContent="⚡";
+  var icons=document.querySelectorAll(".nav-icon");
+  if(icons[0])icons[0].textContent="🎬";
+  if(icons[1])icons[1].textContent="💡";
+  if(icons[2])icons[2].textContent="📡";
+  localStorage.setItem("fp_theme",currentTheme);
+  var select=document.getElementById("set-theme-mode");if(select)select.value=currentTheme;
+  return;
+ }
+ document.body.classList.remove("theme-cyberpunk");
+ baseApplyTheme(theme);
+};
+if(initialTheme==="cyberpunk")applyTheme("cyberpunk");
+})();

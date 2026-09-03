@@ -1435,13 +1435,13 @@ function isKyrieScriptAgent(){
 return (chatKey==="2-1"&&currentKyrieSubKey==="2-2")||chatKey==="2-2";
 }
 function getKyrieScriptGenerationSupplement(){
-return "\n\n# Kyrie脚本生成数量完整性硬性规则\n当用户要求生成整场直播脚本、直播逐字稿、逼单话术、憋单话术、互动话术或完整带货脚本时，数量类板块必须严格补齐，不能省略、合并或用“等”代替。\n\n必须严格执行：\n1. 【逼单话术10条】必须编号1-10，每条都是不同角度、可直接在直播间念的完整话术。\n2. 【憋单话术5条】必须编号1-5，不能只生成1条。5条建议分别覆盖：倒计时、名额/库存、福利截止、价格/权益恢复、错过成本或返场前收口。\n3. 【评论互动话术20条】必须编号1-20，每条要短、口语化、适合直播间直接引导评论。\n4. 【用户抗拒点答疑话术】至少覆盖价格、效果、时间、上手难度、服务、售后、正版、适不适合我8类。\n\n输出前必须自检数量；如果任何板块数量不足，先补齐再输出。内容太长时可以压缩每条长度，但不允许减少条数。";
+ return "\n\n# Kyrie脚本生成数量完整性硬性规则\n当用户要求生成整场直播脚本、直播逐字稿、逼单话术、憋单话术、互动话术或完整带货脚本时，数量类板块必须严格补齐，不能省略、合并或用“等”代替。\n\n必须严格执行：\n1. 【逼单话术10条】必须编号1-10，每条都是不同角度、可直接在直播间念的完整话术。\n2. 【憋单话术5条】必须编号1-5，不能只生成1条。5条建议分别覆盖：倒计时、名额/库存、福利截止、价格/权益恢复、错过成本或返场前收口。\n3. 【评论互动话术20条】必须编号1-20，每条要短、口语化、适合直播间直接引导评论。\n4. 【用户抗拒点答疑话术】至少覆盖价格、效果、时间、上手难度、服务、售后、正版、适不适合我8类。\n\n输出前必须自检数量；如果任何板块数量不足，先补齐再输出。内容太长时可以压缩每条长度，但不允许减少条数。\n\n# Kyrie脚本板块衔接硬性规则\n整场脚本不是互相独立的板块拼盘，而是一场连续进行的直播。板块标题只用于运营人员定位，标题下的老师话术必须能从上一板块直接接着念。\n\n必须严格执行：\n1. 每个板块结尾先收住当前观点、情绪或动作，并自然抛出下一板块要解决的问题；下一板块开头必须承接上一句的关键词、用户情绪或直播动作。\n2. 开场进入干货时，要接住开场锁定的目标人群和痛点；三个干货主题之间要形成递进，上一主题的结论必须成为下一主题的起点，不能重新寒暄或重新介绍直播主题。\n3. 最后一个干货的产品钩子要自然进入“洗认知 -> 给场景 -> 上价值”，不能突然说上链接；“上价值”结束后要顺势进入课程介绍，课程介绍再顺势进入福利、核心卖点、答疑和逼单。\n4. 逼单、憋单、互动、返场等话术要说明适合插入的上下文；从答疑回到成交时，先回应用户顾虑，再给行动理由，不能机械切换。\n5. 禁止反复使用“接下来我讲一下”“下面进入”“说完这个再说那个”这类报幕式过渡；优先用上一段的结论、具体场景、评论区反馈或用户问题完成转场。\n6. 输出前逐段检查相邻板块：只读上一板块最后两句和下一板块开头两句，也必须语义连续、主语一致、情绪不跳变。若像两篇独立文案拼在一起，必须先重写过渡句。";
 }
 function getKyrieDryGoodsHookSupplement(){
 return "\n\n# Kyrie干货主题产品钩子规则\n生成干货主题、干货逐字稿或整场直播脚本时，干货主题的结构必须调整为：痛点现象 -> 用户场景 -> 背后原因 -> 危害放大 -> 简单方法 -> 产品钩子。\n\n这里的【产品钩子】不是正式带货衔接，也不是直接卖课；正式的带货衔接仍然放在独立的“带货衔接/干货到卖课的衔接”板块中。产品钩子的作用是：在每个干货讲解完，或干货讲解过程中，用一句轻量、自然、直播感强的话，让用户提前知道后面会有课程/系统方法承接，形成循序渐进的接受过程。\n\n产品钩子写法要求：\n1. 每个干货主题结束后至少设置1句产品钩子；如果干货较长，也可以在讲解中间轻轻埋1句。\n2. 语气要像老师自然提醒，不要强行推销，不要上价格，不要讲福利，不要逼单。\n3. 话术方向类似：“刚才我讲的只是冰山一角，更完整的拆解和训练方法都在课程里面，我后面会带大家系统说。”\n4. 产品钩子要为后面的洗认知、给场景、上价值做铺垫，不能替代正式带货衔接。\n5. 不要再把干货主题最后一步写成“转课程衔接”。";
 }
 function getActiveChatMaxTokens(defaultTokens){
-if(isKyrieScriptAgent())return 6500;
+if(isKyrieScriptAgent())return Math.max(defaultTokens,8000);
 if(isMayuanChat())return Math.max(defaultTokens,8000);
 if(chatKey==="0-2")return Math.max(defaultTokens,6000);
 return defaultTokens;
@@ -2467,6 +2467,52 @@ var merged=assembled+continuationText;
 return choice&&mayuanOutputNeedsContinuation(merged,choice.finish_reason)?continueMayuanGeneration(baseMessages,merged,stream,attempt+1):merged;
 });
 }
+function getLastUserMessageText(messages){
+var fallback="";
+for(var i=(messages||[]).length-1;i>=0;i--){
+ if(!messages[i]||messages[i].role!=="user"||typeof messages[i].content!=="string")continue;
+ if(!fallback)fallback=messages[i].content;
+ if(!/^# 视频时长硬性要求/.test(messages[i].content)&&messages[i].content.indexOf("输出前必须检查纯口播文案是否符合该时长要求")<0)return messages[i].content;
+}
+return fallback;
+}
+function kyrieScriptOutputNeedsContinuation(content,finishReason,baseMessages){
+if(!isKyrieScriptAgent())return false;
+if(finishReason==="length"||finishReason==="max_tokens")return true;
+var text=String(content||"").trim();
+if(!text)return false;
+if(/(?:【[^】]{1,30}】|(?:第[一二三四五六七八九十]+步|\d+[.、])[^\n]{0,32}[：:])\s*$/.test(text))return true;
+var request=getLastUserMessageText(baseMessages);
+var asksForFullScript=/(?:整场|全场|完整(?:直播)?脚本|完整(?:直播)?逐字稿|一键生成)/.test(request);
+var looksLikeFullScript=/(?:整场直播流程|开场\s*3\s*分钟|开场留人)/.test(text)&&/(?:干货|带货衔接|课程介绍)/.test(text);
+if(asksForFullScript&&looksLikeFullScript&&!/(?:老师表演提示|中控配合动作)/.test(text))return true;
+return false;
+}
+function getContinuationSeparator(content){
+var text=String(content||"").replace(/\s+$/,"");
+if(/[：:]$/.test(text))return "\n";
+if(/[。！？；】）)]$/.test(text))return "\n\n";
+return "";
+}
+function continueKyrieScriptGeneration(baseMessages,assembled,stream,attempt){
+if(!isKyrieScriptAgent()||attempt>=2)return Promise.resolve(assembled);
+var continuationMessages=baseMessages.slice();
+continuationMessages.push({role:"assistant",content:assembled});
+continuationMessages.push({role:"user",content:"上一条 Kyrie 直播脚本在中途停止，尚未完成。请严格从断点继续，只补齐缺失内容，不要重复、改写或总结已经输出的板块。续写开头不要说‘好的’‘继续’或‘以下是’。如果上一句尚未说完，直接接完这句话；如果上一板块已经完整结束，先用一句能承接上一段结论、情绪或直播动作的口播过渡，再进入下一个缺失板块。必须补齐用户要求的所有板块和数量，完成到自然收尾。只输出续写内容。"});
+var separator=getContinuationSeparator(assembled),pending="",streamStarted=false;
+return apiFetchStreamWithEmptyRetry(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:continuationMessages,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(8000)})},function(delta){
+ if(!stream||typeof stream.push!=="function")return;
+ if(!streamStarted){pending+=String(delta||"");if(!hasVisibleModelText(pending))return;stream.push(separator+pending);streamStarted=true;return}
+ stream.push(delta);
+}).then(function(response){
+if(response.data&&response.data.error)return assembled;
+var choice=response.data&&response.data.choices&&response.data.choices[0];
+var continuationText=response.text;
+if(!hasVisibleModelText(continuationText))return assembled;
+var merged=assembled+separator+continuationText;
+return kyrieScriptOutputNeedsContinuation(merged,choice&&choice.finish_reason,baseMessages)?continueKyrieScriptGeneration(baseMessages,merged,stream,attempt+1):merged;
+});
+}
 function callAgentForAdjust(adjustText){var agent=getActiveChatAgent();if(!agent)return;if(chatKey==="2-1"&&currentKyrieMenuLevel!=="task"){hideTyping();addMessage("assistant","请先选择到二级功能后，再输入调整意见。\n\n"+(currentKyrieMenuLevel==="sub"?getKyrieSubMenuText(currentKyrieModule):getKyrieMainMenuText()));return}if(!apiConfig.apikey||apiConfig.apikey.length<10){hideTyping();addMessageHTML("assistant","⚠️ 尚未配置 API Key。<br><br><span class=\"api-config-hint\" onclick=\"openSettingsFromChat()\">⚙ 点击此处配置 API</span>");return}var activeSystemPrompt=appendCopyCoherenceRule(getMayuanDialogueSystemPrompt(agent.systemPrompt));
 if(chatKey==="0-2")activeSystemPrompt+=getIPQualityGuardRule();
 if(chatKey==="0-2"&&currentIPModule){
@@ -2475,7 +2521,7 @@ if(chatKey==="0-2"&&currentIPModule){
 if(isKyrieReviewTask())activeSystemPrompt+=getKyrieReviewSystemSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieScriptGenerationSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieDryGoodsHookSupplement();
-var msgs=[{role:"system",content:activeSystemPrompt+getOralOnlyRewriteRule()}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只输出优化后的口播文案正文，不要解释过程，不要输出任何分析结构或标题。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});var assembled="",stream=createAssistantStream();apiFetchStreamWithEmptyRetry(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})},function(delta){stream.push(delta)}).then(function(response){var data=response.data;assembled=response.text;if(data.error){hideTyping();addMessage("assistant","❌ API 错误："+data.error.message);return}var choice=data.choices&&data.choices[0];if(!choice||!choice.message){hideTyping();addMessage("assistant","❌ API 返回格式异常");return}if(!hasVisibleModelText(assembled)){hideTyping();cancelGenerationTimer();addMessage("assistant","本次模型未返回有效内容，请重新生成。");return}var done=(isMayuanChat()&&mayuanOutputNeedsContinuation(assembled,choice.finish_reason))?continueMayuanGeneration(msgs,assembled,stream,0):Promise.resolve(assembled);return done.then(function(result){hideTyping();result=String(result||"");stream.complete(result);updateMayuanDocStatusByContent(result,"result")})}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
+var msgs=[{role:"system",content:activeSystemPrompt+getOralOnlyRewriteRule()}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只输出优化后的口播文案正文，不要解释过程，不要输出任何分析结构或标题。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});var assembled="",stream=createAssistantStream();apiFetchStreamWithEmptyRetry(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})},function(delta){stream.push(delta)}).then(function(response){var data=response.data;assembled=response.text;if(data.error){hideTyping();addMessage("assistant","❌ API 错误："+data.error.message);return}var choice=data.choices&&data.choices[0];if(!choice||!choice.message){hideTyping();addMessage("assistant","❌ API 返回格式异常");return}if(!hasVisibleModelText(assembled)){hideTyping();cancelGenerationTimer();addMessage("assistant","本次模型未返回有效内容，请重新生成。");return}var done=(isMayuanChat()&&mayuanOutputNeedsContinuation(assembled,choice.finish_reason))?continueMayuanGeneration(msgs,assembled,stream,0):(kyrieScriptOutputNeedsContinuation(assembled,choice.finish_reason,msgs)?continueKyrieScriptGeneration(msgs,assembled,stream,0):Promise.resolve(assembled));return done.then(function(result){hideTyping();result=String(result||"");stream.complete(result);updateMayuanDocStatusByContent(result,"result")})}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
 if(chatKey==="0-2"&&/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){
@@ -2517,7 +2563,7 @@ if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);re
 var choice=data.choices&&data.choices[0];
 if(!choice||!choice.message){addMessage("assistant","❌ API 返回格式异常");return}
 if(!hasVisibleModelText(assembled)){cancelGenerationTimer();addMessage("assistant","本次模型未返回有效内容，请重新生成。");return}
-var done=(isMayuanChat()&&mayuanOutputNeedsContinuation(assembled,choice.finish_reason))?continueMayuanGeneration(msgs,assembled,stream,0):Promise.resolve(assembled);
+var done=(isMayuanChat()&&mayuanOutputNeedsContinuation(assembled,choice.finish_reason))?continueMayuanGeneration(msgs,assembled,stream,0):(kyrieScriptOutputNeedsContinuation(assembled,choice.finish_reason,msgs)?continueKyrieScriptGeneration(msgs,assembled,stream,0):Promise.resolve(assembled));
 return done.then(function(result){
  result=appendDialogueContextualFollowup(result);
  stream.complete(result);

@@ -127,6 +127,33 @@ return read();
 return read();
 });
 }
+function hasVisibleModelText(value){
+return String(value===undefined||value===null?"":value).replace(/[\s\u200B-\u200D\u2060\uFEFF]/g,"").length>0;
+}
+function getModelMessageText(message){
+if(!message)return "";
+if(typeof message.content==="string")return message.content;
+if(!Array.isArray(message.content))return "";
+return message.content.map(function(part){
+ if(typeof part==="string")return part;
+ if(part&&typeof part.text==="string")return part.text;
+ return "";
+}).join("");
+}
+function apiFetchStreamWithEmptyRetry(url,options,onDelta){
+var maxEmptyRetries=1;
+function run(emptyRetryCount){
+ var attemptText="";
+ return apiFetchStream(url,options,function(delta){attemptText+=String(delta||"");if(typeof onDelta==="function")onDelta(delta)}).then(function(data){
+  if(data&&data.error)return {data:data,text:attemptText,emptyRetries:emptyRetryCount};
+  var choice=data&&data.choices&&data.choices[0];
+  var finalText=hasVisibleModelText(attemptText)?attemptText:getModelMessageText(choice&&choice.message);
+  if(!hasVisibleModelText(finalText)&&choice&&choice.message&&emptyRetryCount<maxEmptyRetries)return run(emptyRetryCount+1);
+  return {data:data,text:finalText,emptyRetries:emptyRetryCount};
+ });
+}
+return run(0);
+}
 var generationStartedAt=null;
 function generationNow(){
 return window.performance&&typeof window.performance.now==="function"?window.performance.now():Date.now();
@@ -194,15 +221,18 @@ function createAssistantStream(){
 var started=false,text="";
 return {
 push:function(delta){
-if(!delta)return;
+if(delta===undefined||delta===null)return;
+text+=String(delta);
+if(!started&&!hasVisibleModelText(text))return;
 if(!started){hideTyping();addMessage("assistant","",{preserveGenerationTimer:true});started=true}
-text+=delta;
 var last=chatMessages.length-1; if(last>=0)chatMessages[last].content=text;
 var nodes=document.querySelectorAll("#chat-messages .chat-msg.assistant");var node=nodes[nodes.length-1];
 if(node){var bubble=node.querySelector(".chat-bubble");if(bubble)bubble.innerHTML=formatChatText(text);var box=document.getElementById("chat-messages");if(box)box.scrollTop=box.scrollHeight}
 },
 complete:function(finalText){
 finalText=String(finalText===undefined?text:finalText||"");
+if(!hasVisibleModelText(finalText))finalText=hasVisibleModelText(text)?text:"";
+if(!hasVisibleModelText(finalText)){hideTyping();cancelGenerationTimer();return ""}
 if(!started){hideTyping();addMessage("assistant",finalText,{showGenerationTime:true});started=true}
 else if(finalText!==text){text=finalText;var last=chatMessages.length-1;if(last>=0)chatMessages[last].content=text;var nodes=document.querySelectorAll("#chat-messages .chat-msg.assistant");var node=nodes[nodes.length-1];if(node){var bubble=node.querySelector(".chat-bubble");if(bubble)bubble.innerHTML=formatChatText(text)}}
 if(started&&generationStartedAt!==null){var elapsedMs=finishGenerationTimer();var lastIndex=chatMessages.length-1;if(lastIndex>=0)chatMessages[lastIndex].elapsedMs=elapsedMs;var assistantNodes=document.querySelectorAll("#chat-messages .chat-msg.assistant");attachGenerationElapsed(assistantNodes[assistantNodes.length-1],elapsedMs)}
@@ -2305,11 +2335,12 @@ var oral=document.getElementById("my-oral-result");
 if(wrap&&!mayuanFormLastResult)wrap.style.display="none";
 setMayuanFormLoading(true,label||"生成中...",activeSelector);
 var assembled="";
-apiFetchStream(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:messages,temperature:.7,max_tokens:8000})},function(delta){assembled+=delta}).then(function(data){
-if(data.error){renderMayuanFormResult("API 错误："+(data.error.message||"请求失败"));return}
-var choice=data.choices&&data.choices[0];
-if(!choice||!choice.message){renderMayuanFormResult("API 返回格式异常");return}
-if(!assembled&&typeof choice.message.content==="string")assembled=choice.message.content;
+ apiFetchStreamWithEmptyRetry(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:messages,temperature:.7,max_tokens:8000})},function(){}).then(function(response){
+ var data=response.data;assembled=response.text;
+ if(data.error){renderMayuanFormResult("API 错误："+(data.error.message||"请求失败"));return}
+ var choice=data.choices&&data.choices[0];
+ if(!choice||!choice.message){renderMayuanFormResult("API 返回格式异常");return}
+ if(!hasVisibleModelText(assembled)){renderMayuanFormResult("本次模型未返回有效内容，请重新生成。");return}
 var done=mayuanOutputNeedsContinuation(assembled,choice.finish_reason)?continueMayuanGeneration(messages,assembled,null,0):Promise.resolve(assembled);
 return done.then(function(result){renderMayuanFormResult(result)});
 }).catch(function(e){renderMayuanFormResult("网络请求失败："+e.message)}).finally(function(){setMayuanFormLoading(false)});
@@ -2431,7 +2462,7 @@ var continuationText="";
 return apiFetchStream(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:continuationMessages,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(8000)})},function(delta){continuationText+=delta;if(stream&&typeof stream.push==="function")stream.push(delta)}).then(function(data){
 if(data.error)return assembled;
 var choice=data.choices&&data.choices[0];
-if(!continuationText&&choice&&choice.message&&typeof choice.message.content==="string"){continuationText=choice.message.content;if(stream&&typeof stream.push==="function")stream.push(continuationText)}
+ if(!hasVisibleModelText(continuationText)&&choice&&choice.message){continuationText=getModelMessageText(choice.message);if(hasVisibleModelText(continuationText)&&stream&&typeof stream.push==="function")stream.push(continuationText)}
 var merged=assembled+continuationText;
 return choice&&mayuanOutputNeedsContinuation(merged,choice.finish_reason)?continueMayuanGeneration(baseMessages,merged,stream,attempt+1):merged;
 });
@@ -2444,7 +2475,7 @@ if(chatKey==="0-2"&&currentIPModule){
 if(isKyrieReviewTask())activeSystemPrompt+=getKyrieReviewSystemSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieScriptGenerationSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieDryGoodsHookSupplement();
-var msgs=[{role:"system",content:activeSystemPrompt+getOralOnlyRewriteRule()}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只输出优化后的口播文案正文，不要解释过程，不要输出任何分析结构或标题。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});var assembled="",stream=createAssistantStream();apiFetchStream(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})},function(delta){assembled+=delta;stream.push(delta)}).then(function(data){if(data.error){hideTyping();addMessage("assistant","❌ API 错误："+data.error.message);return}var choice=data.choices&&data.choices[0];if(!choice||!choice.message){hideTyping();addMessage("assistant","❌ API 返回格式异常");return}if(!assembled&&typeof choice.message.content==="string")assembled=choice.message.content;var done=(isMayuanChat()&&mayuanOutputNeedsContinuation(assembled,choice.finish_reason))?continueMayuanGeneration(msgs,assembled,stream,0):Promise.resolve(assembled);return done.then(function(result){hideTyping();result=String(result||"");stream.complete(result);updateMayuanDocStatusByContent(result,"result")})}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
+var msgs=[{role:"system",content:activeSystemPrompt+getOralOnlyRewriteRule()}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});var adjustDurationRule=getDurationRuleFromText(adjustText);msgs.push({role:"user",content:"请根据以下调整要求，重新优化上一版内容。只输出优化后的口播文案正文，不要解释过程，不要输出任何分析结构或标题。\n"+(adjustDurationRule?"\n"+adjustDurationRule+"\n输出前必须检查口播文案是否符合该时长要求；不符合就先重写。\n":"")+adjustText});var assembled="",stream=createAssistantStream();apiFetchStreamWithEmptyRetry(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})},function(delta){stream.push(delta)}).then(function(response){var data=response.data;assembled=response.text;if(data.error){hideTyping();addMessage("assistant","❌ API 错误："+data.error.message);return}var choice=data.choices&&data.choices[0];if(!choice||!choice.message){hideTyping();addMessage("assistant","❌ API 返回格式异常");return}if(!hasVisibleModelText(assembled)){hideTyping();cancelGenerationTimer();addMessage("assistant","本次模型未返回有效内容，请重新生成。");return}var done=(isMayuanChat()&&mayuanOutputNeedsContinuation(assembled,choice.finish_reason))?continueMayuanGeneration(msgs,assembled,stream,0):Promise.resolve(assembled);return done.then(function(result){hideTyping();result=String(result||"");stream.complete(result);updateMayuanDocStatusByContent(result,"result")})}).catch(function(e){hideTyping();addMessage("assistant","❌ 网络请求失败："+e.message)})}
 function callAgent(userMsg){
 var agent=getActiveChatAgent();if(!agent)return;
 if(chatKey==="0-2"&&/^(返回|上一步|返回上一级)$/.test((userMsg||"").trim())){
@@ -2475,16 +2506,17 @@ var durationRule=getDurationRuleFromText(userMsg);
 if(durationRule)msgs.push({role:"user",content:durationRule+"\n输出前必须检查纯口播文案是否符合该时长要求；不符合就先重写到合格范围。"});
 updateMayuanDocStatusByContent(userMsg,"request");
 var assembled="",stream=createAssistantStream();
-apiFetchStream(apiConfig.endpoint,{
+apiFetchStreamWithEmptyRetry(apiConfig.endpoint,{
 method:"POST",
 headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},
 body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:getIPChatTemperature(),max_tokens:getActiveChatMaxTokens(4000)})
-},function(delta){assembled+=delta;stream.push(delta)}).then(function(data){
+},function(delta){stream.push(delta)}).then(function(response){
+assembled=response.text;var data=response.data;
 hideTyping();
 if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return}
 var choice=data.choices&&data.choices[0];
 if(!choice||!choice.message){addMessage("assistant","❌ API 返回格式异常");return}
-if(!assembled&&typeof choice.message.content==="string")assembled=choice.message.content;
+if(!hasVisibleModelText(assembled)){cancelGenerationTimer();addMessage("assistant","本次模型未返回有效内容，请重新生成。");return}
 var done=(isMayuanChat()&&mayuanOutputNeedsContinuation(assembled,choice.finish_reason))?continueMayuanGeneration(msgs,assembled,stream,0):Promise.resolve(assembled);
 return done.then(function(result){
  result=appendDialogueContextualFollowup(result);

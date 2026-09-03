@@ -84,6 +84,16 @@ xhOpenTypes.forEach(function(item) {
   xhLocalOpeningDetails[item.name] = item.desc;
 });
 
+function xuehuiApplyElementTooltips() {
+  var container = document.getElementById("xh-elements");
+  if (!container) return;
+  container.querySelectorAll(".select-chip[data-val]").forEach(function(chip) {
+    var detail = xhElementDetails[chip.dataset.val];
+    if (!detail) return;
+    chip.title = detail.rules + (detail.example ? "\n示例：" + detail.example : "");
+  });
+}
+
 var xhState = { industry: "", audience: "", elements: [], topics: [], selectedTopic: null, templates: [], openings: [], selectedOpenings: [], results: [] };
 var xhAutoRecTimer = null;
 
@@ -544,5 +554,6 @@ function xhRenderResults(results) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+  xuehuiApplyElementTooltips();
   xuehuiRenderOpenings();
 });

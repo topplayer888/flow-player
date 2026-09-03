@@ -434,7 +434,7 @@
 <script src="modules/tiejia.js?v=202606231315"></script>
 <script src="vendor/mammoth.browser.min.js"></script>
 <script src="vendor/pdf.min.js"></script>
-<script src="app.js?v=20260902"></script>
+<script src="app.js?v=20260903"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 
@@ -769,12 +769,31 @@ function syncHistoryFromCloud() {
     return firstUserText(h.msgs).length > 0;
   }
 
+  function normalizeLegacyHistoryItem(h) {
+    if (!h || h.section !== 2) return false;
+    var legacyModules = {
+      2: { id: 'script', title: '直播脚本与话术' },
+      3: { id: 'coach', title: '老师训练与表达' },
+      4: { id: 'control', title: '实时中控与复盘' }
+    };
+    var legacy = legacyModules[h.mode];
+    if (!legacy) return false;
+    h.key = '2-1';
+    h.mode = 1;
+    h.workflowType = 'kyrie';
+    h.moduleId = legacy.id;
+    h.taskIndex = 0;
+    h.taskTitle = legacy.title;
+    return true;
+  }
+
   function loadHistory() {
     try {
       var items = JSON.parse(localStorage.getItem(getHistoryStorageKey()) || '[]');
       var changed = false;
       if (!Array.isArray(items)) return [];
       items.forEach(function(h, i) {
+        if (normalizeLegacyHistoryItem(h)) changed = true;
         if (h && !h.id) {
           h.id = stableHistoryId(h, i);
           changed = true;
@@ -816,22 +835,31 @@ function syncHistoryFromCloud() {
     };
   }
 
-  function matchesCurrentWorkspace(h) {
-    if (!isValidHistoryItem(h)) return false;
+  function getVisibleHistoryContext() {
     var section = typeof window.currentSection === 'number' ? window.currentSection : 0;
     var mode = typeof window.currentMode === 'number' ? window.currentMode : -1;
-    if (h.section !== section) return false;
-    if (mode < 0) return true;
-    if (h.mode !== mode) return false;
+    var active = window.currentHistoryContext || {};
+    var sameWorkspace = active.section === section && active.mode === mode;
+    return {
+      section: section,
+      mode: mode,
+      workflowType: sameWorkspace ? (active.workflowType || '') : '',
+      moduleId: sameWorkspace ? (active.moduleId || '') : '',
+      taskIndex: sameWorkspace && typeof active.taskIndex === 'number' ? active.taskIndex : -1,
+      taskTitle: sameWorkspace ? (active.taskTitle || '') : ''
+    };
+  }
 
-    if (h.workflowType === 'kyrie') {
-      if (window.currentKyrieModule && h.moduleId !== window.currentKyrieModule) return false;
-      if (typeof window.currentKyrieTask === 'string' && window.currentKyrieTask && h.taskTitle && h.taskTitle !== window.currentKyrieTask) return false;
-    }
-    if (h.workflowType === 'ip') {
-      if (window.currentIPModule && h.moduleId !== window.currentIPModule) return false;
-      if (typeof window.currentIPTaskIndex === 'number' && window.currentIPTaskIndex >= 0 && typeof h.taskIndex === 'number' && h.taskIndex >= 0 && h.taskIndex !== window.currentIPTaskIndex) return false;
-    }
+  function matchesCurrentWorkspace(h) {
+    if (!isValidHistoryItem(h)) return false;
+    var visible = getVisibleHistoryContext();
+    if (h.section !== visible.section) return false;
+    if (visible.mode < 0) return true;
+    if (h.mode !== visible.mode) return false;
+    if (!visible.workflowType || !visible.moduleId) return true;
+    if (h.workflowType !== visible.workflowType || h.moduleId !== visible.moduleId) return false;
+    if (visible.taskIndex >= 0 && typeof h.taskIndex === 'number' && h.taskIndex >= 0 && h.taskIndex !== visible.taskIndex) return false;
+    if (visible.taskTitle && h.taskTitle && h.taskTitle !== visible.taskTitle) return false;
     return true;
   }
 
@@ -885,9 +913,21 @@ function syncHistoryFromCloud() {
     items.sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
     items = items.slice(0, 20);
     localStorage.setItem(getHistoryStorageKey(), JSON.stringify(items));
+    window.currentHistoryRestoredId = item.id;
     if (typeof syncHistoryToCloud === 'function') syncHistoryToCloud(items);
     renderHistory();
   }
+
+  var historySaveTimer = 0;
+  function scheduleHistorySave() {
+    if (!window.chatOpen) return;
+    clearTimeout(historySaveTimer);
+    historySaveTimer = setTimeout(function() {
+      historySaveTimer = 0;
+      saveHistory();
+    }, 700);
+  }
+  window.scheduleHistorySave = scheduleHistorySave;
 
   function doClearCurrentWorkspaceHistory() {
     var items = loadHistory().filter(isValidHistoryItem);
@@ -974,7 +1014,35 @@ function syncHistoryFromCloud() {
   }
   window.renderHistory = renderHistory;
 
+  function inferLegacyWorkflowContext(item) {
+    if (!item || item.workflowType) return item;
+    var source = [item.name, item.sub, item.preview, item.taskTitle]
+      .concat((item.msgs || []).filter(function(m) { return m && m.role === 'user'; }).map(function(m) { return textOnly(m.content); }))
+      .join(' ');
+    if (item.key === '0-2') {
+      var ipModule = /(?:脚本|口播|账号|栏目|发布计划|转化路径)/.test(source) ? 'script' :
+        (/(?:素材|选题|字幕|金句|爆款潜力)/.test(source) ? 'material' :
+        (/(?:访谈|采访|深挖|经历|故事|追问)/.test(source) ? 'interview' : 'project'));
+      var ip = typeof getIPPageModule === 'function' ? getIPPageModule(ipModule) : null;
+      item.workflowType = 'ip';
+      item.moduleId = ipModule;
+      item.taskIndex = 0;
+      item.taskTitle = ip && ip.tasks && ip.tasks[0] ? ip.tasks[0].title : '';
+    } else if (item.key === '2-1') {
+      var kyrieModule = /(?:中控|复盘|在线|停留|互动|点击|成交|救场|直播数据)/.test(source) ? 'control' :
+        (/(?:训练|点评|老师表现|镜头表现|控场能力)/.test(source) ? 'coach' :
+        (/(?:脚本|话术|逐字稿|逼单|憋单|返场)/.test(source) ? 'script' : 'strategy'));
+      var kyrie = typeof getKyriePageModule === 'function' ? getKyriePageModule(kyrieModule) : null;
+      item.workflowType = 'kyrie';
+      item.moduleId = kyrieModule;
+      item.taskIndex = 0;
+      item.taskTitle = kyrie && kyrie.tasks && kyrie.tasks[0] ? kyrie.tasks[0].title : '';
+    }
+    return item;
+  }
+
   function openHistoryChat(item) {
+    item = inferLegacyWorkflowContext(item);
     if (item.workflowType === 'kyrie' && item.moduleId) {
       window.pendingKyrieModule = item.moduleId;
       window.pendingKyrieTaskIndex = typeof item.taskIndex === 'number' ? item.taskIndex : -1;
@@ -1065,6 +1133,23 @@ function syncHistoryFromCloud() {
     }
     if (overlay) overlay.style.display = 'none';
   };
+
+  var chatMessagesEl = document.getElementById('chat-messages');
+  if (chatMessagesEl && typeof MutationObserver !== 'undefined') {
+    new MutationObserver(function() {
+      scheduleHistorySave();
+    }).observe(chatMessagesEl, { childList: true, subtree: true, characterData: true });
+  }
+  window.addEventListener('pagehide', function() {
+    clearTimeout(historySaveTimer);
+    saveHistory();
+  });
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') {
+      clearTimeout(historySaveTimer);
+      saveHistory();
+    }
+  });
 
   renderHistory();
   setTimeout(syncHistoryFromCloud, 800);

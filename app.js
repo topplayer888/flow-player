@@ -510,6 +510,7 @@ if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(2,1);
 currentKyrieSubKey="";currentKyrieMenuLevel="";currentKyrieModule="";currentKyrieTask="";
 window.currentHistoryContext={key:"2-1",section:2,mode:1,workflowType:"",moduleId:"",taskIndex:-1,taskTitle:""};
+if(typeof renderHistory==="function")renderHistory();
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 ca.innerHTML='<div class="content-loading"><span></span><span></span><span></span></div>';
@@ -543,6 +544,7 @@ syncWorkspaceForMode(2,1);
 var module=getKyriePageModule(moduleId);if(!module){renderKyrieMenuPage();return}
 currentKyrieSubKey="";currentKyrieMenuLevel="sub";currentKyrieModule=module.id;currentKyrieTask="";
 window.currentHistoryContext={key:"2-1",section:2,mode:1,workflowType:"kyrie",moduleId:module.id,taskIndex:-1,taskTitle:""};
+if(typeof renderHistory==="function")renderHistory();
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 setTimeout(function(){
@@ -607,6 +609,7 @@ if(chatOpen){closeChat(true)}
 syncWorkspaceForMode(0,2);
 currentIPModule="";currentIPTask="";currentIPTaskIndex=-1;
 window.currentHistoryContext={key:"0-2",section:0,mode:2,workflowType:"",moduleId:"",taskIndex:-1,taskTitle:""};
+if(typeof renderHistory==="function")renderHistory();
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 ca.innerHTML='<div class="content-loading"><span></span><span></span><span></span></div>';
@@ -640,6 +643,7 @@ syncWorkspaceForMode(0,2);
 var module=getIPPageModule(moduleId);if(!module){renderIPMenuPage();return}
 currentIPModule=module.id;currentIPTask="";currentIPTaskIndex=-1;
 window.currentHistoryContext={key:"0-2",section:0,mode:2,workflowType:"ip",moduleId:module.id,taskIndex:-1,taskTitle:""};
+if(typeof renderHistory==="function")renderHistory();
 var ca=document.getElementById("content-area");
 ca.classList.add("fading");
 ca.innerHTML='<div class="content-loading"><span></span><span></span><span></span></div>';
@@ -1078,6 +1082,7 @@ if(isMayuanChat()||isKyrieReviewTask())window.mayuanDocActiveStatus=false;
 renderMayuanDocumentTools();
 addMessage("assistant",ipLaunch?getIPTaskIntro(ipLaunch.id,pendingIPTaskIndex):(kyrieLaunch?getKyrieTaskIntro(kyrieLaunch.id,pendingKyrieTaskIndex):agent.opening));
 pendingKyrieModule="";pendingKyrieTaskIndex=-1;pendingIPModule="";pendingIPTaskIndex=-1;
+if(typeof renderHistory==="function")renderHistory();
 }
 var formModeGuideText="也可以点击右上角 → 表单式，输入产品相关信息。";
 var dachuanIdentityIntroText="\n\n现在会同步判断 3 种身份视角：\n1. 商家视角：讲清产品区别、真实场景、效果对比和信任建立。\n2. 用户视角：突出真实体验、使用感受、场景代入和提前拥有的快感。\n3. 权威专业IP视角：用专业身份、专业讲解和场景化判断降低决策成本。";

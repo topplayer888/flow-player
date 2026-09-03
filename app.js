@@ -2314,6 +2314,24 @@ if(needsUserInfo){
 if(text.slice(-220).indexOf(followup)>=0)return text;
 return text+"\n\n"+followup;
 }
+function getDialogueContextualFollowupRule(){return "\n\n# 对话结尾引导硬性规则\n每次先判断本轮实际产物，再决定是否添加下一步引导，禁止套用与当前内容无关的万能结尾。信息不足或正在访谈追问时，只引导用户补充本轮缺少的具体信息；输出分析、诊断、定位、策略、复盘或方案后，引导用户确认或调整其中的具体结论，并说明下一项可执行产物；输出选题后，引导用户选择具体选题继续生成脚本；输出脚本或口播后，引导用户指出要调整的段落、镜头、语气、时长、卖点或转化方式；输出直播实时建议后，引导用户反馈执行后的在线、停留、互动、点击或成交变化。若正文末尾已经有准确、具体的下一步问题，不要重复追加。引导语必须承接本轮内容，并且一次只推进一个最合理的下一步。"}
+function appendDialogueContextualFollowup(content){
+if(!content)return content;
+if(isMayuanChat())return appendMayuanDialogueFollowup(content);
+var text=String(content).replace(/\s*需要我帮你把这版内容篇幅加长吗？\s*有任何修改意见请告诉我，我会帮你调整。?\s*$/," ").trim();
+var tail=text.slice(-360);
+if(/(?:请|可以|直接|告诉我|回复|选择|接下来)[\s\S]{0,160}(?:补充|回答|提供|确认|选择|调整|生成|继续|发给我|执行)/.test(tail))return text;
+var hasScript=/(?:完整分镜脚本|完整脚本\s*[：:]|正文脚本|纯口播文案|口播逐字稿|镜头\s*[一二三四五六七八九十\d]+\s*[｜|]|【🎙?口播】)/.test(text);
+var hasTopics=/(?:选题库|选题\s*[一二三四五六七八九十\d]+\s*[：:]|标题\s*[一二三四五六七八九十\d]+\s*[：:])/.test(text)&&!hasScript;
+var needsInfo=/(?:信息不足|还缺|缺少|需要补充|请.{0,16}(?:补充|回答|提供)|麻烦.{0,16}(?:补充|回答|提供)|按这个格式)/.test(text)&&!hasScript;
+var isLiveChat=chatKey.indexOf("2-")===0;
+if(needsInfo)return text+"\n\n请按上面的问题补充关键信息，我会基于你的回答继续完成当前任务。";
+if(hasScript)return text+"\n\n你可以直接告诉我需要调整的段落、镜头、语气、时长、核心卖点或转化方式，我会基于这版内容继续修改。";
+if(hasTopics)return text+"\n\n请告诉我你准备继续展开的选题编号，我会沿用这个方向生成下一步内容。";
+if(isLiveChat&&/(?:当前判断|直播间|下一步\s*3\s*分钟|成交|停留|在线|互动)/.test(text))return text+"\n\n执行后把最新的在线、停留、互动、点击或成交变化发给我，我会继续判断下一步节奏。";
+if(/(?:分析|诊断|定位|策略|规划|方案|复盘|摘要|建议|测试计划)/.test(text))return text+"\n\n请告诉我你想调整哪项结论，或者要继续落地哪一步，我会沿着当前结果继续完成。";
+return text;
+}
 function mayuanOutputNeedsContinuation(content,finishReason){
 if(finishReason==="length")return true;
 var text=String(content||"").trim();
@@ -2368,6 +2386,7 @@ if(chatKey==="0-2"&&currentIPModule){
 if(isKyrieReviewTask())activeSystemPrompt+=getKyrieReviewSystemSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieScriptGenerationSupplement();
 if(isKyrieScriptAgent())activeSystemPrompt+=getKyrieDryGoodsHookSupplement();
+activeSystemPrompt+=getDialogueContextualFollowupRule();
 var msgs=[{role:"system",content:activeSystemPrompt}];
 chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});
 var durationRule=getDurationRuleFromText(userMsg);
@@ -2386,7 +2405,7 @@ if(!choice||!choice.message){addMessage("assistant","❌ API 返回格式异常"
 if(!assembled&&typeof choice.message.content==="string")assembled=choice.message.content;
 var done=(isMayuanChat()&&mayuanOutputNeedsContinuation(assembled,choice.finish_reason))?continueMayuanGeneration(msgs,assembled,stream,0):Promise.resolve(assembled);
 return done.then(function(result){
- result=appendMayuanDialogueFollowup(result);
+ result=appendDialogueContextualFollowup(result);
  stream.complete(result);
  updateMayuanDocStatusByContent(result,"result");
 });

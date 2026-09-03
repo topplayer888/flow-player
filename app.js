@@ -127,12 +127,39 @@ return read();
 return read();
 });
 }
+var generationStartedAt=null;
+function generationNow(){
+return window.performance&&typeof window.performance.now==="function"?window.performance.now():Date.now();
+}
+function startGenerationTimer(){
+generationStartedAt=generationNow();
+}
+function finishGenerationTimer(){
+if(generationStartedAt===null)return 0;
+var elapsed=Math.max(100,generationNow()-generationStartedAt);
+generationStartedAt=null;
+return Math.round(elapsed);
+}
+function cancelGenerationTimer(){
+generationStartedAt=null;
+}
+function formatGenerationElapsed(elapsedMs){
+return (Math.max(100,Number(elapsedMs)||0)/1000).toFixed(1)+" 秒";
+}
+function attachGenerationElapsed(node,elapsedMs){
+if(!node||!elapsedMs)return;
+var bubble=node.querySelector(".chat-bubble");
+if(!bubble)return;
+var meta=bubble.querySelector(".chat-generation-time");
+if(!meta){meta=document.createElement("div");meta.className="chat-generation-time";bubble.insertBefore(meta,bubble.firstChild)}
+meta.textContent="生成用时 "+formatGenerationElapsed(elapsedMs);
+}
 function createAssistantStream(){
 var started=false,text="";
 return {
 push:function(delta){
 if(!delta)return;
-if(!started){hideTyping();addMessage("assistant","");started=true}
+if(!started){hideTyping();addMessage("assistant","",{preserveGenerationTimer:true});started=true}
 text+=delta;
 var last=chatMessages.length-1; if(last>=0)chatMessages[last].content=text;
 var nodes=document.querySelectorAll("#chat-messages .chat-msg.assistant");var node=nodes[nodes.length-1];
@@ -140,8 +167,9 @@ if(node){var bubble=node.querySelector(".chat-bubble");if(bubble)bubble.innerHTM
 },
 complete:function(finalText){
 finalText=String(finalText===undefined?text:finalText||"");
-if(!started){hideTyping();addMessage("assistant",finalText);started=true}
+if(!started){hideTyping();addMessage("assistant",finalText,{showGenerationTime:true});started=true}
 else if(finalText!==text){text=finalText;var last=chatMessages.length-1;if(last>=0)chatMessages[last].content=text;var nodes=document.querySelectorAll("#chat-messages .chat-msg.assistant");var node=nodes[nodes.length-1];if(node){var bubble=node.querySelector(".chat-bubble");if(bubble)bubble.innerHTML=formatChatText(text)}}
+if(started&&generationStartedAt!==null){var elapsedMs=finishGenerationTimer();var lastIndex=chatMessages.length-1;if(lastIndex>=0)chatMessages[lastIndex].elapsedMs=elapsedMs;var assistantNodes=document.querySelectorAll("#chat-messages .chat-msg.assistant");attachGenerationElapsed(assistantNodes[assistantNodes.length-1],elapsedMs)}
 updateDynamicQuickChips("assistant",text);return text;
 }
 };
@@ -1285,7 +1313,7 @@ return summarizeMayuanDocument(file.name,text);
 }).then(function(summary){
 hideTyping();
 var nextText=chatKey==="1-3"?"\n\n是否需要我根据以上内容，继续生成脚本、内容专项方案或素材测试计划？":"\n\n是否需要我根据以上内容，继续生成一条30-60秒的引流视频脚本？";
-addMessage("assistant",summary+nextText);
+addMessage("assistant",summary+nextText,{showGenerationTime:true});
 setMayuanDocStatus(chatKey==="1-3"?"文档提炼完成，可继续生成专项方案":"文档提炼完成，可继续生成引流视频","ok");
 }).catch(function(err){
 hideTyping();
@@ -1387,7 +1415,7 @@ setMayuanDocStatus("正在识别截图并分析数据","loading");
 return callKyrieImageReviewAPI(file.name,dataUrl);
 }).then(function(result){
 hideTyping();
-addMessage("assistant",result);
+addMessage("assistant",result,{showGenerationTime:true});
 setMayuanDocStatus("截图复盘完成，可继续补充数据或逐字稿","ok");
 }).catch(function(err){
 hideTyping();
@@ -1436,7 +1464,7 @@ setMayuanDocStatus("正在分析逐字稿内容","loading");
 return summarizeKyrieTranscriptDocument(file.name,text);
 }).then(function(summary){
 hideTyping();
-addMessage("assistant",summary+"\n\n你也可以继续补充直播后台数据截图，我会把数据表现和逐字稿话术放在一起复盘。");
+addMessage("assistant",summary+"\n\n你也可以继续补充直播后台数据截图，我会把数据表现和逐字稿话术放在一起复盘。",{showGenerationTime:true});
 setMayuanDocStatus("逐字稿复盘完成，可继续上传截图或补充数据","ok");
 }).catch(function(err){
 hideTyping();
@@ -1744,11 +1772,12 @@ apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/
  hideTyping();
  if(data.error){addMessage("assistant","API错误："+data.error.message);return}
  if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}
- addMessage("assistant",data.choices[0].message.content);
+ addMessage("assistant",data.choices[0].message.content,{showGenerationTime:true});
  document.getElementById("rw-step1").style.display="none";document.getElementById("rw-step2").style.display="";
 }).catch(function(e){setGenerateButtonLoading(rwBtn,false);hideTyping();addMessage("assistant","请求失败："+e.message)});
-}function submitRewriteStep2(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10)return;var custom=document.getElementById("rw-custom2").value.trim();if(rwMode==="B"&&!custom){alert("请填写自定义赛道与人设");return}var rwBtn=document.getElementById("rw-generate-btn");setGenerateButtonLoading(rwBtn,true,"仿写中...");var prompt="请基于上一轮的逐字稿和分析，按以下模式进行仿写：\n\n仿写模式："+(rwMode==="A"?"模式A 原汁原味仿写":"模式B 自定义定位仿写")+(rwMode==="B"?"\n新赛道/新人设："+custom:"")+"\n\n请直接输出仿写文案和仿写逻辑说明";switchChatMode("qa");addMessage("user","✍️ [仿写提交]\n模式："+(rwMode==="A"?"原汁原味":"自定义")+(rwMode==="B"?"\n赛道/人设："+custom:""));showTyping();var msgs=[{role:"system",content:appendCopyCoherenceRule(agent.systemPrompt)}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:appendCopyCoherenceRule(prompt)});apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){setGenerateButtonLoading(rwBtn,false);hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return};if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}addMessage("assistant",data.choices[0].message.content)}).catch(function(e){setGenerateButtonLoading(rwBtn,false);hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})}
+}function submitRewriteStep2(){var agent=agents[chatKey];if(!agent||!apiConfig.apikey||apiConfig.apikey.length<10)return;var custom=document.getElementById("rw-custom2").value.trim();if(rwMode==="B"&&!custom){alert("请填写自定义赛道与人设");return}var rwBtn=document.getElementById("rw-generate-btn");setGenerateButtonLoading(rwBtn,true,"仿写中...");var prompt="请基于上一轮的逐字稿和分析，按以下模式进行仿写：\n\n仿写模式："+(rwMode==="A"?"模式A 原汁原味仿写":"模式B 自定义定位仿写")+(rwMode==="B"?"\n新赛道/新人设："+custom:"")+"\n\n请直接输出仿写文案和仿写逻辑说明";switchChatMode("qa");addMessage("user","✍️ [仿写提交]\n模式："+(rwMode==="A"?"原汁原味":"自定义")+(rwMode==="B"?"\n赛道/人设："+custom:""));showTyping();var msgs=[{role:"system",content:appendCopyCoherenceRule(agent.systemPrompt)}];chatMessages.forEach(function(m){msgs.push({role:m.role,content:m.content})});msgs.push({role:"user",content:appendCopyCoherenceRule(prompt)});apiFetch(apiConfig.endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiConfig.apikey},body:JSON.stringify({model:apiConfig.model,messages:msgs,temperature:.7,max_tokens:4000})}).then(function(r){return r.json()}).then(function(data){setGenerateButtonLoading(rwBtn,false);hideTyping();if(data.error){addMessage("assistant","❌ API 错误："+data.error.message);return};if(!data.choices||!data.choices[0]||!data.choices[0].message){addMessage("assistant","❌ API 返回格式异常");return}addMessage("assistant",data.choices[0].message.content,{showGenerationTime:true})}).catch(function(e){setGenerateButtonLoading(rwBtn,false);hideTyping();addMessage("assistant","❌ 请求失败："+e.message)})}
 function addMessageHTML(role,html){
+if(role==="assistant")cancelGenerationTimer();
 chatMessages.push({role:role,content:html});
 var msgs=document.getElementById("chat-messages");
 var div=document.createElement("div");
@@ -1845,17 +1874,27 @@ if(role!=="assistant"||!chatOpen)return;
 if(!getLastChatText("user")&&chatMessages.length<=1)return;
 renderChatQuestions(buildDynamicQuickChips(content));
 }
-function addMessage(role,content){
-chatMessages.push({role:role,content:content});
+function addMessage(role,content,options){
+options=options||{};
+var elapsedMs=0;
+if(role==="assistant"){
+ if(options.showGenerationTime)elapsedMs=finishGenerationTimer();
+ else if(!options.preserveGenerationTimer)cancelGenerationTimer();
+}
+var message={role:role,content:content};
+if(elapsedMs)message.elapsedMs=elapsedMs;
+chatMessages.push(message);
 var msgs=document.getElementById("chat-messages");
 var div=document.createElement("div");
 div.className="chat-msg "+role;
 div.innerHTML='<div class="chat-avatar">'+(role==="assistant"?"🤖":"👤")+'</div><div class="chat-bubble">'+formatChatText(content)+"</div>";
+if(elapsedMs)attachGenerationElapsed(div,elapsedMs);
 msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
 updateDynamicQuickChips(role,content);
 }
 function showTyping(){
 if(isTyping)return;isTyping=true;
+startGenerationTimer();
 var msgs=document.getElementById("chat-messages");
 var div=document.createElement("div");
 div.className="chat-msg assistant";div.id="typing-indicator";

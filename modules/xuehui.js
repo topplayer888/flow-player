@@ -257,7 +257,7 @@ function xuehuiUpdateCount() {
   var sel = document.querySelectorAll("#xh-openings .select-chip.selected").length;
   var tmpl = xhState.templates.length;
   var el = document.getElementById("xh-count-info");
-  if (el) el.textContent = "已选 " + sel + " 个开头 x " + tmpl + " 个模板 = " + (sel * tmpl * 2) + " 条文案（90秒标准 + 2分钟深度）";
+  if (el) el.textContent = "已选 " + sel + " 个开头 x " + tmpl + " 个模板 = " + (sel * tmpl) + " 条文案（2分钟深度版）";
 }
 
 function xhAutoRecElements() {
@@ -479,13 +479,13 @@ function xhBuildGenerationPrompt(topic, openingRules, tmplRules) {
     "文案模板规则：\n" + tmplRules + "\n\n" +
     "开头类型规则：\n" + openingRules + "\n\n" +
     "生成要求：\n" +
-    "1. 每种“模板类型 + 开头类型”组合，输出90秒标准版和2分钟深度版各1条。\n" +
-    "2. 必须严格执行字数范围：90秒标准版控制在250-350字；2分钟深度版控制在500-650字。少于下限或超过上限都不合格，输出前必须自检并自行重写。\n" +
+    "1. 每种“模板类型 + 开头类型”组合只输出1条2分钟深度版，不要生成90秒版或其它时长版本。\n" +
+    "2. 必须严格执行字数范围：2分钟深度版控制在500-650字。少于500字或超过650字都不合格，输出前必须自检并自行重写。\n" +
     "3. 口语化，适合真人口播，每句话都有信息量，不要写成论文或产品说明书。\n" +
     "4. 开头必须符合所选开头类型，前3秒有钩子。\n" +
     "5. 有自然转化引导，但不要生硬叫卖。\n" +
     "6. content字段只能放可直接朗读的口播正文，不要放分析、标题、分镜、说明或字数统计。\n" +
-    "7. 严格输出JSON对象：{\"results\":[{\"copyType\":\"讲故事类\",\"openingType\":\"圈定人群\",\"duration\":\"90秒标准\",\"content\":\"文案正文\"}]}";
+    "7. 严格输出JSON对象：{\"results\":[{\"copyType\":\"讲故事类\",\"openingType\":\"圈定人群\",\"duration\":\"2分钟深度\",\"content\":\"文案正文\"}]}";
 }
 
 function xuehuiGenerate() {
@@ -506,8 +506,11 @@ function xuehuiGenerate() {
   xhSetButton(btn, "生成中...", true);
   xuehuiCallAPI(sysPrompt, userPrompt, function(json) {
     xhSetButton(btn, "✍️ 生成爆款文案", false);
-    var results = json.results || [];
-    if (!Array.isArray(results) || !results.length) { alert("生成失败，请重试"); return; }
+    var results = (Array.isArray(json.results) ? json.results : []).filter(function(r) {
+      return r && !/(?:90\s*秒|1[.．]5\s*分钟)/i.test(String(r.duration || ""));
+    });
+    if (!results.length) { alert("生成失败，请重试"); return; }
+    results.forEach(function(r) { r.duration = "2分钟深度"; });
     xhState.results = results;
     xhRenderResults(results);
   }, { response_format: { type: "json_object" }, temperature: 0.35, max_tokens: 12000 });
@@ -526,17 +529,16 @@ function xhRenderResults(results) {
     html += '<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:8px;padding:6px 12px;background:rgba(168,85,247,.08);border-radius:8px">' + xhEscapeHtml(g) + "</div>";
     grouped[g].forEach(function(r) {
       var charCount = r.content ? r.content.length : 0;
-      var isShort = String(r.duration || "").indexOf("90") >= 0;
-      var minCount = isShort ? 250 : 500;
-      var maxCount = isShort ? 350 : 650;
+      var minCount = 500;
+      var maxCount = 650;
       var countColor = (charCount < minCount || charCount > maxCount) ? "#ef4444" : "#10b981";
       html += '<div data-xh-card="result" style="padding:12px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-card);margin-bottom:8px">' +
-        '<div style="display:flex;gap:8px;margin-bottom:6px;align-items:center;flex-wrap:wrap"><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(0,229,255,.1);color:var(--cyan)">' + xhEscapeHtml(r.duration || "") + ' <span style="font-size:9px;color:' + countColor + '">(' + charCount + '字)</span></span><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(168,85,247,.1);color:var(--purple)">' + xhEscapeHtml(r.openingType || "") + '</span><span style="flex:1"></span><button onclick="copyXhResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px" title="复制全文">📋 复制</button><button onclick="expandCopy(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px" title="扩写">📝 扩写</button></div>' +
-        '<div class="xh-copy-content" style="font-size:12px;line-height:1.6;color:var(--text-primary);white-space:pre-wrap">' + xhEscapeHtml(typeof compactResultText==="function"?compactResultText(r.content || ""):(r.content || "")) + '</div><div class="xh-expand-area" style="display:none;margin-top:8px;padding:8px;border-radius:8px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="display:flex;gap:6px;align-items:center;margin-bottom:6px"><input type="number" class="xh-expand-input" placeholder="请输入你想要扩写的字数..." style="flex:1;padding:4px 8px;border-radius:6px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px" min="100"><button onclick="doExpandCopy(this)" style="background:var(--purple);color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;white-space:nowrap">确认扩写</button></div><div class="xh-expand-result" style="font-size:12px;line-height:1.6;color:var(--text-primary);white-space:pre-wrap;margin-top:6px;display:none"></div><div class="xh-expand-loading" style="display:none;text-align:center;color:var(--text-muted);font-size:11px;padding:8px">扩写中...</div></div></div>';
+        '<div style="display:flex;gap:8px;margin-bottom:6px;align-items:center;flex-wrap:wrap"><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(0,229,255,.1);color:var(--cyan)">' + xhEscapeHtml(r.duration || "2分钟深度") + ' <span style="font-size:9px;color:' + countColor + '">(' + charCount + '字)</span></span><span style="font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(168,85,247,.1);color:var(--purple)">' + xhEscapeHtml(r.openingType || "") + '</span><span style="flex:1"></span><button onclick="copyXhResult(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px" title="复制全文">📋 复制</button></div>' +
+        '<div class="xh-copy-content" style="font-size:12px;line-height:1.6;color:var(--text-primary);white-space:pre-wrap">' + xhEscapeHtml(typeof compactResultText==="function"?compactResultText(r.content || ""):(r.content || "")) + '</div></div>';
     });
     html += "</div>";
   }
-  html += '<div style="margin-top:16px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 优化意见后重新生成</div><textarea id="xh-regen-input" placeholder="输入优化意见，例如：语气更活泼、增加产品功效描述、缩短到200字..." style="width:100%;min-height:60px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button id="xh-regen-btn" onclick="xhRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="xh-regen-result" style="margin-top:10px;display:none"></div><div id="xh-regen-loading" style="display:none"></div></div>';
+  html += '<div style="margin-top:16px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 调整或扩写当前文案</div><textarea id="xh-regen-input" placeholder="输入调整要求，例如：语气更活泼、强化痛点、增加场景细节或扩写篇幅..." style="width:100%;min-height:60px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button id="xh-regen-btn" onclick="xhRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="xh-regen-result" style="margin-top:10px;display:none"></div><div id="xh-regen-loading" style="display:none"></div></div>';
   container.innerHTML = html;
   document.getElementById("xh-results").style.display = "";
 }

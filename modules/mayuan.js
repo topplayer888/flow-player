@@ -113,30 +113,3 @@ function copyFormRegenResult(btn){if(apiConfig&&(!apiConfig.apikey||apiConfig.ap
  }else{fallbackCopy(t)}
 }
 function fallbackCopy(btn,text){if(typeof text==="undefined"){text=btn;btn=null}var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");if(btn){btn.textContent="\u2705 已复制";btn.style.color="#10b981";setTimeout(function(){btn.textContent="\uD83D\uDCCB 复制";btn.style.color="var(--text-secondary)"},2000)}}catch(e){alert("复制失败，请手动选择复制")}document.body.removeChild(ta)}
-function expandCopy(btn){
-var card=btn.closest("div").parentElement;
-var area=card.querySelector(".xh-expand-area");
-if(area.style.display==="none"||!area.style.display){area.style.display=""}else{area.style.display="none"}
-}
-function doExpandCopy(btn){
-var card=btn.closest(".xh-expand-area").parentElement;
-var input=card.querySelector(".xh-expand-input");
-var targetWords=parseInt(input.value);
-if(!targetWords||targetWords<50){alert("请输入至少50字的扩写目标");return}
-var originalContent=btn.closest(".xh-expand-area").previousElementSibling.textContent;
-var loading=card.querySelector(".xh-expand-loading");
-var resultDiv=card.querySelector(".xh-expand-result");
-loading.style.display="";resultDiv.style.display="none";
-var prompt="原文案："+originalContent+"\n\n请将上述文案扩写至约"+targetWords+"字，保持原有风格、口语化表达，丰富细节和场景描写。只输出扩写后的完整文案。";
-xuehuiCallAPI("你是文案扩写专家。只输出扩写后的文案。",prompt,function(json){
-loading.style.display="none";
-var expanded=typeof json==="string"?json:(json.raw||json.content||json.expanded||json.text||JSON.stringify(json));
-resultDiv.textContent=expanded;
-resultDiv.style.display="";
-var charCount=expanded.length;
-var countSpan=document.createElement("span");
-countSpan.style.cssText="font-size:9px;margin-left:6px;color:"+(charCount>=targetWords?"var(--green)":"var(--red)");
-countSpan.textContent="("+charCount+"字)";
-resultDiv.appendChild(countSpan);
-},{temperature:0.3,max_tokens:8000});
-}

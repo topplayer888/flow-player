@@ -328,6 +328,11 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 .chat-avatar{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .chat-bubble{max-width:80%;padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.6;word-break:break-word}
 .chat-generation-time{margin:0 0 7px;padding-bottom:6px;border-bottom:1px solid var(--border-glow);color:var(--text-muted);font-size:11px;line-height:1.3;font-variant-numeric:tabular-nums}
+.chat-message-actions{display:flex;align-items:center;min-height:26px;margin-top:9px;padding-top:7px;border-top:1px solid var(--border-glow)}
+.chat-copy-btn{width:26px;height:26px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--text-muted);font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s,color .18s,transform .18s}
+.chat-copy-btn:hover{background:rgba(168,85,247,.1);color:var(--purple)}
+.chat-copy-btn:active{transform:scale(.92)}
+.chat-copy-btn.copied{color:#10b981;background:rgba(16,185,129,.1);font-size:15px}
 .chat-msg.assistant .chat-bubble{background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-primary);border-bottom-left-radius:4px}
 .chat-msg.user .chat-bubble{background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.2);color:var(--text-primary);border-bottom-right-radius:4px}
 .chat-questions{display:flex;flex-wrap:wrap;gap:8px;padding:8px 22px 4px}

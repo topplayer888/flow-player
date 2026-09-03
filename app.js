@@ -154,6 +154,42 @@ var meta=bubble.querySelector(".chat-generation-time");
 if(!meta){meta=document.createElement("div");meta.className="chat-generation-time";bubble.insertBefore(meta,bubble.firstChild)}
 meta.textContent="生成用时 "+formatGenerationElapsed(elapsedMs);
 }
+function setChatCopyButtonState(btn,copied){
+if(!btn)return;
+btn.classList.toggle("copied",!!copied);
+btn.textContent=copied?"✓":"⧉";
+btn.title=copied?"已复制":"复制此回复";
+btn.setAttribute("aria-label",copied?"已复制":"复制此回复");
+if(copied)setTimeout(function(){setChatCopyButtonState(btn,false)},1600);
+}
+function fallbackCopyChatMessage(text,btn){
+var ta=document.createElement("textarea");
+ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";ta.style.opacity="0";
+document.body.appendChild(ta);ta.select();
+try{document.execCommand("copy");setChatCopyButtonState(btn,true)}catch(e){alert("复制失败，请手动选择内容复制")}
+document.body.removeChild(ta);
+}
+function copyChatMessage(btn){
+var node=btn&&btn.closest(".chat-msg");
+var text=node&&typeof node._chatCopyText==="string"?node._chatCopyText.trim():"";
+if(!text)return;
+if(navigator.clipboard&&navigator.clipboard.writeText){
+navigator.clipboard.writeText(text).then(function(){setChatCopyButtonState(btn,true)}).catch(function(){fallbackCopyChatMessage(text,btn)});
+}else{fallbackCopyChatMessage(text,btn)}
+}
+function attachAssistantCopy(node,content){
+if(!node||!content)return;
+node._chatCopyText=String(content);
+var bubble=node.querySelector(".chat-bubble");
+if(!bubble)return;
+var actions=bubble.querySelector(".chat-message-actions");
+if(!actions){
+ actions=document.createElement("div");actions.className="chat-message-actions";
+ var btn=document.createElement("button");btn.type="button";btn.className="chat-copy-btn";
+ setChatCopyButtonState(btn,false);btn.onclick=function(){copyChatMessage(btn)};
+ actions.appendChild(btn);bubble.appendChild(actions);
+}
+}
 function createAssistantStream(){
 var started=false,text="";
 return {
@@ -170,6 +206,7 @@ finalText=String(finalText===undefined?text:finalText||"");
 if(!started){hideTyping();addMessage("assistant",finalText,{showGenerationTime:true});started=true}
 else if(finalText!==text){text=finalText;var last=chatMessages.length-1;if(last>=0)chatMessages[last].content=text;var nodes=document.querySelectorAll("#chat-messages .chat-msg.assistant");var node=nodes[nodes.length-1];if(node){var bubble=node.querySelector(".chat-bubble");if(bubble)bubble.innerHTML=formatChatText(text)}}
 if(started&&generationStartedAt!==null){var elapsedMs=finishGenerationTimer();var lastIndex=chatMessages.length-1;if(lastIndex>=0)chatMessages[lastIndex].elapsedMs=elapsedMs;var assistantNodes=document.querySelectorAll("#chat-messages .chat-msg.assistant");attachGenerationElapsed(assistantNodes[assistantNodes.length-1],elapsedMs)}
+var completedNodes=document.querySelectorAll("#chat-messages .chat-msg.assistant");attachAssistantCopy(completedNodes[completedNodes.length-1],finalText);
 updateDynamicQuickChips("assistant",text);return text;
 }
 };
@@ -1889,6 +1926,7 @@ var div=document.createElement("div");
 div.className="chat-msg "+role;
 div.innerHTML='<div class="chat-avatar">'+(role==="assistant"?"🤖":"👤")+'</div><div class="chat-bubble">'+formatChatText(content)+"</div>";
 if(elapsedMs)attachGenerationElapsed(div,elapsedMs);
+if(role==="assistant"&&!options.preserveGenerationTimer)attachAssistantCopy(div,content);
 msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
 updateDynamicQuickChips(role,content);
 }

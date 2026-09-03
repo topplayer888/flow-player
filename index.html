@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
-<link rel="stylesheet" href="style.css?v=188"></head><body class="auth-checking local-only-mode"><script>(function(){try{var t=localStorage.getItem("fp_theme")||"enterprise";if(["cyberpunk","light","enterprise"].indexOf(t)<0){t="enterprise";localStorage.setItem("fp_theme",t)}window.__fpInitialTheme=t;document.body.classList.add("theme-"+t)}catch(e){document.body.classList.add("theme-enterprise")}})();</script>
+<link rel="stylesheet" href="style.css?v=189"></head><body class="auth-checking local-only-mode"><script>(function(){try{var t=localStorage.getItem("fp_theme")||"enterprise";if(["cyberpunk","light","enterprise"].indexOf(t)<0){t="enterprise";localStorage.setItem("fp_theme",t)}window.__fpInitialTheme=t;document.body.classList.add("theme-"+t)}catch(e){document.body.classList.add("theme-enterprise")}})();</script>
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <div class="auth-overlay" id="auth-overlay">
 <div class="auth-card">
@@ -434,7 +434,7 @@
 <script src="modules/tiejia.js?v=202606231315"></script>
 <script src="vendor/mammoth.browser.min.js"></script>
 <script src="vendor/pdf.min.js"></script>
-<script src="app.js?v=20260903-2"></script>
+<script src="app.js?v=20260903-3"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 
@@ -1082,6 +1082,7 @@ function syncHistoryFromCloud() {
       d.className = 'chat-msg ' + m.role;
       d.innerHTML = content;
       if (m.role === 'assistant' && m.elapsedMs && typeof attachGenerationElapsed === 'function') attachGenerationElapsed(d, m.elapsedMs);
+      if (m.role === 'assistant' && typeof attachAssistantCopy === 'function') attachAssistantCopy(d, typeof stripHtmlText === 'function' ? stripHtmlText(m.content) : m.content);
       el.appendChild(d);
     });
     el.scrollTop = el.scrollHeight;

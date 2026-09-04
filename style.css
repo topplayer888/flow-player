@@ -522,22 +522,30 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 /* Cyberpunk-only web-swinging pet */
 #cyber-pet-web-layer,#cyber-web-pet{display:none;position:fixed;inset:0;pointer-events:none}
 .theme-cyberpunk #cyber-pet-web-layer{display:block;width:100vw;height:100vh;z-index:148;overflow:visible}
-.theme-cyberpunk #cyber-web-pet{display:block;inset:auto;width:58px;height:72px;z-index:149;will-change:transform;opacity:.94;filter:drop-shadow(0 7px 8px rgba(0,0,0,.4)) drop-shadow(0 0 7px rgba(0,229,255,.2))}
-#cyber-pet-web-line{fill:none;stroke:rgba(159,238,255,.78);stroke-width:1.25;stroke-linecap:round;stroke-dasharray:2.4 2;opacity:0;filter:drop-shadow(0 0 3px rgba(0,229,255,.58));transition:opacity .2s ease}
+.theme-cyberpunk #cyber-web-pet{display:block;inset:auto;width:68px;height:88px;z-index:149;will-change:transform;opacity:.96;filter:drop-shadow(0 8px 9px rgba(0,0,0,.42)) drop-shadow(0 0 8px rgba(0,229,255,.22))}
+#cyber-pet-web-line{fill:none;stroke:rgba(181,243,255,.82);stroke-width:1.2;stroke-linecap:round;opacity:0;filter:drop-shadow(0 0 3px rgba(0,229,255,.62));transition:opacity .16s ease}
 #cyber-pet-web-line.is-visible{opacity:.82}
-.cyber-pet-figure{width:58px;height:72px;transform-origin:29px 4px;animation:cyberPetIdle 2.8s ease-in-out infinite}
+.cyber-pet-figure{--pet-head:0deg;--pet-torso:0deg;--pet-left-arm:-8deg;--pet-right-arm:8deg;--pet-left-leg:0deg;--pet-right-leg:0deg;width:68px;height:88px;transform-origin:34px 8px;animation:cyberPetIdle 2.8s ease-in-out infinite}
 .cyber-pet-figure svg{display:block;width:100%;height:100%;overflow:visible}
 .cyber-pet-shadow{fill:rgba(0,0,0,.3);filter:blur(1px)}
-.cyber-pet-arm,.cyber-pet-leg{fill:none;stroke:#152d48;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
-.cyber-pet-arm-right{stroke:#21375b}
-.cyber-pet-hand{fill:#ed496c;stroke:#ff8ca4;stroke-width:1}
-.cyber-pet-body{fill:#152d48;stroke:#4b7aa7;stroke-width:1.2}
-.cyber-pet-core{fill:#00e5ff;stroke:#b9f8ff;stroke-width:.7;filter:drop-shadow(0 0 3px rgba(0,229,255,.82))}
-.cyber-pet-head{fill:#df3d64;stroke:#ff839c;stroke-width:1.3;filter:drop-shadow(0 0 3px rgba(223,61,100,.32))}
-.cyber-pet-web{fill:none;stroke:rgba(255,205,218,.46);stroke-width:.65;stroke-linecap:round}
-.cyber-pet-eye{fill:#dffcff;stroke:#41dcff;stroke-width:.85;filter:drop-shadow(0 0 2px rgba(0,229,255,.9))}
-.theme-cyberpunk #cyber-web-pet.is-swinging .cyber-pet-figure{animation:cyberPetSwing .5s ease-in-out infinite alternate}
+.cyber-pet-limb,.cyber-pet-forearm,.cyber-pet-boot{fill:none;stroke:#173451;stroke-width:6.5;stroke-linecap:round;stroke-linejoin:round}
+.cyber-pet-forearm{stroke:#24446a;stroke-width:5.5}.cyber-pet-boot{stroke:#0d2138;stroke-width:5}
+.cyber-pet-joint{fill:#2e5a7c;stroke:#6da1c2;stroke-width:.7}
+.cyber-pet-hand{fill:#ed496c;stroke:#ff9aae;stroke-width:1}
+.cyber-pet-arm,.cyber-pet-leg,.cyber-pet-head-group,.cyber-pet-torso{transform-box:view-box;transition:transform .075s linear;will-change:transform}
+.cyber-pet-arm-left{transform-origin:27px 46px;transform:rotate(var(--pet-left-arm))}.cyber-pet-arm-right{transform-origin:45px 46px;transform:rotate(var(--pet-right-arm))}
+.cyber-pet-leg-left{transform-origin:31px 64px;transform:rotate(var(--pet-left-leg))}.cyber-pet-leg-right{transform-origin:41px 64px;transform:rotate(var(--pet-right-leg))}
+.cyber-pet-head-group{transform-origin:36px 39px;transform:rotate(var(--pet-head))}.cyber-pet-torso{transform-origin:36px 55px;transform:skewX(var(--pet-torso))}
+.cyber-pet-neck{fill:none;stroke:#203f61;stroke-width:6;stroke-linecap:round}
+.cyber-pet-body{fill:#142f4c;stroke:#5684aa;stroke-width:1.2}
+.cyber-pet-panel{fill:#0c223b;stroke:#315c7d;stroke-width:.8}
+.cyber-pet-core{fill:#00e5ff;stroke:#d1fbff;stroke-width:.75;filter:drop-shadow(0 0 4px rgba(0,229,255,.9))}
+.cyber-pet-head{fill:#df3d64;stroke:#ff91a7;stroke-width:1.35;filter:drop-shadow(0 0 4px rgba(223,61,100,.36))}
+.cyber-pet-web{fill:none;stroke:rgba(255,219,228,.52);stroke-width:.65;stroke-linecap:round}
+.cyber-pet-eye{fill:#e8fdff;stroke:#41dcff;stroke-width:.9;filter:drop-shadow(0 0 2.5px rgba(0,229,255,.95))}
+.theme-cyberpunk #cyber-web-pet.is-fast .cyber-pet-core{filter:drop-shadow(0 0 7px rgba(0,229,255,1))}
+.theme-cyberpunk #cyber-web-pet.is-turning .cyber-pet-head{filter:drop-shadow(0 0 6px rgba(255,80,118,.58))}
+.theme-cyberpunk #cyber-web-pet.is-swinging .cyber-pet-figure{animation:none}
 @keyframes cyberPetIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
-@keyframes cyberPetSwing{0%{transform:scaleY(.98) translateY(-1px)}100%{transform:scaleY(1.02) translateY(1px)}}
 @media(max-width:768px),(pointer:coarse){#cyber-pet-web-layer,#cyber-web-pet{display:none!important}}
 @media(prefers-reduced-motion:reduce){#cyber-pet-web-layer,#cyber-web-pet{display:none!important}}

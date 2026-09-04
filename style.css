@@ -522,35 +522,30 @@ body{font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;background:v
 /* Cyberpunk-only web-swinging pet */
 #cyber-pet-web-layer,#cyber-web-pet{display:none;position:fixed;inset:0;pointer-events:none}
 .theme-cyberpunk #cyber-pet-web-layer{display:block;width:100vw;height:100vh;z-index:148;overflow:visible}
-.theme-cyberpunk #cyber-web-pet{display:block;inset:auto;width:72px;height:92px;z-index:149;will-change:transform;opacity:.97;filter:drop-shadow(0 9px 9px rgba(0,0,0,.46)) drop-shadow(0 0 9px rgba(0,229,255,.2))}
-#cyber-pet-web-line{fill:none;stroke:rgba(205,248,255,.88);stroke-width:1.15;stroke-linecap:round;opacity:0;filter:drop-shadow(0 0 3px rgba(0,229,255,.68));transition:opacity .16s ease}
+.theme-cyberpunk #cyber-web-pet{display:block;inset:auto;width:68px;height:88px;z-index:149;will-change:transform;opacity:.96;filter:drop-shadow(0 8px 9px rgba(0,0,0,.42)) drop-shadow(0 0 8px rgba(0,229,255,.22))}
+#cyber-pet-web-line{fill:none;stroke:rgba(181,243,255,.82);stroke-width:1.2;stroke-linecap:round;opacity:0;filter:drop-shadow(0 0 3px rgba(0,229,255,.62));transition:opacity .16s ease}
 #cyber-pet-web-line.is-visible{opacity:.82}
-.cyber-pet-figure{--pet-head:0deg;--pet-torso:0deg;--pet-left-arm:-8deg;--pet-right-arm:8deg;--pet-left-leg:0deg;--pet-right-leg:0deg;--pet-eye-x:0px;--pet-eye-y:0px;--pet-scale-x:1;--pet-scale-y:1;width:72px;height:92px;transform-origin:36px 8px;animation:cyberPetIdle 3.1s ease-in-out infinite}
+.cyber-pet-figure{--pet-head:0deg;--pet-torso:0deg;--pet-left-arm:-8deg;--pet-right-arm:8deg;--pet-left-leg:0deg;--pet-right-leg:0deg;width:68px;height:88px;transform-origin:34px 8px;animation:cyberPetIdle 2.8s ease-in-out infinite}
 .cyber-pet-figure svg{display:block;width:100%;height:100%;overflow:visible}
-.cyber-pet-shadow{fill:rgba(0,0,0,.28);filter:blur(1.2px)}
-.cyber-pet-limb,.cyber-pet-forearm,.cyber-pet-boot{fill:none;stroke:#173b59;stroke-width:7;stroke-linecap:square;stroke-linejoin:miter}
-.cyber-pet-forearm{stroke:#e94768;stroke-width:6}.cyber-pet-boot{stroke:#e94768;stroke-width:5.5}
-.cyber-pet-joint{fill:#2e6b87;stroke:#9bd8e9;stroke-width:.65}
-.cyber-pet-hand{fill:#f04d6d;stroke:#ff9caf;stroke-width:.8}
-.cyber-pet-arm,.cyber-pet-leg,.cyber-pet-head-group,.cyber-pet-torso{transform-box:view-box;transition:transform .055s linear;will-change:transform}
-.cyber-pet-arm-left{transform-origin:25px 46px;transform:rotate(var(--pet-left-arm))}.cyber-pet-arm-right{transform-origin:47px 46px;transform:rotate(var(--pet-right-arm))}
-.cyber-pet-leg-left{transform-origin:30px 63px;transform:rotate(var(--pet-left-leg))}.cyber-pet-leg-right{transform-origin:42px 63px;transform:rotate(var(--pet-right-leg))}
+.cyber-pet-shadow{fill:rgba(0,0,0,.3);filter:blur(1px)}
+.cyber-pet-limb,.cyber-pet-forearm,.cyber-pet-boot{fill:none;stroke:#173451;stroke-width:6.5;stroke-linecap:round;stroke-linejoin:round}
+.cyber-pet-forearm{stroke:#24446a;stroke-width:5.5}.cyber-pet-boot{stroke:#0d2138;stroke-width:5}
+.cyber-pet-joint{fill:#2e5a7c;stroke:#6da1c2;stroke-width:.7}
+.cyber-pet-hand{fill:#ed496c;stroke:#ff9aae;stroke-width:1}
+.cyber-pet-arm,.cyber-pet-leg,.cyber-pet-head-group,.cyber-pet-torso{transform-box:view-box;transition:transform .075s linear;will-change:transform}
+.cyber-pet-arm-left{transform-origin:27px 46px;transform:rotate(var(--pet-left-arm))}.cyber-pet-arm-right{transform-origin:45px 46px;transform:rotate(var(--pet-right-arm))}
+.cyber-pet-leg-left{transform-origin:31px 64px;transform:rotate(var(--pet-left-leg))}.cyber-pet-leg-right{transform-origin:41px 64px;transform:rotate(var(--pet-right-leg))}
 .cyber-pet-head-group{transform-origin:36px 39px;transform:rotate(var(--pet-head))}.cyber-pet-torso{transform-origin:36px 55px;transform:skewX(var(--pet-torso))}
-.cyber-pet-neck{fill:none;stroke:#193955;stroke-width:7;stroke-linecap:square}
-.cyber-pet-head-outline{fill:#091827;stroke:#214d68;stroke-width:1}
-.cyber-pet-body{fill:#183c59;stroke:#72a9c3;stroke-width:1.1}
-.cyber-pet-panel{fill:#0b2237;stroke:#356a84;stroke-width:.8}
+.cyber-pet-neck{fill:none;stroke:#203f61;stroke-width:6;stroke-linecap:round}
+.cyber-pet-body{fill:#142f4c;stroke:#5684aa;stroke-width:1.2}
+.cyber-pet-panel{fill:#0c223b;stroke:#315c7d;stroke-width:.8}
 .cyber-pet-core{fill:#00e5ff;stroke:#d1fbff;stroke-width:.75;filter:drop-shadow(0 0 4px rgba(0,229,255,.9))}
-.cyber-pet-core-mark{fill:none;stroke:#e8fdff;stroke-width:.75;stroke-linecap:square}
-.cyber-pet-head{fill:#ed4969;stroke:#ff91a7;stroke-width:1.1;filter:drop-shadow(0 0 4px rgba(223,61,100,.32))}
-.cyber-pet-web{fill:none;stroke:rgba(20,47,70,.72);stroke-width:1;stroke-linecap:square;stroke-linejoin:miter}
-.cyber-pet-eyes{transform-box:view-box;transform-origin:36px 27px;animation:cyberPetBlink 5.4s steps(1,end) infinite}
-.cyber-pet-eye{fill:#e8fdff;stroke:#5ae7ff;stroke-width:.9;filter:drop-shadow(0 0 3px rgba(0,229,255,.9))}
-.cyber-pet-eye-pupil{fill:#0a263b;transform:translate(var(--pet-eye-x),var(--pet-eye-y));transition:transform .09s ease-out}
+.cyber-pet-head{fill:#df3d64;stroke:#ff91a7;stroke-width:1.35;filter:drop-shadow(0 0 4px rgba(223,61,100,.36))}
+.cyber-pet-web{fill:none;stroke:rgba(255,219,228,.52);stroke-width:.65;stroke-linecap:round}
+.cyber-pet-eye{fill:#e8fdff;stroke:#41dcff;stroke-width:.9;filter:drop-shadow(0 0 2.5px rgba(0,229,255,.95))}
 .theme-cyberpunk #cyber-web-pet.is-fast .cyber-pet-core{filter:drop-shadow(0 0 7px rgba(0,229,255,1))}
 .theme-cyberpunk #cyber-web-pet.is-turning .cyber-pet-head{filter:drop-shadow(0 0 6px rgba(255,80,118,.58))}
-.theme-cyberpunk #cyber-web-pet.is-swinging .cyber-pet-figure{animation:none;transform:scaleX(var(--pet-scale-x)) scaleY(var(--pet-scale-y))}
+.theme-cyberpunk #cyber-web-pet.is-swinging .cyber-pet-figure{animation:none}
 @keyframes cyberPetIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
-@keyframes cyberPetBlink{0%,45%,47%,100%{transform:scaleY(1)}46%{transform:scaleY(.12)}}
 @media(max-width:768px),(pointer:coarse){#cyber-pet-web-layer,#cyber-web-pet{display:none!important}}
 @media(prefers-reduced-motion:reduce){#cyber-pet-web-layer,#cyber-web-pet{display:none!important}}

@@ -2032,68 +2032,22 @@ function normalizeEndpoint(url){
 if(!url||url.length<5)return "https://api.deepseek.com/v1/chat/completions";
 if(url.includes("/chat/completions")||url.includes("/v1/chat/completions"))return url;
 url=url.replace(/\/+$/,"");
-if(/\/v1$/i.test(url))return url+"/chat/completions";
 var known={ "api.deepseek.com":"https://api.deepseek.com/v1/chat/completions" };
 for(var key in known){if(url.includes(key))return known[key]}
 return url+"/v1/chat/completions";
 }
-var API_PROVIDERS={
-deepseek:{name:"DeepSeek",endpoint:"https://api.deepseek.com/v1/chat/completions",models:[{value:"deepseek-chat",label:"DeepSeek Chat"},{value:"deepseek-reasoner",label:"DeepSeek Reasoner"}]},
-openai:{name:"OpenAI",endpoint:"https://api.openai.com/v1/chat/completions",models:[{value:"gpt-5.6-sol",label:"GPT-5.6 Sol"},{value:"gpt-5.6-terra",label:"GPT-5.6 Terra"},{value:"gpt-5.6-luna",label:"GPT-5.6 Luna"},{value:"gpt-5.5",label:"GPT-5.5"},{value:"gpt-5.4",label:"GPT-5.4"},{value:"gpt-5.4-mini",label:"GPT-5.4 Mini"},{value:"gpt-4o",label:"GPT-4o"},{value:"gpt-4o-mini",label:"GPT-4o Mini"}]},
-qwen:{name:"阿里云通义千问",endpoint:"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",models:[{value:"qwen-plus",label:"通义千问 Plus"},{value:"qwen-max",label:"通义千问 Max"}]},
-zhipu:{name:"智谱 AI",endpoint:"https://open.bigmodel.cn/api/paas/v4/chat/completions",models:[{value:"glm-4",label:"GLM-4"}]},
-moonshot:{name:"Moonshot / Kimi",endpoint:"https://api.moonshot.cn/v1/chat/completions",models:[{value:"moonshot-v1-8k",label:"Moonshot V1 8K"}]},
-custom:{name:"自定义兼容服务",endpoint:"",models:[]}
-};
-function inferApiProvider(endpoint,model){
-var url=String(endpoint||"").toLowerCase();
-var modelName=String(model||"");
-for(var key in API_PROVIDERS){
-if(key==="custom")continue;
-var provider=API_PROVIDERS[key];
-if(provider.endpoint&&url.indexOf(new URL(provider.endpoint).host.toLowerCase())>=0)return key;
-}
-if(url)return "custom";
-for(var modelProviderKey in API_PROVIDERS){
-if(modelProviderKey!=="custom"&&API_PROVIDERS[modelProviderKey].models.some(function(item){return item.value===modelName}))return modelProviderKey;
-}
-return "custom";
-}
-var apiConfig={endpoint:localStorage.getItem("fp_endpoint")||"https://api.deepseek.com/v1/chat/completions",apikey:localStorage.getItem("fp_apikey")||localStorage.getItem("flowplayer_api_key")||"",model:localStorage.getItem("fp_model")||"",provider:localStorage.getItem("fp_provider")||""};
-if(!API_PROVIDERS[apiConfig.provider])apiConfig.provider=inferApiProvider(apiConfig.endpoint,apiConfig.model);
-function renderApiModelOptions(providerKey,selectedModel){
-var sel=document.getElementById("set-model");
-var ci=document.getElementById("set-model-custom");
-if(!sel||!ci)return;
-var provider=API_PROVIDERS[providerKey]||API_PROVIDERS.custom;
-sel.innerHTML='<option value="" disabled>请选择模型</option>';
-provider.models.forEach(function(item){
-var option=document.createElement("option");
-option.value=item.value;
-option.textContent=item.label;
-sel.appendChild(option);
-});
-var customOption=document.createElement("option");
-customOption.value="__custom__";
-customOption.textContent="自定义模型...";
-sel.appendChild(customOption);
-var known=provider.models.some(function(item){return item.value===selectedModel});
-if(known){sel.value=selectedModel;ci.style.display="none";ci.value="";return}
-if(selectedModel){sel.value="__custom__";ci.style.display="";ci.value=selectedModel;return}
-sel.value=providerKey==="custom"?"__custom__":"";
-ci.style.display=providerKey==="custom"?"":"none";
-ci.value="";
-}
+var apiConfig={endpoint:localStorage.getItem("fp_endpoint")||"https://api.deepseek.com/v1/chat/completions",apikey:localStorage.getItem("fp_apikey")||localStorage.getItem("flowplayer_api_key")||"",model:localStorage.getItem("fp_model")||""};
 function loadConfigUI(){
 var endpoint=document.getElementById("set-endpoint");
 var apikey=document.getElementById("set-apikey");
-var providerSelect=document.getElementById("set-provider");
-var providerKey=API_PROVIDERS[apiConfig.provider]?apiConfig.provider:inferApiProvider(apiConfig.endpoint,apiConfig.model);
-apiConfig.provider=providerKey;
-if(providerSelect)providerSelect.value=providerKey;
-renderApiModelOptions(providerKey,apiConfig.model);
-if(endpoint){endpoint.value=apiConfig.endpoint||API_PROVIDERS[providerKey].endpoint||"";endpoint.readOnly=providerKey!=="custom"}
+var sel=document.getElementById("set-model");
+var ci=document.getElementById("set-model-custom");
+if(endpoint)endpoint.value=apiConfig.endpoint||"";
 if(apikey)apikey.value=apiConfig.apikey||"";
+if(!sel||!ci)return;
+if(!apiConfig.model){sel.value="";ci.style.display="none";ci.value="";updateApiConfigStatus();return}
+var known=Object.keys(MODEL_ENDPOINTS);
+if(known.indexOf(apiConfig.model)>=0){sel.value=apiConfig.model;ci.style.display="none";ci.value=""}else{sel.value="__custom__";ci.style.display="";ci.value=apiConfig.model}
 updateApiConfigStatus();
 }
 function updateApiConfigStatus(){
@@ -2436,63 +2390,7 @@ navigator.clipboard.writeText(text).then(function(){alert("口播文案已复制
 }else{fallbackCopyText(text)}
 }
 function openSettings(e){var o=document.getElementById("settings-overlay");o.classList.add("open");loadConfigUI();updateSoundUI();updateThemeUI();var b=document.querySelector("#settings-tab-theme .sidebar-api-save");if(b){b.onclick=saveThemeSettings}}function closeSettings(e){if(e&&e.target!==document.getElementById("settings-overlay"))return;document.getElementById("settings-overlay").classList.remove("open")}function switchSettingsTab(tab,btn){document.querySelectorAll(".settings-tab").forEach(function(t){t.classList.remove("active")});btn.classList.add("active");document.querySelectorAll(".settings-tab-content").forEach(function(c){c.classList.remove("active")});document.getElementById("settings-tab-"+tab).classList.add("active")}
-function onProviderSelectChange(){
-var providerSelect=document.getElementById("set-provider");
-var endpoint=document.getElementById("set-endpoint");
-if(!providerSelect||!endpoint)return;
-var providerKey=providerSelect.value;
-var provider=API_PROVIDERS[providerKey]||API_PROVIDERS.custom;
-renderApiModelOptions(providerKey,"");
-endpoint.value=provider.endpoint||"";
-endpoint.readOnly=providerKey!=="custom";
-if(providerKey==="custom")endpoint.focus();
-}
-function onModelSelectChange(){
-var providerSelect=document.getElementById("set-provider");
-var sel=document.getElementById("set-model");
-var ci=document.getElementById("set-model-custom");
-var endpoint=document.getElementById("set-endpoint");
-if(!sel||!ci)return;
-var providerKey=providerSelect?providerSelect.value:"custom";
-var provider=API_PROVIDERS[providerKey]||API_PROVIDERS.custom;
-if(provider.endpoint&&endpoint){endpoint.value=provider.endpoint;endpoint.readOnly=true}
-if(sel.value==="__custom__"){ci.style.display="";ci.focus()}else{ci.style.display="none";ci.value=""}
-}
-function saveSettingsApi(){
-var providerSelect=document.getElementById("set-provider");
-var providerKey=providerSelect&&providerSelect.value?providerSelect.value:"custom";
-var provider=API_PROVIDERS[providerKey]||API_PROVIDERS.custom;
-var endpointInput=document.getElementById("set-endpoint");
-var endpoint=normalizeEndpoint(provider.endpoint||endpointInput.value.trim());
-var apikey=document.getElementById("set-apikey").value.trim();
-var sel=document.getElementById("set-model");
-var model=sel.value==="__custom__"?document.getElementById("set-model-custom").value.trim():sel.value;
-if(!model){alert("请先选择或填写模型");return}
-if(!apikey||apikey.length<10){alert("请输入有效的 API Key");return}
-try{var parsedEndpoint=new URL(endpoint);if(!/^https?:$/.test(parsedEndpoint.protocol))throw new Error("protocol")}catch(e){alert("请输入有效的 API 地址");return}
-apiConfig.provider=providerKey;
-apiConfig.endpoint=endpoint;
-apiConfig.apikey=apikey;
-apiConfig.model=model;
-localStorage.setItem("fp_provider",apiConfig.provider);
-localStorage.setItem("fp_endpoint",apiConfig.endpoint);
-localStorage.setItem("fp_apikey",apiConfig.apikey);
-localStorage.setItem("fp_model",apiConfig.model);
-document.getElementById("settings-overlay").classList.remove("open");
-updateApiStatus();updateFormApiStatus();
-}
-function clearSettingsApi(){
-document.getElementById("set-provider").value="";
-document.getElementById("set-endpoint").value="";
-document.getElementById("set-endpoint").readOnly=false;
-document.getElementById("set-apikey").value="";
-document.getElementById("set-model").innerHTML='<option value="" disabled selected>请先选择服务商</option>';
-document.getElementById("set-model-custom").style.display="none";
-document.getElementById("set-model-custom").value="";
-apiConfig.provider="";apiConfig.endpoint="https://api.deepseek.com/v1/chat/completions";apiConfig.apikey="";apiConfig.model="";
-localStorage.removeItem("fp_provider");localStorage.removeItem("fp_endpoint");localStorage.removeItem("fp_apikey");localStorage.removeItem("fp_model");
-document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus();
-}
+var MODEL_ENDPOINTS={"deepseek-v4-flash":"https://api.deepseek.com/v1/chat/completions","deepseek-v4-pro":"https://api.deepseek.com/v1/chat/completions","gpt-4o":"https://api.openai.com/v1/chat/completions","gpt-4o-mini":"https://api.openai.com/v1/chat/completions","gpt-4-turbo":"https://api.openai.com/v1/chat/completions","qwen-plus":"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions","qwen-max":"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions","glm-4":"https://open.bigmodel.cn/api/paas/v4/chat/completions","moonshot-v1-8k":"https://api.moonshot.cn/v1/chat/completions"};function onModelSelectChange(){var sel=document.getElementById("set-model");var ci=document.getElementById("set-model-custom");if(!sel.value){ci.style.display="none";ci.value="";return}if(sel.value==="__custom__"){ci.style.display="";ci.focus()}else{ci.style.display="none";ci.value="";var ep=MODEL_ENDPOINTS[sel.value];if(ep){document.getElementById("set-endpoint").value=ep}}}function saveSettingsApi(){apiConfig.endpoint=normalizeEndpoint(document.getElementById("set-endpoint").value.trim());apiConfig.apikey=document.getElementById("set-apikey").value.trim();var sel=document.getElementById("set-model");var model=sel.value==="__custom__"?document.getElementById("set-model-custom").value.trim():sel.value;if(!model){alert("请先在模型选择栏选择你的模型");return}apiConfig.model=model;localStorage.setItem("fp_endpoint",apiConfig.endpoint);localStorage.setItem("fp_apikey",apiConfig.apikey);localStorage.setItem("fp_model",apiConfig.model);document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus()}function clearSettingsApi(){document.getElementById("set-endpoint").value="";document.getElementById("set-apikey").value="";document.getElementById("set-model").value="";document.getElementById("set-model-custom").style.display="none";document.getElementById("set-model-custom").value="";apiConfig.endpoint="https://api.deepseek.com/v1/chat/completions";apiConfig.apikey="";apiConfig.model="";localStorage.removeItem("fp_endpoint");localStorage.removeItem("fp_apikey");localStorage.removeItem("fp_model");document.getElementById("settings-overlay").classList.remove("open");updateApiStatus();updateFormApiStatus()}
 function updateApiStatus(){var btn=document.querySelector(".sidebar-settings-btn");if(!btn)return;btn.classList.toggle("api-configured",!!apiConfig.apikey);updateApiConfigStatus()}
 function toggleSettings(e){e.stopPropagation();var p=document.getElementById("chat-settings-panel");p.classList.toggle("open")}
 function applyAdjustment(){var t=document.getElementById("cfg-adjust");var v=t.value.trim();if(!v)return;document.getElementById("chat-settings-panel").classList.remove("open");addMessage("user","调整要求："+v);if(isMayuanChat())updateMayuanDocStatusByContent(v,"request");t.value="";showTyping();callAgentForAdjust(v)}

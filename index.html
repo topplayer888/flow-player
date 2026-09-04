@@ -1,36 +1,42 @@
 ﻿<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>头号流量玩家</title>
-<link rel="stylesheet" href="style.css?v=191"></head><body class="auth-checking local-only-mode"><script>(function(){try{var t=localStorage.getItem("fp_theme")||"enterprise";if(["cyberpunk","light","enterprise"].indexOf(t)<0){t="enterprise";localStorage.setItem("fp_theme",t)}window.__fpInitialTheme=t;document.body.classList.add("theme-"+t)}catch(e){document.body.classList.add("theme-enterprise")}})();</script>
+<link rel="stylesheet" href="style.css?v=192"></head><body class="auth-checking local-only-mode"><script>(function(){try{var t=localStorage.getItem("fp_theme")||"enterprise";if(["cyberpunk","light","enterprise"].indexOf(t)<0){t="enterprise";localStorage.setItem("fp_theme",t)}window.__fpInitialTheme=t;document.body.classList.add("theme-"+t)}catch(e){document.body.classList.add("theme-enterprise")}})();</script>
 <canvas id="bg-canvas"></canvas><canvas id="fx-canvas"></canvas>
 <svg id="cyber-pet-web-layer" aria-hidden="true"><path id="cyber-pet-web-line"></path></svg>
 <div id="cyber-web-pet" aria-hidden="true">
 <div class="cyber-pet-figure">
-<svg viewBox="0 0 72 92" role="presentation">
+<svg viewBox="0 0 72 92" role="presentation" shape-rendering="geometricPrecision">
 <ellipse class="cyber-pet-shadow" cx="36" cy="87" rx="18" ry="3"></ellipse>
 <g class="cyber-pet-leg cyber-pet-leg-left">
-<path class="cyber-pet-limb" d="M31 64C28 72 23 77 17 80"></path><circle class="cyber-pet-joint" cx="23" cy="77" r="2"></circle><path class="cyber-pet-boot" d="M17 80L11 82"></path>
+<path class="cyber-pet-limb" d="M30 63L25 73L16 79"></path><rect class="cyber-pet-joint" x="22" y="70" width="6" height="6"></rect><path class="cyber-pet-boot" d="M16 79L10 83L16 85"></path>
 </g>
 <g class="cyber-pet-leg cyber-pet-leg-right">
-<path class="cyber-pet-limb" d="M41 64C45 71 51 75 58 76"></path><circle class="cyber-pet-joint" cx="51" cy="75" r="2"></circle><path class="cyber-pet-boot" d="M58 76L64 73"></path>
+<path class="cyber-pet-limb" d="M42 63L47 73L56 79"></path><rect class="cyber-pet-joint" x="44" y="70" width="6" height="6"></rect><path class="cyber-pet-boot" d="M56 79L62 83L56 85"></path>
 </g>
 <g class="cyber-pet-torso">
-<path class="cyber-pet-body" d="M25 43C28 39 44 39 47 43L44 66C40 70 32 70 28 66Z"></path>
-<path class="cyber-pet-panel" d="M29 47H43L41 62C38 64 34 64 31 62Z"></path>
-<path class="cyber-pet-core" d="M36 48L41 54L36 61L31 54Z"></path>
+<path class="cyber-pet-body" d="M24 43L30 38H42L48 43L47 64L42 70H30L25 64Z"></path>
+<path class="cyber-pet-panel" d="M28 44H44L45 60L36 67L27 60Z"></path>
+<path class="cyber-pet-core" d="M36 47L41 53L36 61L31 53Z"></path>
+<path class="cyber-pet-core-mark" d="M36 49V59M32.5 53L36 55L39.5 53"></path>
 </g>
 <g class="cyber-pet-arm cyber-pet-arm-left">
-<path class="cyber-pet-limb" d="M27 46C21 50 18 55 15 61"></path><circle class="cyber-pet-joint" cx="18" cy="55" r="2"></circle><path class="cyber-pet-forearm" d="M15 61L10 67"></path><circle class="cyber-pet-hand" cx="9" cy="68" r="3.2"></circle>
+<path class="cyber-pet-limb" d="M25 46L17 50L13 58"></path><rect class="cyber-pet-joint" x="14" y="47" width="6" height="6"></rect><path class="cyber-pet-forearm" d="M13 58L8 64"></path><rect class="cyber-pet-hand" x="5" y="62" width="6" height="6"></rect>
 </g>
 <g class="cyber-pet-arm cyber-pet-arm-right">
-<path class="cyber-pet-limb" d="M45 46C51 50 54 55 57 61"></path><circle class="cyber-pet-joint" cx="54" cy="55" r="2"></circle><path class="cyber-pet-forearm" d="M57 61L62 67"></path><circle class="cyber-pet-hand" cx="63" cy="68" r="3.2"></circle>
+<path class="cyber-pet-limb" d="M47 46L55 50L59 58"></path><rect class="cyber-pet-joint" x="52" y="47" width="6" height="6"></rect><path class="cyber-pet-forearm" d="M59 58L64 64"></path><rect class="cyber-pet-hand" x="61" y="62" width="6" height="6"></rect>
 </g>
 <g class="cyber-pet-head-group">
-<path class="cyber-pet-neck" d="M32 40V36H40V40"></path>
-<path class="cyber-pet-head" d="M21 22C21 10 27 4 36 4C45 4 51 10 51 22C51 33 45 39 36 39C27 39 21 33 21 22Z"></path>
-<path class="cyber-pet-web" d="M36 6V37M23 16C30 20 42 20 49 16M22 25C30 22 42 22 50 25M25 33C31 29 41 29 47 33M36 19L25 11M36 19L47 11"></path>
-<path class="cyber-pet-eye" d="M24 20C28 16 32 15 35 16C32 23 29 26 24 27Z"></path>
-<path class="cyber-pet-eye" d="M48 20C44 16 40 15 37 16C40 23 43 26 48 27Z"></path>
+<path class="cyber-pet-neck" d="M31 42V37H41V42"></path>
+<path class="cyber-pet-head-outline" d="M20 10L27 3H45L52 10L57 19V31L51 40L43 45H29L21 40L15 31V19Z"></path>
+<path class="cyber-pet-head" d="M22 11L28 5H44L50 11L54 20V30L49 38L42 42H30L23 38L18 30V20Z"></path>
+<path class="cyber-pet-web" d="M36 6V40M21 16L51 16M18 25H54M21 34H51M36 17L24 8M36 17L48 8M36 26L20 17M36 26L52 17M36 35L20 27M36 35L52 27"></path>
+<g class="cyber-pet-eyes">
+<path class="cyber-pet-eye" d="M20 19L34 20L30 36L22 32Z"></path>
+<path class="cyber-pet-eye" d="M52 19L38 20L42 36L50 32Z"></path>
+<circle class="cyber-pet-eye-pupil" cx="28" cy="26" r="2.2"></circle>
+<circle class="cyber-pet-eye-pupil" cx="44" cy="26" r="2.2"></circle>
+</g>
 </g>
 </svg>
 </div>
@@ -466,7 +472,7 @@
 <script src="modules/tiejia.js?v=202606231315"></script>
 <script src="vendor/mammoth.browser.min.js"></script>
 <script src="vendor/pdf.min.js"></script>
-<script src="app.js?v=20260904-3"></script>
+<script src="app.js?v=20260904-4"></script>
 <input id="mayuan-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleMayuanDocUpload(event)">
 <input id="kyrie-doc-upload" type="file" accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="handleKyrieDocUpload(event)">
 

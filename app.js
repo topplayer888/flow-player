@@ -2743,6 +2743,11 @@ figure.style.setProperty("--pet-left-leg",clamp(-direction*(16+strength*24)+phas
 figure.style.setProperty("--pet-right-leg",clamp(direction*(18+strength*26)-phase*(9+strength*7)+vy*.018-turnTuck,-56,56)+"deg");
 figure.style.setProperty("--pet-head",clamp((anchorX-x)*.045-vx*.006,-12,12)+"deg");
 figure.style.setProperty("--pet-torso",clamp(vx*.012,-8,8)+"deg");
+figure.style.setProperty("--pet-eye-x",clamp((anchorX-x)*.018,-2.2,2.2)+"px");
+figure.style.setProperty("--pet-eye-y",clamp((anchorY-y)*.012,-1.5,1.5)+"px");
+var stretch=clamp(Math.abs(vy)/950,0,.075);
+figure.style.setProperty("--pet-scale-x",(1-stretch*.45).toFixed(3));
+figure.style.setProperty("--pet-scale-y",(1+stretch).toFixed(3));
 pet.classList.toggle("is-fast",speed>360);pet.classList.toggle("is-turning",!!turning);
 }
 function frame(now){
@@ -2762,11 +2767,11 @@ if(distance>maxLength){nx=rx/distance;ny=ry/distance;x=anchorX+nx*maxLength;y=an
 var boundedX=clamp(x,56,window.innerWidth-56),boundedY=clamp(y,22,window.innerHeight-96);
 if(boundedX!==x)vx*=-.12;if(boundedY!==y)vy*=-.12;x=boundedX;y=boundedY;
 var speed=Math.sqrt(vx*vx+vy*vy),tilt=clamp(vx*.045,-32,32);
-pet.style.transform="translate3d("+(x-34).toFixed(2)+"px,"+(y-10).toFixed(2)+"px,0) rotate("+tilt.toFixed(2)+"deg)";
+pet.style.transform="translate3d("+(x-36).toFixed(2)+"px,"+(y-10).toFixed(2)+"px,0) rotate("+tilt.toFixed(2)+"deg)";
 setPose(speed,now);
-var swinging=hasPointer&&(now-lastMove<1250||speed>28);
+var swinging=hasPointer&&(now-lastMove<1400||speed>18);
 pet.classList.toggle("is-swinging",swinging);
-if(swinging){
+if(hasPointer){
 var webSide=anchorX<x?-1:1,wristX=x+webSide*23,wristY=y+5;
 var lineX=wristX-anchorX,lineY=wristY-anchorY,lineLength=Math.max(1,Math.sqrt(lineX*lineX+lineY*lineY));
 var perpX=-lineY/lineLength,perpY=lineX/lineLength,targetBend=clamp((vx*perpX+vy*perpY)*.035,-26,26);

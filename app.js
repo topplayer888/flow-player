@@ -2703,77 +2703,47 @@ applyTheme=function(theme){
 if(initialTheme==="cyberpunk")applyTheme("cyberpunk");
 })();
 
-// Articulated cursor follower with a damped web-swing model.
+// Lightweight cursor follower used only by the cyberpunk theme.
 (function(){
 var pet=document.getElementById("cyber-web-pet");
 var web=document.getElementById("cyber-pet-web-line");
 if(!pet||!web)return;
-var figure=pet.querySelector(".cyber-pet-figure");
 var reduceMotion=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)");
 var coarsePointer=window.matchMedia&&window.matchMedia("(pointer: coarse)");
-var x=Math.max(56,window.innerWidth*.7),y=110,vx=0,vy=0;
-var anchorX=x,anchorY=18,targetAnchorX=x,targetAnchorY=18,pointerVX=0,pointerVY=0;
-var lastMove=0,lastPointerTime=0,lastFrameTime=0,hasPointer=false,animationId=0,running=false;
-var ropeLength=104,lastDirection=0,lastTurn=0,webBend=0;
+var x=Math.max(40,window.innerWidth*.7),y=90,targetX=x,targetY=y;
+var anchorX=x,anchorY=20,vx=0,vy=0,lastMove=0,hasPointer=false;
+var animationId=0,running=false;
 function clamp(value,min,max){return Math.max(min,Math.min(max,value))}
 function enabled(){return document.body.classList.contains("theme-cyberpunk")&&window.innerWidth>768&&!(reduceMotion&&reduceMotion.matches)&&!(coarsePointer&&coarsePointer.matches)}
 function moveTarget(e){
 if(!enabled()||(e.pointerType&&e.pointerType!=="mouse"))return;
-var now=performance.now(),elapsed=Math.max(16,now-lastPointerTime);
-if(lastPointerTime){pointerVX=(e.clientX-targetAnchorX)*1000/elapsed;pointerVY=(e.clientY-targetAnchorY)*1000/elapsed}
-targetAnchorX=clamp(e.clientX,8,window.innerWidth-8);targetAnchorY=clamp(e.clientY,8,window.innerHeight-8);
-ropeLength=clamp(92+Math.sqrt(pointerVX*pointerVX+pointerVY*pointerVY)*.018,92,142);
-lastPointerTime=now;lastMove=now;hasPointer=true;
+anchorX=clamp(e.clientX,8,window.innerWidth-8);
+anchorY=clamp(e.clientY,8,window.innerHeight-8);
+targetX=clamp(anchorX+(anchorX<window.innerWidth/2?24:-24),46,window.innerWidth-46);
+targetY=clamp(anchorY+52,22,window.innerHeight-78);
+lastMove=performance.now();hasPointer=true;
 }
-function hideWeb(){hasPointer=false;web.classList.remove("is-visible");pet.classList.remove("is-swinging","is-fast","is-turning")}
+function hideWeb(){hasPointer=false;web.classList.remove("is-visible");pet.classList.remove("is-swinging")}
 document.addEventListener("pointermove",moveTarget,{passive:true});
 document.addEventListener("mouseleave",hideWeb);
 window.addEventListener("blur",hideWeb);
-window.addEventListener("resize",function(){x=clamp(x,56,window.innerWidth-56);y=clamp(y,22,window.innerHeight-96);targetAnchorX=clamp(targetAnchorX,8,window.innerWidth-8);targetAnchorY=clamp(targetAnchorY,8,window.innerHeight-8);syncAnimation()});
-function setPose(speed,now){
-var strength=clamp(speed/760,0,1),direction=Math.abs(vx)>18?(vx>0?1:-1):lastDirection;
-if(lastDirection&&direction&&direction!==lastDirection&&speed>150)lastTurn=now;if(direction)lastDirection=direction;
-var turning=now-lastTurn<220,turnTuck=turning?20:0;
-var phase=Math.sin(now*.012),webOnLeft=anchorX<x,leadArm=webOnLeft?103:-103;
-var leftTrail=clamp(-10+direction*18+phase*9+vy*.018,-38,34);
-var rightTrail=clamp(10+direction*18-phase*9-vy*.018,-34,38);
-figure.style.setProperty("--pet-left-arm",(webOnLeft?leadArm:leftTrail)+"deg");
-figure.style.setProperty("--pet-right-arm",(webOnLeft?rightTrail:leadArm)+"deg");
-figure.style.setProperty("--pet-left-leg",clamp(-direction*(16+strength*24)+phase*(9+strength*7)-vy*.018+turnTuck,-56,56)+"deg");
-figure.style.setProperty("--pet-right-leg",clamp(direction*(18+strength*26)-phase*(9+strength*7)+vy*.018-turnTuck,-56,56)+"deg");
-figure.style.setProperty("--pet-head",clamp((anchorX-x)*.045-vx*.006,-12,12)+"deg");
-figure.style.setProperty("--pet-torso",clamp(vx*.012,-8,8)+"deg");
-pet.classList.toggle("is-fast",speed>360);pet.classList.toggle("is-turning",!!turning);
-}
+window.addEventListener("resize",function(){x=clamp(x,46,window.innerWidth-46);y=clamp(y,22,window.innerHeight-78);targetX=clamp(targetX,46,window.innerWidth-46);targetY=clamp(targetY,22,window.innerHeight-78);syncAnimation()});
 function frame(now){
 if(!enabled()){running=false;animationId=0;hideWeb();return}
-var dt=lastFrameTime?Math.min((now-lastFrameTime)/1000,.034):.016;lastFrameTime=now;
-var anchorEase=1-Math.exp(-dt*13);anchorX+=(targetAnchorX-anchorX)*anchorEase;anchorY+=(targetAnchorY-anchorY)*anchorEase;
-pointerVX*=Math.pow(.88,dt*60);pointerVY*=Math.pow(.88,dt*60);
-if(hasPointer){
-var rx=x-anchorX,ry=y-anchorY,distance=Math.max(1,Math.sqrt(rx*rx+ry*ry));
-var nx=rx/distance,ny=ry/distance,stretch=Math.max(0,distance-ropeLength);
-vx-=nx*stretch*34*dt;vy-=ny*stretch*34*dt;vy+=720*dt;
-var drag=Math.pow(.987,dt*60);vx*=drag;vy*=drag;x+=vx*dt;y+=vy*dt;
-rx=x-anchorX;ry=y-anchorY;distance=Math.max(1,Math.sqrt(rx*rx+ry*ry));
-var maxLength=ropeLength*1.38;
-if(distance>maxLength){nx=rx/distance;ny=ry/distance;x=anchorX+nx*maxLength;y=anchorY+ny*maxLength;var radial=vx*nx+vy*ny;if(radial>0){vx-=radial*nx*.9;vy-=radial*ny*.9}}
-}
-var boundedX=clamp(x,56,window.innerWidth-56),boundedY=clamp(y,22,window.innerHeight-96);
-if(boundedX!==x)vx*=-.12;if(boundedY!==y)vy*=-.12;x=boundedX;y=boundedY;
-var speed=Math.sqrt(vx*vx+vy*vy),tilt=clamp(vx*.045,-32,32);
-pet.style.transform="translate3d("+(x-34).toFixed(2)+"px,"+(y-10).toFixed(2)+"px,0) rotate("+tilt.toFixed(2)+"deg)";
-setPose(speed,now);
-var swinging=hasPointer&&(now-lastMove<1250||speed>28);
+var dx=targetX-x,dy=targetY-y;
+vx=(vx+dx*.021)*.875;vy=(vy+dy*.021)*.875;
+x+=vx;y+=vy;
+var boundedX=clamp(x,46,window.innerWidth-46),boundedY=clamp(y,22,window.innerHeight-78);
+if(boundedX!==x)vx*=-.08;if(boundedY!==y)vy*=-.08;
+x=boundedX;y=boundedY;
+var speed=Math.sqrt(vx*vx+vy*vy),distance=Math.sqrt(dx*dx+dy*dy);
+var tilt=clamp(vx*2.1,-28,28);
+pet.style.transform="translate3d("+(x-29).toFixed(2)+"px,"+(y-8).toFixed(2)+"px,0) rotate("+tilt.toFixed(2)+"deg)";
+var swinging=hasPointer&&(now-lastMove<900||distance>5||speed>.35);
 pet.classList.toggle("is-swinging",swinging);
 if(swinging){
-var webSide=anchorX<x?-1:1,wristX=x+webSide*23,wristY=y+5;
-var lineX=wristX-anchorX,lineY=wristY-anchorY,lineLength=Math.max(1,Math.sqrt(lineX*lineX+lineY*lineY));
-var perpX=-lineY/lineLength,perpY=lineX/lineLength,targetBend=clamp((vx*perpX+vy*perpY)*.035,-26,26);
-webBend+=(targetBend-webBend)*(1-Math.exp(-dt*10));
-var c1x=anchorX+lineX*.3+perpX*webBend,c1y=anchorY+lineY*.3+perpY*webBend;
-var c2x=anchorX+lineX*.72+perpX*webBend*.55,c2y=anchorY+lineY*.72+perpY*webBend*.55;
-web.setAttribute("d","M"+anchorX.toFixed(1)+" "+anchorY.toFixed(1)+" C"+c1x.toFixed(1)+" "+c1y.toFixed(1)+" "+c2x.toFixed(1)+" "+c2y.toFixed(1)+" "+wristX.toFixed(1)+" "+wristY.toFixed(1));
+var petTopY=y-3,controlX=(anchorX+x)/2+clamp(vx*5,-42,42),controlY=Math.min(anchorY,petTopY)-Math.min(72,Math.abs(x-anchorX)*.18+26);
+web.setAttribute("d","M"+anchorX.toFixed(1)+" "+anchorY.toFixed(1)+" Q"+controlX.toFixed(1)+" "+controlY.toFixed(1)+" "+x.toFixed(1)+" "+petTopY.toFixed(1));
 web.classList.add("is-visible");
 }else{web.classList.remove("is-visible")}
 animationId=requestAnimationFrame(frame);

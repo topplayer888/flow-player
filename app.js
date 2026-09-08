@@ -250,7 +250,7 @@ updateDynamicQuickChips("assistant",text);return text;
 }
 };
 }
-var sections=[{title:"爆款脚本创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"四大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"访谈式IP策划",desc:"IP访谈 · 经历挖掘与短视频脚本生成",icon:"🎤"},{name:"爆款仿写",desc:"爆款仿写 · 对标爆款文案的结构化仿写生成",icon:"✍️"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"创意",desc:"四大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"},{name:"马源2.0",desc:"马源2.0 · 内容专项与广告创意智能体",icon:"🧠"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"策略",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导IP直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"Kyrie直播方法论",desc:"Kyrie体系 · 知识付费直播闭环与中控训练",icon:"📈"}]}],currentSection=0,currentMode=0;
+var sections=[{title:"爆款主页创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"四大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"访谈式IP策划",desc:"IP访谈 · 经历挖掘与短视频脚本生成",icon:"🎤"},{name:"爆款仿写",desc:"爆款仿写 · 对标爆款文案的结构化仿写生成",icon:"✍️"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"创意",desc:"四大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"},{name:"马源2.0",desc:"马源2.0 · 内容专项与广告创意智能体",icon:"🧠"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"策略",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导IP直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"Kyrie直播方法论",desc:"Kyrie体系 · 知识付费直播闭环与中控训练",icon:"📈"}]}],currentSection=0,currentMode=0;
 
 var agents={
 "1-0":{
@@ -393,6 +393,9 @@ systemPrompt:`你是「马源2.0 内容专项智能体」，部署在「广告�
 opening:"你好，我是「马源2.0 · 内容专项智能体」🧠\n\n我不只是帮你写一条广告脚本，而是帮你把产品拆成可测试、可裂变、可复盘的内容专项。\n\n我会按这条路径帮你推进：\n\n策略 -> 人群 -> 手法 -> 视觉 -> 素材命名 -> 脚本 -> 测试计划\n\n先告诉我 3 个信息就能开始：\n\n1. 你的产品是什么？品类和核心卖点是什么？\n2. 目标平台是什么？抖音、小红书、视频号、千川，还是其他？\n3. 你这次想做什么？测新、裂变、提升转化、找痛点、做人群专项，还是建素材库？\n\n你也可以直接上传产品资料、竞品素材、评论区内容或投放复盘，我会先帮你提炼内容专项机会。",
 questions:["我的产品是XXX，帮我做马源2.0内容专项","帮我拆一批测新素材方向","帮我做品类PK专项","帮我做痛点解决专项","帮我做人群专项","帮我拆竞品爆款素材","帮我生成30-60秒广告脚本","帮我做素材测试计划"]
 };
+Object.keys(agents).forEach(function(key){
+if(agents[key]&&typeof agents[key].section==="string")agents[key].section=agents[key].section.replace(/^爆款脚本创作/,"爆款主页创作");
+});
 function goHome(){if(chatOpen){closeChat()}currentSection=0;currentMode=-1;document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active")});var nav=document.querySelector('.nav-item[data-section="0"]');if(nav)nav.classList.add("active");renderContent();renderRightModes();renderHistory()}
 var modeDocOverrides={
 "0-0":{what:"用薛辉方法论把行业、人群、爆款元素、开头类型和模板串起来，生成更适合短视频传播的爆款脚本。",methodology:[

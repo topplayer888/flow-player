@@ -384,6 +384,7 @@ function kjGenerate() { if (!kjCheckApi()) return; if (!kjCheckApi()) return;
     document.getElementById("kj-step4").style.display = "";
     var resultArea = document.getElementById("kj-result-area") || document.getElementById("kj-step4");
     resultArea.innerHTML = html;
+    if (typeof updateDynamicQuickChips === "function") updateDynamicQuickChips("assistant", result);
   }, { temperature: 0.8, max_tokens: 8000 });
 }
 

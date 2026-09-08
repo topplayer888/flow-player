@@ -1933,17 +1933,24 @@ return ["继续优化这版内容","帮我改得更口语化","帮我补充细�
 }
 function buildDynamicQuickChips(latestContent){
 var source=stripHtmlText(latestContent)+"\n"+getLastChatText("user");
-var chips=getWorkspaceQuickChips().slice();
-if(/口播|逐字稿|脚本|文案|分镜|标题|字幕|钩子/.test(source))chips.push("一键复制纯口播文案","帮我强化开头钩子","帮我让段落衔接更顺","帮我生成3个不同版本","帮我缩短到30-60秒","帮我加长并补充细节","帮我提取分镜脚本","帮我改得更口语化");
-if(/方案|策略|规划|流程|计划|专项|测试|素材库/.test(source))chips.push("帮我拆成执行清单","帮我生成下一步操作","帮我按优先级排序","帮我补充测试计划","帮我整理成表格版");
-if(/复盘|诊断|数据|指标|成交|停留|互动|点击|中控/.test(source))chips.push("帮我提炼核心问题","帮我生成下一场优化清单","帮我改写关键话术","帮我补充中控动作","帮我分析成交卡点");
-if(/文档|摘要|资料|提炼|卖点|人群|痛点/.test(source))chips.push("根据资料生成脚本","帮我提炼目标人群","帮我提炼核心卖点","帮我生成素材方向","帮我列出还缺的信息");
-if(/马源|内容专项|素材命名|裂变|测新|品类PK/.test(source))chips.push("帮我做测新素材方向","帮我做裂变版本","帮我做品类PK专项","帮我做痛点解决专项");
-if(/大川|电商|买点|身份视角|投放/.test(source))chips.push("换成用户视角重写","换成商家视角重写","帮我强化买点","帮我加强转化收口");
-if(/Kyrie|直播|带货|逼单|憋单|老师/.test(source))chips.push("帮我写老师马上说的话","帮我生成3分钟节奏","帮我优化带货衔接","帮我补充互动话术");
-if(/IP|访谈|人设|素材库|选题/.test(source))chips.push("继续深挖这个故事","帮我生成短视频选题","帮我提炼人设信号","帮我写成口播脚本");
+var contextualChips=[];
+if(chatKey==="0-3"){
+  if(/模式A|原汁原味|保留原结构|原文节奏/.test(source))contextualChips.push("保持原结构继续仿写","强化原文节奏","继续生成同风格版本","提取原文转化路径");
+  if(/模式B|自定义定位|行业平移|新行业|新人设/.test(source))contextualChips.push("按新行业继续仿写","换一个新人设再仿写","强化行业平移逻辑","保留结构换主题");
+  if(/结构|钩子|情绪|转化|人设/.test(source))contextualChips.push("继续拆解这版结构","强化当前钩子","强化人设表达","优化转化收口");
+}
+if(/口播|逐字稿|脚本|文案|分镜|标题|字幕|钩子/.test(source))contextualChips.push("一键复制纯口播文案","帮我强化开头钩子","帮我让段落衔接更顺","帮我生成3个不同版本","帮我缩短到30-60秒","帮我加长并补充细节","帮我提取分镜脚本","帮我改得更口语化");
+if(/方案|策略|规划|流程|计划|专项|测试|素材库/.test(source))contextualChips.push("帮我拆成执行清单","帮我生成下一步操作","帮我按优先级排序","帮我补充测试计划","帮我整理成表格版");
+if(/复盘|诊断|数据|指标|成交|停留|互动|点击|中控/.test(source))contextualChips.push("帮我提炼核心问题","帮我生成下一场优化清单","帮我改写关键话术","帮我补充中控动作","帮我分析成交卡点");
+if(/文档|摘要|资料|提炼|卖点|人群|痛点/.test(source))contextualChips.push("根据资料生成脚本","帮我提炼目标人群","帮我提炼核心卖点","帮我生成素材方向","帮我列出还缺的信息");
+if(/马源|内容专项|素材命名|裂变|测新|品类PK/.test(source))contextualChips.push("帮我做测新素材方向","帮我做裂变版本","帮我做品类PK专项","帮我做痛点解决专项");
+if(/大川|电商|买点|身份视角|投放/.test(source))contextualChips.push("换成用户视角重写","换成商家视角重写","帮我强化买点","帮我加强转化收口");
+if(/Kyrie|直播|带货|逼单|憋单|老师/.test(source))contextualChips.push("帮我写老师马上说的话","帮我生成3分钟节奏","帮我优化带货衔接","帮我补充互动话术");
+if(/IP|访谈|人设|素材库|选题/.test(source))contextualChips.push("继续深挖这个故事","帮我生成短视频选题","帮我提炼人设信号","帮我写成口播脚本");
+var fallbackChips=getWorkspaceQuickChips();
+var chips=normalizeQuickChips(contextualChips.concat(fallbackChips));
 if(!chips.length)chips=["继续优化这版内容","帮我改得更口语化","帮我补充细节","帮我生成下一版","帮我总结重点","帮我列下一步"];
-return normalizeQuickChips(chips);
+return chips;
 }
 function renderChatQuestions(items){
 var box=document.getElementById("chat-questions");
@@ -1952,7 +1959,8 @@ box.innerHTML=normalizeQuickChips(items).map(function(q){return '<span class="ch
 }
 function updateDynamicQuickChips(role,content){
 if(role!=="assistant"||!chatOpen)return;
-if(!getLastChatText("user")&&chatMessages.length<=1)return;
+var isInitialOpening=chatMessages.length===1&&chatMessages[0]&&chatMessages[0].role==="assistant"&&String(chatMessages[0].content||"")===String(content||"");
+if(isInitialOpening)return;
 renderChatQuestions(buildDynamicQuickChips(content));
 }
 function addMessage(role,content,options){

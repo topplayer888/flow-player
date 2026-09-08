@@ -351,6 +351,7 @@ function xhRegenerate() {
     var div = document.getElementById("xh-regen-result");
     div.innerHTML = '<div data-xh-card="regen" style="padding:12px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,229,255,.04)"><div style="font-size:11px;font-weight:600;color:var(--cyan);margin-bottom:6px">✅ 优化结果</div><div class="xh-copy-content" style="font-size:12px;line-height:1.6;color:var(--text-primary);white-space:pre-wrap">' + xhEscapeHtml(typeof compactResultText==="function"?compactResultText(result):result) + '</div><button onclick="copyXhResult(this)" style="margin-top:8px;background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 复制</button></div>';
     div.style.display = "";
+    if (typeof updateDynamicQuickChips === "function") updateDynamicQuickChips("assistant", result);
   }, { temperature: 0.3, max_tokens: 8000 });
 }
 
@@ -551,6 +552,10 @@ function xhRenderResults(results) {
   html += '<div style="margin-top:16px;padding:12px;border-radius:10px;border:1px dashed var(--border-glow);background:rgba(168,85,247,.04)"><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">🔄 调整或扩写当前文案</div><textarea id="xh-regen-input" placeholder="输入调整要求，例如：语气更活泼、强化痛点、增加场景细节或扩写篇幅..." style="width:100%;min-height:60px;padding:8px;border-radius:8px;border:1px solid var(--border-glow);background:var(--bg-panel);color:var(--text-primary);font-size:11px;resize:vertical;margin-bottom:8px;font-family:inherit"></textarea><button id="xh-regen-btn" onclick="xhRegenerate()" class="sidebar-api-save" style="width:100%">✨ 重新生成</button><div id="xh-regen-result" style="margin-top:10px;display:none"></div><div id="xh-regen-loading" style="display:none"></div></div>';
   container.innerHTML = html;
   document.getElementById("xh-results").style.display = "";
+  if (typeof updateDynamicQuickChips === "function") {
+    var resultText = (results || []).map(function(r) { return r && r.content ? r.content : ""; }).filter(Boolean).join("\n\n");
+    updateDynamicQuickChips("assistant", resultText);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function() {

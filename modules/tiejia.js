@@ -128,6 +128,7 @@ function tjStep3(){
     var result=typeof json==="string"?json:(json.raw||json.content||json.text||JSON.stringify(json));
     document.getElementById("tj-result").textContent=typeof compactResultText==="function"?compactResultText(result):result;
     tjRenderVoiceover(result);
+    if(typeof updateDynamicQuickChips==="function")updateDynamicQuickChips("assistant",result);
   });
 }
 
@@ -210,6 +211,7 @@ function tjRenderRegenVoiceover(result){
   ir.style.cssText="display:block;margin-top:12px;padding:12px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(0,229,255,.03)";
   ir.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--cyan)">🎙 重新生成口播逐字稿</span><button onclick="copyTjRegenVoiceover(this)" style="background:var(--bg-panel);border:1px solid var(--border-glow);color:var(--text-secondary);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px">📋 一键复制</button></div><div class="tj-voiceover-text" id="tj-regen-voiceover-text" style="font-size:12px;line-height:1.65;color:var(--text-primary);white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:8px;background:var(--bg-card);border-radius:8px"></div>';
   document.getElementById("tj-regen-voiceover-text").textContent=typeof compactResultText==="function"?compactResultText(result):result;
+  if(typeof updateDynamicQuickChips==="function")updateDynamicQuickChips("assistant",result);
 }
 
 function tjCleanVoiceoverText(text){

@@ -250,7 +250,7 @@ updateDynamicQuickChips("assistant",text);return text;
 }
 };
 }
-var sections=[{title:"爆款脚本创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"四大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"访谈式IP策划",desc:"IP访谈 · 经历挖掘与短视频脚本生成",icon:"🎤"},{name:"爆款仿写",desc:"爆款仿写 · 对标爆款文案的结构化仿写生成",icon:"✍️"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"广告",desc:"四大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"},{name:"马源2.0",desc:"马源2.0 · 内容专项与广告创意智能体",icon:"🧠"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"直播",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导IP直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"Kyrie直播方法论",desc:"Kyrie体系 · 知识付费直播闭环与中控训练",icon:"📈"}]}],currentSection=0,currentMode=0;
+var sections=[{title:"爆款脚本创作",subtitle:"Viral Script Creator",accent:"爆款",desc:"四大内容体系，精准产出爆款短视频脚本",modes:[{name:"薛辉内容体系",desc:"薛辉方法论 · 短视频爆款脚本的创作框架",icon:"🔥"},{name:"看见内容体系",desc:"看见方法论 · 内容触达与转化的核心逻辑",icon:"👁️"},{name:"访谈式IP策划",desc:"IP访谈 · 经历挖掘与短视频脚本生成",icon:"🎤"},{name:"爆款仿写",desc:"爆款仿写 · 对标爆款文案的结构化仿写生成",icon:"✍️"}]},{title:"广告创意",subtitle:"Ad Creative Studio",accent:"广告",desc:"四大创意体系，打造高转化广告素材",modes:[{name:"马源内容体系",desc:"马源方法论 · 广告创意的结构化表达",icon:"🚀"},{name:"大川内容体系",desc:"大川方法论 · 用户心智与创意触点",icon:"🌊"},{name:"铁甲内容体系",desc:"铁甲方法论 · 硬核卖点的创意包装",icon:"🛡️"},{name:"马源2.0",desc:"马源2.0 · 内容专项与广告创意智能体",icon:"🧠"}]},{title:"直播策略",subtitle:"Live Stream Strategy",accent:"策略",desc:"两大直播方法论，掌控直播间流量引擎",modes:[{name:"江导IP直播方法论",desc:"江导体系 · 直播间人货场全链路策略",icon:"🎯"},{name:"Kyrie直播方法论",desc:"Kyrie体系 · 知识付费直播闭环与中控训练",icon:"📈"}]}],currentSection=0,currentMode=0;
 
 var agents={
 "1-0":{
@@ -528,6 +528,11 @@ if(a.type==="kyrieTask"){openKyrieTask(a.moduleId,a.taskIndex);return}
 if(a.type==="ipModule"){renderIPSubmenuPage(a.moduleId);return}
 if(a.type==="ipTask"){openIPTask(a.moduleId,a.taskIndex);return}
 }
+function renderSectionTitle(section){
+var index=section.title.indexOf(section.accent);
+if(index<0)return section.title;
+return section.title.slice(0,index)+'<span class="accent">'+section.accent+'</span>'+section.title.slice(index+section.accent.length);
+}
 function renderContent(){var _s=currentSection;
 if(_s===0&&currentMode===2){renderIPMenuPage();return}
 if(_s===2&&currentMode===1){renderKyrieMenuPage();return}
@@ -538,7 +543,7 @@ ca.innerHTML='<div class="content-loading"><span></span><span></span><span></spa
 setTimeout(function(){
 if(renderToken!==contentRenderToken)return;
 var e=sections[_s];
-var n='<div class="content-header"><div class="content-title"><span class="accent">'+e.accent+"</span>"+e.title.replace(e.accent,"")+'</div><div class="content-desc">'+e.subtitle+" · "+e.desc+'</div></div><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid">'+e.modes.map(function(m,i){
+var n='<div class="content-header"><div class="content-title">'+renderSectionTitle(e)+'</div><div class="content-desc">'+e.subtitle+" · "+e.desc+'</div></div><div class="content-loading"><span></span><span></span><span></span></div><div class="mode-grid">'+e.modes.map(function(m,i){
 var ak=_s+"-"+i,has=!!agents[ak];
 return '<div class="mode-card'+(has?' active-agent':'')+'" data-mode="'+i+'" style="animation-delay:'+(.1+i*.12)+'s"><div class="mode-card-corner"></div><div class="mode-card-scanline"></div><div class="mode-card-inner">'+modeCardTop(m.icon,"NO.0"+(i+1),ak)+modeCardTitle(m.name)+(has?'<div class="mode-card-features-area"><div class="mode-card-features-text">'+(agents[ak].features||'')+'</div></div>':'')+'<div class="mode-card-desc">'+m.desc+'</div><div class="mode-card-footer"><div class="mode-card-status'+(has?' active':'')+'"><span class="mode-card-dot'+(has?' active':'')+'"></span>'+(has?'已激活':'待更新')+'</div><div class="mode-card-enter">进入 <span class="mode-card-enter-arrow">→</span></div></div></div></div>';
 }).join("")+"</div>";
